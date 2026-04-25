@@ -5,9 +5,17 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from django.contrib.sitemaps.views import sitemap
+from tools.sitemaps import StaticViewSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
+
 urlpatterns = [
     path('secure-control-portal-=&e*d+^bxP,=$R_5>TP}qsw}:/', admin.site.urls),
     path('', include('tools.urls')),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
 ]
 
 # Serve media files in development

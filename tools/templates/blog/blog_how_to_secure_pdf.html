@@ -8,12 +8,13 @@
     <meta name="description" content="Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents and share encrypted PDFs safely.">
     <meta name="keywords" content="protect PDF, password protect PDF, secure PDF, encrypt PDF, PDF security, lock PDF">
 
-    <!-- FIXED -->
-    <link rel="canonical" href="">
+    <!-- FIXED canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
     <meta property="og:title" content="How to Password Protect a PDF File">
     <meta property="og:description" content="Learn how to secure your PDF files with password protection. Free step-by-step guide.">
     <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta name="author" content="EasyPDF Student Developer">
 
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -46,21 +47,28 @@
         .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; }
         .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
         .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem; }
-        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: all 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .related-tools { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
-        .related-tool { background: #f5f7fb; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; }
-        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .related-tool { background: #f5f7fb; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
 
         @media (max-width: 768px) {
             .blog-container { margin: 1rem; padding: 1.2rem; }
             .blog-header h1 { font-size: 1.5rem; }
             .blog-content h2 { font-size: 1.2rem; }
             .blog-content h3 { font-size: 1rem; }
+            .table-of-contents { padding: 1rem; }
+            .cta-box { padding: 1.2rem; }
+            .cta-button { padding: 0.5rem 1.2rem; font-size: 0.9rem; }
         }
 
         @media (max-width: 480px) {
             .blog-container { margin: 0.8rem; padding: 1rem; }
             .blog-header h1 { font-size: 1.3rem; }
+            .blog-meta { font-size: 0.7rem; gap: 0.8rem; }
         }
     </style>
 </head>
@@ -93,11 +101,19 @@
     <div class="blog-content">
 
         <h2 id="why-protect">Why Password Protect PDFs?</h2>
-        <p>Adding password protection to PDF files is essential for protecting sensitive information.</p>
+        <p>Adding password protection to PDF files is essential for protecting sensitive information. Whether you're sharing financial documents, personal information, or confidential work files, password encryption ensures only authorized people can access your documents.</p>
+        
+        <p><strong>When you should password protect PDFs:</strong></p>
+        <ul>
+            <li><strong>Students:</strong> Protect assignments containing personal information</li>
+            <li><strong>Job Seekers:</strong> Secure resumes and cover letters with personal contact details</li>
+            <li><strong>Business:</strong> Protect contracts, invoices, and employee documents</li>
+            <li><strong>Personal:</strong> Secure medical reports, tax documents, or legal papers</li>
+        </ul>
 
         <div class="tip-box">
             <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong>
-            Never send the password in the same email as the protected PDF.
+            Never send the password in the same email as the protected PDF. Send the password separately via text message, phone call, or a different email.
         </div>
 
         <h2 id="how-to">How to Add Password Protection Using EasyPDF</h2>
@@ -108,57 +124,70 @@
             <a href="{% url 'protect_pdf' %}" style="color:#E34234;font-weight:600;">
                 Protect PDF tool
             </a>
+            from the homepage or PDF Tools menu.
         </p>
 
         <h3>Step 2: Upload Your PDF</h3>
-        <p>Select your PDF file.</p>
+        <p>Click the upload area and select the PDF you want to password protect. Files up to 300MB are supported.</p>
 
-        <h3>Step 3: Set Password</h3>
-        <p>Choose a strong password.</p>
+        <h3>Step 3: Set Your Password</h3>
+        <p>Enter a strong password. You'll need this password to open the PDF, so remember it or store it safely.</p>
 
-        <h3>Step 4: Download</h3>
-        <p>Click Protect PDF and download.</p>
+        <h3>Step 4: Protect and Download</h3>
+        <p>Click "Protect PDF" and download your encrypted PDF. Anyone trying to open it will need the password you set.</p>
 
         <div class="warning-box">
             <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong>
-            If you forget the password, recovery may not be possible.
+            If you forget the password, you cannot recover the PDF. There is no password recovery option. Store your password in a safe place like a password manager.
         </div>
 
         <h2 id="tips">Tips for Creating Strong Passwords</h2>
         <ul>
-            <li>Use 12+ characters</li>
-            <li>Use uppercase + lowercase</li>
-            <li>Use numbers + symbols</li>
-            <li>Avoid birthdays or names</li>
+            <li>Use at least 12 characters</li>
+            <li>Combine uppercase and lowercase letters</li>
+            <li>Include numbers and special characters (!@#$%^&*)</li>
+            <li>Avoid common words, names, or dates (birthdays, "password123")</li>
+            <li>Use a passphrase: "MyDogLoves2Eat!Treats" is stronger than "Dog123"</li>
             <li>
                 Use our
                 <a href="{% url 'password_generator' %}" style="color:#E34234;">
                     Password Generator
                 </a>
+                for strong random passwords
             </li>
         </ul>
 
         <h2 id="share">Sharing Password-Protected PDFs</h2>
-        <p>Share file and password separately.</p>
+        <p>Once your PDF is password protected, share it securely:</p>
+        <ul>
+            <li><strong>Email:</strong> Attach the PDF in one email, send the password in a separate message</li>
+            <li><strong>Messaging apps:</strong> Send the PDF via email, and the password via WhatsApp or text</li>
+            <li><strong>In person:</strong> Tell the recipient the password directly</li>
+            <li><strong>Password managers:</strong> Use tools like Bitwarden or LastPass to share passwords securely</li>
+        </ul>
 
         <h2 id="faq">Frequently Asked Questions</h2>
 
-        <p><strong>Can I remove password later?</strong><br>
-        Yes, use
-        <a href="{% url 'remove_password' %}" style="color:#E34234;">Remove Password</a>
-        </p>
+        <p><strong>Is password protection secure?</strong><br>Yes, we use AES-256 encryption, which is the same standard used by banks and government agencies.</p>
+
+        <p><strong>What happens if I forget the password?</strong><br>If you forget the password, the PDF cannot be opened or recovered. Always store passwords in a safe place.</p>
+
+        <p><strong>Can I remove password protection later?</strong><br>Yes, use our <a href="{% url 'remove_password' %}" style="color:#E34234;">Remove Password tool</a> if you have the password.</p>
+
+        <p><strong>Is this free?</strong><br>Yes! All EasyPDF tools are completely free with no registration required.</p>
+
+        <p><strong>What's the maximum file size?</strong><br>Each PDF can be up to 300MB.</p>
 
     </div>
 
     <div class="cta-box">
         <h3><i class="fas fa-lock"></i> Ready to protect your PDF?</h3>
-        <p>Add password protection instantly.</p>
+        <p>Add password protection to your PDF files instantly. Free and secure.</p>
         <a href="{% url 'protect_pdf' %}" class="cta-button">Protect PDF Now →</a>
     </div>
 
     <div class="related-tools">
         <strong>Related Tools:</strong>
-
         <a href="{% url 'remove_password' %}" class="related-tool">Remove Password</a>
         <a href="{% url 'add_watermark' %}" class="related-tool">Add Watermark</a>
         <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
@@ -175,14 +204,16 @@
 
 <script type="application/ld+json">
 {
-  "@context":"https://schema.org",
-  "@type":"BlogPosting",
-  "headline":"How to Password Protect a PDF File",
-  "datePublished":"2026-04-25"
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Password Protect a PDF File",
+  "description": "Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
 }
 </script>
 
-<!-- FIXED -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll('.table-of-contents a').forEach(function(anchor) {

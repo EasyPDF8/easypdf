@@ -16,7 +16,6 @@ class StaticViewSitemap(Sitemap):
             'convert_to_jpg',
             'jpg_to_pdf',
             'protect_pdf',
-            'pdf_to_text',
             'remove_pages',
             'add_page_numbers',
 
@@ -42,7 +41,6 @@ class StaticViewSitemap(Sitemap):
             # Security Tools
             'add_watermark',
             'remove_password',
-            'password_generator',
             'password_strength_checker',
 
             # Study Tools
@@ -53,7 +51,6 @@ class StaticViewSitemap(Sitemap):
 
             # Productivity Tools
             'pdf_reorganizer',
-            'study_timetable',
             'todo_list',
             'word_counter',
         ]

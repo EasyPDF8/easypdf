@@ -1330,20 +1330,20 @@ def compress_preview(request):
     if request.method == 'POST' and request.FILES.getlist('images'):
         images = request.FILES.getlist('images')
 
-        # ✅ File count validation (your function)
+        # File count validation
         is_valid, msg = validate_file_count(images)
         if not is_valid:
             messages.error(request, msg)
             return redirect('compress_page')
 
-        # ✅ Total size validation
+        # Total size validation
         if not is_total_size_safe(images):
             messages.error(request, "Total upload size too large")
             return redirect('compress_page')
 
         total_size = sum(img.size for img in images)
 
-        # ✅ Usage check
+        # Usage check
         allowed, msg = check_limit(request, total_size)
         if not allowed:
             messages.error(request, msg)
@@ -1354,7 +1354,6 @@ def compress_preview(request):
         session_id = str(uuid.uuid4())[:8]
 
         for img in images:
-            # ✅ Image validation
             if not is_safe_image(img):
                 continue
 
@@ -1364,6 +1363,7 @@ def compress_preview(request):
             try:
                 image = Image.open(img)
                 image.verify()
+                img.seek(0)   # IMPORTANT FIX
             except:
                 continue
 
@@ -1382,10 +1382,12 @@ def compress_preview(request):
 
         update_usage(request, total_size, len(uploaded_files))
 
-        return render(request, 'compress_preview.html', {'files': uploaded_files})
+        return render(request, 'compress_preview.html', {
+            'files': uploaded_files,
+            'MEDIA_URL': settings.MEDIA_URL
+        })
 
     return redirect('compress_page')
-
 
 @rate_limit('100/h')
 def compress_images(request):

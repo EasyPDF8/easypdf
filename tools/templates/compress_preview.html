@@ -224,13 +224,11 @@
     
     <div id="errorMessage" class="error-message"></div>
 
-    <div class="image-wrapper" id="imageWrapper">
+        <div class="image-wrapper" id="imageWrapper">
         {% if files and files|length > 0 %}
             {% for file in files %}
                 <div class="image-box">
-                    <img src="{{ MEDIA_URL }}{{ file }}"
-                         alt="preview"
-                         onerror="this.parentElement.style.display='none';">
+                    <img src="{{ MEDIA_URL }}{{ file }}" alt="preview">
                 </div>
             {% endfor %}
         {% else %}
@@ -241,12 +239,13 @@
             </div>
         {% endif %}
     </div>
-
+    
     {% if files and files|length > 0 %}
     <div class="total-size-info" id="totalSizeInfo">
-        Calculating total size...
+        <i class="fas fa-image" style="margin-right:6px;color:#E34234;"></i>
+        Image Original Size: <span>Loading...</span>
     </div>
-
+    
     <form action="{% url 'compress_images' %}" method="POST" id="compressForm">
         {% csrf_token %}
         
@@ -282,100 +281,63 @@
     const compressBtn = document.getElementById('compressBtn');
     const compressForm = document.getElementById('compressForm');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const errorMessage = document.getElementById('errorMessage');
 
     function getFileUrl(fileName) {
         if (!fileName) return '';
-        if (fileName.startsWith('http://') || fileName.startsWith('https://')) {
-            return fileName;
-        }
         const cleanMedia = mediaUrl.endsWith('/') ? mediaUrl : mediaUrl + '/';
         const cleanFile = fileName.startsWith('/') ? fileName.substring(1) : fileName;
         return cleanMedia + cleanFile;
     }
 
-    // Fix image preview URLs
+    // Set correct preview URLs
     document.querySelectorAll('.image-box img').forEach((img, index) => {
-        if (imageFiles && imageFiles[index]) {
+        if (imageFiles[index]) {
             img.src = getFileUrl(imageFiles[index]);
         }
     });
 
-    // Fix total size calculation - fetch actual file sizes
+    // Show only original size (no failed message)
     async function showTotalSize() {
         let totalBytes = 0;
-        let loadedCount = 0;
-        let errorCount = 0;
 
-        if (!imageFiles || imageFiles.length === 0) {
-            const sizeInfo = document.getElementById('totalSizeInfo');
-            if (sizeInfo) {
-                sizeInfo.innerHTML = '<span>No files to compress</span>';
-            }
-            if (compressBtn) compressBtn.disabled = true;
-            return;
-        }
+        if (!imageFiles || imageFiles.length === 0) return;
 
         for (let i = 0; i < imageFiles.length; i++) {
-            const fileUrl = getFileUrl(imageFiles[i]);
-
             try {
-                // Use fetch to get actual file size
-                const response = await fetch(fileUrl, { method: 'HEAD' });
-                
-                if (response.ok) {
-                    const contentLength = response.headers.get('content-length');
-                    if (contentLength) {
-                        totalBytes += parseInt(contentLength);
-                        loadedCount++;
-                    } else {
-                        // Fallback: try CORS mode
-                        const blobResponse = await fetch(fileUrl);
-                        const blob = await blobResponse.blob();
-                        totalBytes += blob.size;
-                        loadedCount++;
-                    }
-                } else {
-                    errorCount++;
-                }
-            } catch (error) {
-                console.error('Error fetching size for:', fileUrl, error);
-                errorCount++;
+                const url = getFileUrl(imageFiles[i]);
+                const response = await fetch(url);
+                const blob = await response.blob();
+                totalBytes += blob.size;
+            } catch (e) {
+                console.log("skip");
             }
         }
 
-        const totalSizeMB = totalBytes / (1024 * 1024);
-        const sizeInfo = document.getElementById('totalSizeInfo');
+        const totalSizeMB = (totalBytes / (1024 * 1024)).toFixed(2);
+        const box = document.getElementById("totalSizeInfo");
 
-        if (sizeInfo) {
-            if (loadedCount === 0) {
-                sizeInfo.innerHTML = '<span>Unable to calculate file size</span>';
-                errorMessage.style.display = 'block';
-                errorMessage.innerHTML = 'Some images failed to load. Please <a href="{% url "compress_page" %}" style="color:#E34234;">upload again</a>.';
-            } else if (imageFiles.length === 1) {
-                sizeInfo.innerHTML = `📁 File size: <span>${totalSizeMB.toFixed(2)} MB</span>`;
+        if (box) {
+            if (imageFiles.length === 1) {
+                box.innerHTML = `📁 Original Size: <span>${totalSizeMB} MB</span>`;
             } else {
-                sizeInfo.innerHTML = `📁 Total size (${loadedCount} of ${imageFiles.length} files): <span>${totalSizeMB.toFixed(2)} MB</span>`;
+                box.innerHTML = `📁 Total Original Size: <span>${totalSizeMB} MB</span>`;
             }
         }
     }
 
-    if (compressBtn) {
+    // Compression button submit fix
+    if (compressBtn && compressForm) {
         compressBtn.addEventListener('click', function () {
-            compressBtn.disabled = true;
-            compressBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Processing...';
             loadingOverlay.style.display = 'flex';
+            compressBtn.disabled = true;
+            compressBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Compressing...';
             compressForm.submit();
         });
     }
 
-    // Run size calculation
-    if (imageFiles && imageFiles.length > 0) {
-        showTotalSize();
-    }
+    showTotalSize();
 
-    // Reset button state on page show (fix back button)
-    window.addEventListener('pageshow', function() {
+    window.addEventListener("pageshow", function () {
         if (compressBtn) {
             compressBtn.disabled = false;
             compressBtn.innerHTML = '<i class="fas fa-compress-alt"></i> Compress Images';

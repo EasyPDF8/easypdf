@@ -14,7 +14,7 @@ sitemaps = {
 }
 
 urlpatterns = [
-    path('secure-control-portal-=&e*d+^bxP,=$R_5>TP}qsw}:/', admin.site.urls),
+    path('secure-control-portal-=&e*d+^bxP,=$R_5TP}qsw}:/', admin.site.urls),
     path('', include('tools.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]

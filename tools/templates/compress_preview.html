@@ -157,11 +157,13 @@
     
     <div id="errorMessage" class="error-message"></div>
 
-    <div class="image-wrapper">
-        {% for file in files %}
-            <div class="image-box">
-                <img src="{{ MEDIA_URL }}{{ file }}" alt="preview" onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;\'>❌ Image failed to load</div>'">
-            </div>
+   <div class="image-wrapper">
+    {% for file in files %}
+        <div class="image-box">
+            <img src="{{ MEDIA_URL }}{{ file }}"
+                 alt="preview"
+                 onerror="this.parentElement.style.display='none';">
+        </div>
         {% empty %}
             <p>No images found. Please <a href="{% url 'compress_page' %}">upload again</a>.</p>
         {% endfor %}
@@ -188,7 +190,7 @@
         </button>
     </form>
     
-    <a href="{% url 'compress_page' %}" class="back-link">← Back to upload more images</a>
+    <a href="{% url 'compress_page' %}" class="back-link"> Back to upload more images</a>
 </main>
 
 <div id="loadingOverlay" class="loading-overlay">

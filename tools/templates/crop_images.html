@@ -10,12 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
-    <style>
+   <style>
         :root {
             --pdf-red: #E34234;
             --pdf-red-hover: #C0362C;
         }
-        
+
         body { background-color: #ffffff; }
 
         .container {
@@ -38,7 +38,6 @@
             margin: 0 auto;
         }
 
-        /* Limit Info Box - Brand Colors */
         .limit-info {
             background: #E34234;
             border-left: 4px solid #ff8175;
@@ -60,7 +59,6 @@
             color: #ffffff;
         }
 
-        /* Error Message */
         .error-message {
             background: #fef2f2;
             color: #dc2626;
@@ -107,6 +105,7 @@
             overflow-y: auto;
         }
 
+        /* UPDATED FILE ITEM */
         .file-item {
             background: #f9f9f9;
             padding: 0.6rem 1rem;
@@ -116,7 +115,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
             border: 1px solid #eee;
+        }
+
+        .file-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 85px;
+        }
+
+        .file-right {
+            flex: 1;
+            text-align: left;
+            word-break: break-word;
+            overflow: hidden;
         }
 
         .file-item i {
@@ -141,7 +155,6 @@
             border: none;
             padding: 0.2rem 0.8rem;
             border-radius: 4px;
-            margin-right: 0.5rem;
             cursor: pointer;
             font-size: 0.75rem;
         }
@@ -159,6 +172,7 @@
             padding: 1rem;
         }
 
+        /* UPDATED IMAGE BOX */
         .image-container {
             background: #1a1a2e;
             border-radius: 12px;
@@ -166,13 +180,30 @@
             justify-content: center;
             align-items: center;
             min-height: 300px;
+            max-height: 75vh;
             overflow: hidden;
+            position: relative;
         }
 
         .image-container img {
+            display: block;
             max-width: 100%;
             max-height: 70vh;
-            display: block;
+            width: auto;
+            height: auto;
+        }
+
+        /* Cropper Fix */
+        .cropper-container {
+            max-width: 100% !important;
+            max-height: 70vh !important;
+        }
+
+        .cropper-wrap-box,
+        .cropper-canvas,
+        .cropper-drag-box,
+        .cropper-crop-box {
+            display: block !important;
         }
 
         .crop-actions {
@@ -314,211 +345,50 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* SEO Content Section */
-        .seo-section {
-            max-width: 1000px;
-            margin: 8rem auto 4rem auto;
-            padding: 0 1rem;
-        }
-
-        .seo-card {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            border: 1px solid #eeeeee;
-        }
-
-        .seo-card h2 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #1a1a2e;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .seo-divider {
-            width: 60px;
-            height: 3px;
-            background: #E34234;
-            margin: 1rem auto 1.5rem auto;
-            border-radius: 2px;
-        }
-
-        .seo-card h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #E34234;
-            margin: 1.5rem 0 0.8rem 0;
-        }
-
-        .seo-card p {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: #444;
-            margin-bottom: 0.8rem;
-        }
-
-        .seo-card ul {
-            margin: 0.5rem 0 1rem 0;
-            padding-left: 0;
-            list-style: none;
-        }
-
-        .seo-card li {
-            margin: 0.6rem 0;
-            font-size: 0.9rem;
-            color: #555;
-            line-height: 1.5;
-            padding-left: 1.2rem;
-            position: relative;
-        }
-
-        .seo-card li::before {
-            content: "▹";
-            color: #E34234;
-            position: absolute;
-            left: 0;
-        }
-
-        .seo-card ol {
-            margin: 0.5rem 0 1rem 0;
-            padding-left: 0;
-            list-style: none;
-            counter-reset: step;
-        }
-
-        .seo-card ol li {
-            counter-increment: step;
-            padding-left: 1.8rem;
-            position: relative;
-        }
-
-        .seo-card ol li::before {
-            content: counter(step);
-            background: #E34234;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.65rem;
-            font-weight: 700;
-            position: absolute;
-            left: 0;
-            top: 2px;
-        }
-
-        .benefits-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1rem 0;
-            justify-content: center;
-        }
-
-        .benefit-tag {
-            background: #f5f5f5;
-            padding: 0.5rem 1.5rem;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #E34234;
-        }
-
-        /* Tool-Specific FAQ */
-        .faq-section {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #eee;
-        }
-
-        .faq-section h3 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .faq-item {
-            margin-bottom: 1rem;
-            padding: 0.8rem;
-            background: #fafafa;
-            border-radius: 12px;
-            cursor: pointer;
-        }
-
-        .faq-question {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1a1a2e;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .faq-question i {
-            color: #E34234;
-            transition: transform 0.2s;
-        }
-
-        .faq-answer {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.6;
-            display: none;
-            margin-top: 0.8rem;
-            padding-top: 0.8rem;
-            border-top: 1px solid #eee;
-        }
-
-        .faq-item.active .faq-answer {
-            display: block;
-        }
-
-        .faq-item.active .faq-question i {
-            transform: rotate(180deg);
-        }
-
-        .seo-footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            text-align: center;
-            border-top: 1px solid #eee;
-            font-size: 0.8rem;
-            color: #999;
-        }
-
-        .related-tools {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        .related-tool-link {
-            color: #E34234;
-            text-decoration: none;
-            font-size: 0.85rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            background: #fef7f6;
-        }
-
-        .related-tool-link:hover {
-            background: #E34234;
-            color: white;
-        }
-
         @media (max-width: 600px) {
             .upload-area { padding: 1.5rem; }
-            .btn-crop { width: 100%; max-width: 200px; }
-            .action-buttons { flex-direction: column; align-items: center; }
-            .clear-btn { margin-left: 0; margin-top: 0.5rem; }
-            .seo-card { padding: 1.5rem; }
-            .seo-card h2 { font-size: 1.3rem; }
-            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+
+            .btn-crop {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .clear-btn {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+
+            .image-container {
+                min-height: 260px;
+                max-height: 65vh;
+            }
+
+            .image-container img {
+                max-height: 60vh;
+            }
+
+            .cropper-container {
+                max-height: 60vh !important;
+            }
+
+            .file-item {
+                font-size: 0.78rem;
+                padding: 0.55rem 0.7rem;
+            }
+
+            .file-left {
+                min-width: 78px;
+            }
+
+            .crop-image-btn {
+                padding: 0.22rem 0.65rem;
+                font-size: 0.72rem;
+            }
         }
     </style>
 </head>
@@ -806,12 +676,17 @@
             const fileItem = document.createElement('div');
             fileItem.className = 'file-item';
             fileItem.innerHTML = `
-                <span><i class="fas fa-image"></i> ${file.name}</span>
-                <div>
-                    <button type="button" class="crop-image-btn" data-index="${index}">Crop</button>
-                    <span class="remove-file" data-index="${index}"><i class="fas fa-trash"></i></span>
+                <div class="file-left">
+                   <button type="button" class="crop-image-btn" data-index="${index}">Crop</button>
+                   <span class="remove-file" data-index="${index}">
+                      <i class="fas fa-trash"></i>
+                   </span>
                 </div>
-            `;
+
+                <div class="file-right">
+                   <i class="fas fa-image"></i> ${file.name}
+                </div>
+                `;
             fileListDiv.appendChild(fileItem);
         });
         
@@ -851,63 +726,60 @@
     }
 
     function loadImageForCrop(index) {
+        
         if (cropper) {
             cropper.destroy();
             cropper = null;
         }
-        
+    
         currentImageIndex = index;
+    
         const file = selectedFiles[index];
         const url = URL.createObjectURL(file);
+    
+        previewContainer.style.display = 'block';
+    
+        previewImage.onload = null;
+        previewImage.onerror = null;
+        previewImage.src = '';
+    
+        previewImage.onload = function () {
         
-        // Check image dimensions before loading cropper
-        const tempImg = new Image();
-        tempImg.onload = function() {
-            if (tempImg.width > MAX_DIMENSION || tempImg.height > MAX_DIMENSION) {
-                showError(`Image dimensions (${tempImg.width}x${tempImg.height}) exceed ${MAX_DIMENSION}px limit.`);
-                URL.revokeObjectURL(url);
-                return;
-            }
-            previewContainer.style.display = 'block';
-            previewImage.onload = null;
-            previewImage.src = '';
+            originalSizeDiv.innerHTML =
+                `Original: ${previewImage.naturalWidth} x ${previewImage.naturalHeight} pixels`;
+        
             setTimeout(() => {
-                previewImage.src = url;
-            }, 50);
-        };
-        tempImg.src = url;
-        
-        previewImage.onload = function() {
-            originalSizeDiv.innerHTML = `Original: ${previewImage.naturalWidth} x ${previewImage.naturalHeight} pixels`;
             
-            cropper = new Cropper(previewImage, {
-                viewMode: 1,
-                dragMode: 'crop',
-                autoCropArea: 0.8,
-                restore: false,
-                guides: true,
-                center: true,
-                highlight: false,
-                cropBoxMovable: true,
-                cropBoxResizable: true,
-                toggleDragModeOnDblclick: false,
-                ready: function() {
-                    if (cropDataList[index]) {
-                        const data = cropDataList[index];
-                        this.cropper.setData({
-                            x: data.x,
-                            y: data.y,
-                            width: data.width,
-                            height: data.height
-                        });
-                    }
+                cropper = new Cropper(previewImage, {
+                    viewMode: 1,
+                    dragMode: 'crop',
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    background: false,
+                    movable: true,
+                    zoomable: true,
+                    scalable: false,
+                    rotatable: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false
+                });
+            
+                if (cropDataList[index]) {
+                    cropper.setData(cropDataList[index]);
                 }
-            });
+            
+            }, 150);
         };
-        
-        previewImage.onerror = function() {
+    
+        previewImage.onerror = function () {
             showError('Error loading image. Please try another file.');
         };
+    
+        previewImage.src = url;
     }
 
     applyCropBtn.addEventListener('click', function() {

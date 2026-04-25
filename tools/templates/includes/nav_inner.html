@@ -112,7 +112,6 @@
     </div>
 </nav>
 
-<!-- STYLES FOR HOVER EFFECTS - EXACT SAME AS HOME PAGE -->
 <style>
     .navbar {
         border-bottom: 2px solid var(--accent);
@@ -157,7 +156,7 @@
         cursor: pointer;
     }
     
-    /* Mega Menu Styles - SAME AS HOME PAGE */
+    /* Mega Menu Styles */
     .mega-dropdown {
         position: static;
     }
@@ -179,10 +178,13 @@
         z-index: 999;
     }
     
-    .mega-dropdown:hover .mega-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
+    /* Desktop: Show on hover */
+    @media (min-width: 769px) {
+        .mega-dropdown:hover .mega-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
     }
     
     .mega-menu-container {
@@ -234,7 +236,8 @@
         transform: translateX(3px);
     }
 
-    @media (max-width: 1100px) {
+    /* Tablet view */
+    @media (min-width: 769px) and (max-width: 1100px) {
         .mega-menu-container {
             flex-wrap: wrap;
             padding: 1rem;
@@ -255,16 +258,48 @@
         }
     }
     
+    /* Mobile view - CRITICAL FIXES */
     @media (max-width: 768px) {
         .navbar {
             padding: 0.8rem 1rem;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
+        
+        .logo {
+            order: 1;
+        }
+        
         .nav-links {
-            gap: 0.8rem;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 0.6rem;
+            order: 2;
+            width: auto;
+            margin-top: 0.5rem;
         }
+        
+        .nav-right {
+            order: 3;
+            margin-top: 0.5rem;
+            gap: 1rem !important;
+        }
+        
         .dropdown-toggle, .nav-btn {
-            font-size: 0.75rem !important;
+            font-size: 0.7rem !important;
+            white-space: nowrap;
         }
+        
+        .mega-dropdown {
+            position: relative;
+        }
+        
+        /* Mobile: Hide by default, show on click */
         .mega-menu {
             position: fixed;
             top: auto;
@@ -272,18 +307,34 @@
             right: 1rem;
             max-height: 60vh;
             overflow-y: auto;
+            border-radius: 12px;
         }
+        
         .mega-menu-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.8rem;
+            padding: 1rem;
         }
+        
         .mega-column {
             min-width: auto;
         }
+        
+        .mega-column h4 {
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mega-column ul li a {
+            font-size: 0.65rem;
+            padding: 0.15rem 0;
+        }
+        
         .mega-dropdown .dropdown-toggle {
             cursor: pointer;
         }
+        
         .mega-dropdown.active .mega-menu {
             opacity: 1;
             visibility: visible;
@@ -293,7 +344,6 @@
     }
 </style>
 
-<!-- MOBILE DROPDOWN FIX SCRIPT -->
 <script nonce="{{ request.csp_nonce }}">
     const dropdowns = document.querySelectorAll('.dropdown, .mega-dropdown');
 
@@ -303,16 +353,42 @@
         if (toggle) {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Close other dropdowns
                 dropdowns.forEach(d => {
                     if (d !== drop) d.classList.remove('active');
                 });
+                
+                // Toggle current dropdown
                 drop.classList.toggle('active');
+                
+                // Prevent body scroll on mobile when menu is open
+                if (window.innerWidth <= 768) {
+                    if (drop.classList.contains('active')) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                }
             });
         }
     });
 
-    
+    // Close dropdown when clicking outside
     document.addEventListener('click', () => {
         dropdowns.forEach(d => d.classList.remove('active'));
+        if (window.innerWidth <= 768) {
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Close mega menu when pressing Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            dropdowns.forEach(d => d.classList.remove('active'));
+            if (window.innerWidth <= 768) {
+                document.body.style.overflow = '';
+            }
+        }
     });
 </script>

@@ -101,7 +101,7 @@
         <a href="{% url 'contact' %}" class="nav-btn" style="font-size: 0.85rem; text-decoration: none; color: black; font-weight: 600;">Contact Us</a>
     </div>
 
-    <!-- RIGHT SIDE NAVIGATION - Get Started Button (WORKING ON ALL PAGES) -->
+    <!-- RIGHT SIDE NAVIGATION - Get Started Button -->
     <div class="nav-right">
         <a href="javascript:void(0)" id="getStartedBtn" class="get-started-btn" style="background: var(--accent); color: white; padding: 0.5rem 1.2rem; border-radius: 30px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;">
             <i class="fas fa-rocket" style="font-size: 0.8rem;"></i> Get Started
@@ -156,10 +156,96 @@
         z-index: 999;
     }
     
-    .mega-dropdown:hover .mega-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
+    /* Desktop: Show on hover */
+    @media (min-width: 769px) {
+        .mega-dropdown:hover .mega-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Mobile: Hide by default, show when active */
+    @media (max-width: 768px) {
+        .mega-menu {
+            position: fixed;
+            top: auto;
+            left: 1rem;
+            right: 1rem;
+            max-height: 70vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.2);
+        }
+        
+        .mega-dropdown.active .mega-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            display: block;
+        }
+        
+        /* Fix for mobile layout - everything in one row */
+        .navbar {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 0.8rem;
+            order: 2;
+            width: auto;
+            margin-top: 0.5rem;
+        }
+        
+        .nav-right {
+            order: 3;
+            margin-top: 0.5rem;
+        }
+        
+        .logo {
+            order: 1;
+        }
+        
+        .mega-dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: inline-block;
+        }
+        
+        .nav-btn {
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .mega-menu-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            padding: 1rem;
+        }
+        
+        .mega-column {
+            min-width: auto;
+        }
+        
+        .mega-column h4 {
+            font-size: 0.75rem;
+        }
+        
+        .mega-column ul li a {
+            font-size: 0.7rem;
+            padding: 0.15rem 0;
+        }
     }
     
     .mega-menu-container {
@@ -230,7 +316,8 @@
         cursor: pointer;
     }
 
-    @media (max-width: 1100px) {
+    /* Tablet view */
+    @media (min-width: 769px) and (max-width: 1100px) {
         .mega-menu-container {
             flex-wrap: wrap;
             padding: 1rem;
@@ -251,29 +338,10 @@
         }
     }
     
-    @media (max-width: 768px) {
-        .mega-menu {
-            position: relative;
-            top: auto;
-            box-shadow: none;
-            border: none;
-        }
-        .mega-menu-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
-        }
-        .mega-column {
-            min-width: auto;
-        }
-        .mega-dropdown .dropdown-toggle {
-            cursor: pointer;
-        }
-        .mega-dropdown.active .mega-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            display: block;
+    /* Desktop normal */
+    @media (min-width: 1101px) {
+        .nav-links {
+            flex-wrap: nowrap;
         }
     }
 </style>
@@ -287,40 +355,60 @@
         if (toggle) {
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
+                
+                // Close other dropdowns
                 dropdowns.forEach(d => {
                     if (d !== drop) d.classList.remove('active');
                 });
+                
+                // Toggle current dropdown
                 drop.classList.toggle('active');
             });
         }
     });
 
+    // Close dropdown when clicking outside
     document.addEventListener('click', () => {
         dropdowns.forEach(d => d.classList.remove('active'));
     });
 
-    // FIXED: Get Started button works on ALL pages
+    // Get Started button functionality
     const getStartedBtn = document.getElementById('getStartedBtn');
     if (getStartedBtn) {
         getStartedBtn.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Check if we're on the home page
             const isHomePage = window.location.pathname === '/' || window.location.pathname === '/home/';
             
             if (isHomePage) {
-                // On home page: scroll to PDF tools section
                 const pdfToolsSection = document.getElementById('pdf-tools');
                 if (pdfToolsSection) {
                     pdfToolsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
-                    // If no PDF tools section, scroll to top
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             } else {
-                // On other pages: redirect to home page with hash
                 window.location.href = '/#pdf-tools';
             }
         });
+    }
+    
+    // Fix for mobile: prevent body scroll when mega menu is open
+    const megaMenu = document.querySelector('.mega-menu');
+    if (megaMenu) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'style' || mutation.attributeName === 'class') {
+                    if (window.innerWidth <= 768) {
+                        if (document.querySelector('.mega-dropdown.active')) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    }
+                }
+            });
+        });
+        observer.observe(document.querySelector('.mega-dropdown'), { attributes: true });
     }
 </script>

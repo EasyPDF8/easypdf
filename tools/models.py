@@ -1,7 +1,6 @@
 from django.db import models
-
-# Create your models here.
 from django.utils.text import slugify
+
 
 class Blog(models.Model):
     title = models.CharField(max_length=200)
@@ -10,6 +9,9 @@ class Blog(models.Model):
     content = models.TextField()
     read_time = models.CharField(max_length=50, default="3 min read")
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
         if not self.slug:

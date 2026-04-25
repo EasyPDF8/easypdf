@@ -3,152 +3,198 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How to Password Protect a PDF - EasyPDF Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>How to Password Protect a PDF File | EasyPDF Blog</title>
+    <meta name="description" content="Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents and share encrypted PDFs safely.">
+    <meta name="keywords" content="protect PDF, password protect PDF, secure PDF, encrypt PDF, PDF security, lock PDF">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="How to Password Protect a PDF File">
+    <meta property="og:description" content="Learn how to secure your PDF files with password protection. Free step-by-step guide.">
+    <meta property="og:type" content="article">
+    <meta name="author" content="EasyPDF Student Developer">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
-        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
-        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
-        .blog-meta i { margin-right: 0.3rem; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2rem; color: #1a1a2e; margin-bottom: 1rem; line-height: 1.3; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; display: inline-block; }
+        .blog-category:hover { background: #E34234; color: white; }
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #E34234; text-decoration: none; }
+        .table-of-contents a:hover { text-decoration: underline; }
         .blog-content { line-height: 1.8; color: #333; }
-        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
-        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
-        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
-        .blog-content li { margin: 0.5rem 0; }
-        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .tip-box strong { color: #E34234; }
-        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
-        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
-        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
-        .table-of-contents li { margin: 0.5rem 0; }
-        /* Sindhoor Red Color for Table of Contents Links */
-        .table-of-contents a {
-            color: #E34234 !important;
-            text-decoration: none;
-        }
-        .table-of-contents a:hover {
-            color: #c53024 !important;
-            text-decoration: underline;
-        }
-        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
-        .cta-box h3 { margin-top: 0; color: #E34234; }
-        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
-        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
-        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
-        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .tip-box, .warning-box { padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; }
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: all 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
         .related-tool:hover { background: #E34234; color: white; }
-        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
-        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        th { background: #f5f5f5; }
-        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .blog-container { margin: 1rem; padding: 1.2rem; }
+            .blog-header h1 { font-size: 1.5rem; }
+            .blog-content h2 { font-size: 1.2rem; }
+            .blog-content h3 { font-size: 1rem; }
+            .table-of-contents { padding: 1rem; }
+            .cta-box { padding: 1.2rem; }
+            .cta-button { padding: 0.5rem 1.2rem; font-size: 0.9rem; }
+        }
+        @media (max-width: 480px) {
+            .blog-container { margin: 0.8rem; padding: 1rem; }
+            .blog-header h1 { font-size: 1.3rem; }
+            .blog-meta { font-size: 0.7rem; gap: 0.8rem; }
+        }
     </style>
 </head>
 <body>
-{% include 'includes/nav_home.html' %}
 
-<div class="blog-post">
-    <h1>How to Password Protect a PDF File</h1>
-    <div class="blog-meta">
-        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
-        <span><i class="fas fa-clock"></i> 3 min read</span>
-        <span><i class="fas fa-tag"></i> Security</span>
+{% include 'includes/nav_inner.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Password Protect a PDF File</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 25, 2026</span>
+            <span><i class="fas fa-clock"></i> 5 min read</span>
+            <a href="{% url 'blog_list' %}?category=security" class="blog-category">Security</a>
+        </div>
+    </div>
+    
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-protect">Why Password Protect PDFs?</a></li>
+            <li><a href="#how-to">How to Add Password Protection Using EasyPDF</a></li>
+            <li><a href="#tips">Tips for Creating Strong Passwords</a></li>
+            <li><a href="#share">Sharing Password-Protected PDFs</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
     </div>
     
     <div class="blog-content">
-        <p>Protecting sensitive PDF documents with a password is essential for privacy and security. Here's how to encrypt your PDF files easily.</p>
+        <h2 id="why-protect">Why Password Protect PDFs?</h2>
+        <p>Adding password protection to PDF files is essential for protecting sensitive information. Whether you're sharing financial documents, personal information, or confidential work files, password encryption ensures only authorized people can access your documents.</p>
         
-        <div class="table-of-contents">
-            <h3>📖 What You'll Learn</h3>
-            <ul>
-                <li><a href="#why">Why Protect Your PDFs</a></li>
-                <li><a href="#how">Step-by-Step Guide</a></li>
-                <li><a href="#tips">Tips for Strong Passwords</a></li>
-                <li><a href="#faq">Frequently Asked Questions</a></li>
-            </ul>
-        </div>
-        
-        <h2 id="why">Why Protect Your PDFs</h2>
+        <p><strong>When you should password protect PDFs:</strong></p>
         <ul>
-            <li><strong>Confidential Documents:</strong> Protect financial or legal papers</li>
-            <li><strong>Personal Information:</strong> Secure resumes, IDs, or medical records</li>
-            <li><strong>Business Data:</strong> Prevent unauthorized access to company files</li>
-            <li><strong>Client Privacy:</strong> Share sensitive information securely</li>
-            <li><strong>Compliance:</strong> Meet data protection requirements</li>
+            <li><strong>Students:</strong> Protect assignments containing personal information</li>
+            <li><strong>Job Seekers:</strong> Secure resumes and cover letters with personal contact details</li>
+            <li><strong>Business:</strong> Protect contracts, invoices, and employee documents</li>
+            <li><strong>Personal:</strong> Secure medical reports, tax documents, or legal papers</li>
         </ul>
         
         <div class="tip-box">
-            <strong>💡 Pro Tip:</strong> Always use different passwords for different documents. Never use "password" or "123456"!
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Never send the password in the same email as the protected PDF. Send the password separately via text message, phone call, or a different email.
         </div>
         
-        <h2 id="how">Step-by-Step Guide</h2>
+        <h2 id="how-to">How to Add Password Protection Using EasyPDF</h2>
         
-        <h3>Step 1: Access the Protect PDF Tool</h3>
-        <p>Go to our <a href="{% url 'protect_pdf' %}">Protect PDF tool</a> — no registration required, completely free!</p>
+        <h3>Step 1: Go to the Protect PDF Tool</h3>
+        <p>Visit our <a href="{% url 'protect_pdf' %}" style="color: #E34234; font-weight: 600;">Protect PDF tool</a> from the homepage or PDF Tools menu.</p>
         
         <h3>Step 2: Upload Your PDF</h3>
-        <p>Select the PDF file you want to password protect. Files up to 300MB are supported.</p>
+        <p>Click the upload area and select the PDF you want to password protect. Files up to 300MB are supported.</p>
         
-        <h3>Step 3: Enter a Strong Password</h3>
-        <p>Create a secure password (see tips below). Remember it — you'll need it to open the file!</p>
+        <h3>Step 3: Set Your Password</h3>
+        <p>Enter a strong password. You'll need this password to open the PDF, so remember it or store it safely.</p>
         
-        <h3>Step 4: Download Your Protected PDF</h3>
-        <p>Click "Protect PDF" and download your encrypted file. Anyone trying to open it will need the password.</p>
+        <h3>Step 4: Protect and Download</h3>
+        <p>Click "Protect PDF" and download your encrypted PDF. Anyone trying to open it will need the password you set.</p>
         
         <div class="warning-box">
-            <strong>⚠️ Important:</strong> EasyPDF cannot recover lost passwords. If you forget your password, the file cannot be opened. Save your password safely!
+            <strong><i class="fas fa-exclamation-triangle"></i> Important:</strong> If you forget the password, you cannot recover the PDF. There is no password recovery option. Store your password in a safe place like a password manager.
         </div>
         
-        <h2 id="tips">Tips for Strong Passwords</h2>
+        <h2 id="tips">Tips for Creating Strong Passwords</h2>
         <ul>
             <li>Use at least 12 characters</li>
-            <li>Mix uppercase and lowercase letters</li>
-            <li>Include numbers and special symbols (!@#$%)</li>
-            <li>Avoid common words or personal information</li>
-            <li>Use a password manager to store your passwords</li>
-            <li>Never share passwords via email or text</li>
+            <li>Combine uppercase and lowercase letters</li>
+            <li>Include numbers and special characters (!@#$%^&*)</li>
+            <li>Avoid common words, names, or dates (birthdays, "password123")</li>
+            <li>Use a passphrase: "MyDogLoves2Eat!Treats" is stronger than "Dog123"</li>
+            <li>Consider using our <a href="{% url 'password_generator' %}" style="color: #E34234;">Password Generator</a> for strong random passwords</li>
         </ul>
         
-        <div class="tip-box">
-            <strong>🔒 Example Strong Password:</strong> S7r0nG!pAs5w0rD$2024
-        </div>
+        <h2 id="share">Sharing Password-Protected PDFs</h2>
+        <p>Once your PDF is password protected, share it securely:</p>
+        <ul>
+            <li><strong>Email:</strong> Attach the PDF in one email, send the password in a separate message</li>
+            <li><strong>Messaging apps:</strong> Send the PDF via email, and the password via WhatsApp or text</li>
+            <li><strong>In person:</strong> Tell the recipient the password directly</li>
+        </ul>
         
         <h2 id="faq">Frequently Asked Questions</h2>
         
-        <h3>Can I remove password protection later?</h3>
-        <p>Yes! Use our <a href="{% url 'remove_password' %}">Remove Password tool</a> to unlock protected PDFs (you'll need the password).</p>
+        <p><strong>Is password protection secure?</strong><br>Yes, we use AES-256 encryption, which is the same standard used by banks and government agencies.</p>
         
-        <h3>Is encryption secure?</h3>
-        <p>Yes! We use AES encryption, the industry standard for PDF security.</p>
+        <p><strong>What happens if I forget the password?</strong><br>If you forget the password, the PDF cannot be opened or recovered. Always store passwords in a safe place.</p>
         
-        <h3>What happens if I lose my password?</h3>
-        <p>Unfortunately, encrypted PDFs cannot be opened without the password. We cannot recover it for you.</p>
+        <p><strong>Can I remove password protection later?</strong><br>Yes, use our <a href="{% url 'remove_password' %}" style="color: #E34234;">Remove Password tool</a> if you have the password.</p>
         
-        <h3>Is this really free?</h3>
-        <p>Yes! EasyPDF is 100% free. No registration, no premium tiers.</p>
+        <p><strong>Is this free?</strong><br>Yes! All EasyPDF tools are completely free with no registration required.</p>
         
-        <div class="cta-box">
-            <h3>Protect Your Sensitive PDFs</h3>
-            <p>Add password protection to your PDF files instantly — free, secure, and no registration required</p>
-            <a href="{% url 'protect_pdf' %}" class="cta-btn"><i class="fas fa-lock"></i> Protect PDF Now</a>
-        </div>
-        
-        <div class="related-tools">
-            <strong>Related Tools:</strong>
-            <a href="{% url 'remove_password' %}" class="related-tool">Remove Password</a>
-            <a href="{% url 'add_watermark' %}" class="related-tool">Add Watermark</a>
-            <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
-            <a href="{% url 'split_pdf' %}" class="related-tool">Split PDF</a>
-        </div>
+        <h2>Ready to Secure Your PDF?</h2>
+        <p>Protect your sensitive documents with password encryption. Free and easy to use.</p>
     </div>
     
-    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+    <div class="cta-box">
+        <h3><i class="fas fa-lock"></i> Ready to protect your PDF?</h3>
+        <p>Add password protection to your PDF files instantly. Free and secure.</p>
+        <a href="{% url 'protect_pdf' %}" class="cta-button">Protect PDF Now →</a>
+    </div>
+    
+    <div class="related-tools">
+        <strong>Related Tools:</strong>
+        <a href="{% url 'remove_password' %}" class="related-tool">Remove Password</a>
+        <a href="{% url 'add_watermark' %}" class="related-tool">Add Watermark</a>
+        <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
+        <a href="{% url 'split_pdf' %}" class="related-tool">Split PDF</a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
 </div>
 
 {% include 'includes/footer.html' %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Password Protect a PDF File",
+  "description": "Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
 </body>
 </html>

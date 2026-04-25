@@ -204,21 +204,45 @@
     const loadingOverlay = document.getElementById('loadingOverlay');
     const errorMessage = document.getElementById('errorMessage');
 
+    /* FIX: make correct image URL on Render + localhost */
+    function getFileUrl(fileName) {
+        if (!fileName) return '';
+
+        // already full URL
+        if (fileName.startsWith('http://') || fileName.startsWith('https://')) {
+            return fileName;
+        }
+
+        // ensure single slash
+        const cleanMedia = mediaUrl.endsWith('/') ? mediaUrl : mediaUrl + '/';
+        const cleanFile = fileName.startsWith('/') ? fileName.substring(1) : fileName;
+
+        return cleanMedia + cleanFile;
+    }
+
+    /* FIX all preview images */
+    document.querySelectorAll('.image-box img').forEach((img, index) => {
+        if (imageFiles[index]) {
+            img.src = getFileUrl(imageFiles[index]);
+        }
+    });
+
     async function showTotalSize() {
         let totalBytes = 0;
         let loadedCount = 0;
-        
+
         if (!imageFiles || imageFiles.length === 0) {
             document.getElementById('totalSizeInfo').innerHTML = '<span>No files to compress</span>';
             compressBtn.disabled = true;
             return;
         }
-        
+
         for (let i = 0; i < imageFiles.length; i++) {
-            const fileUrl = mediaUrl + imageFiles[i];
-            
+            const fileUrl = getFileUrl(imageFiles[i]);
+
             try {
                 const response = await fetch(fileUrl, { method: 'HEAD' });
+
                 if (response.ok) {
                     const contentLength = response.headers.get('content-length');
                     if (contentLength) {
@@ -228,23 +252,28 @@
                 }
             } catch (error) {
                 console.error('Error fetching:', fileUrl, error);
-                errorMessage.style.display = 'block';
-                errorMessage.innerHTML = 'Some images failed to load. They may have expired. Please <a href="{% url "compress_page" %}">upload again</a>.';
             }
         }
-        
+
         const totalSizeMB = totalBytes / (1024 * 1024);
         const sizeInfo = document.getElementById('totalSizeInfo');
-        
+
+        if (loadedCount === 0) {
+            errorMessage.style.display = 'block';
+            errorMessage.innerHTML =
+                `Some images failed to load. Please <a href="{% url 'compress_page' %}">upload again</a>.`;
+        }
+
         if (imageFiles.length === 1) {
             sizeInfo.innerHTML = `File size: <span>${totalSizeMB.toFixed(2)} MB</span>`;
         } else {
-            sizeInfo.innerHTML = `Total size (${loadedCount} of ${imageFiles.length} files): <span>${totalSizeMB.toFixed(2)} MB</span>`;
+            sizeInfo.innerHTML =
+                `Total size (${loadedCount} of ${imageFiles.length} files): <span>${totalSizeMB.toFixed(2)} MB</span>`;
         }
     }
 
     if (compressBtn) {
-        compressBtn.addEventListener('click', function() {
+        compressBtn.addEventListener('click', function () {
             compressBtn.disabled = true;
             compressBtn.style.opacity = '0.6';
             loadingOverlay.style.display = 'flex';

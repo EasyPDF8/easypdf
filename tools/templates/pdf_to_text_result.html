@@ -208,8 +208,8 @@
         </div>
         {% endif %}
 
-        <a href="/media/{{ filename }}" class="btn-download" download>
-                Download Text File
+        <a href="{% url 'download_file' filename %}" class="btn-download">
+            Download Text File
         </a>
         <br>
 

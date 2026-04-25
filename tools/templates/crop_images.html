@@ -8,6 +8,8 @@
     <meta name="description" content="Free online image cropper. Trim unwanted areas from your images. Crop multiple images at once with visual selection. No registration, no watermark.">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <style>
         :root {
             --pdf-red: #E34234;
@@ -169,7 +171,7 @@
 
         .image-container img {
             max-width: 100%;
-            max-height: 450px;
+            max-height: 70vh;
             display: block;
         }
 
@@ -863,10 +865,15 @@
         tempImg.onload = function() {
             if (tempImg.width > MAX_DIMENSION || tempImg.height > MAX_DIMENSION) {
                 showError(`Image dimensions (${tempImg.width}x${tempImg.height}) exceed ${MAX_DIMENSION}px limit.`);
+                URL.revokeObjectURL(url);
                 return;
             }
             previewContainer.style.display = 'block';
-            previewImage.src = url;
+            previewImage.onload = null;
+            previewImage.src = '';
+            setTimeout(() => {
+                previewImage.src = url;
+            }, 50);
         };
         tempImg.src = url;
         

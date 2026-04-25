@@ -1,9 +1,9 @@
 from django.contrib import admin
-
-# Register your models here.
 from .models import Blog
+
 
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
-    list_display = ('title', 'created_at')
+    list_display = ('title', 'slug', 'created_at')
+    search_fields = ('title', 'description')
     prepopulated_fields = {"slug": ("title",)}

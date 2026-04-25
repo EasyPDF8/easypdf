@@ -61,6 +61,11 @@ from django.contrib import messages
 from django.shortcuts import redirect
 
 
+import mimetypes
+import re
+
+
+
 def is_total_size_safe(files, max_mb=300):
     if not files:
         return True
@@ -1407,11 +1412,11 @@ def compress_images(request):
         quality = 85
 
     quality_map = {
-        95: {'jpeg': 92, 'max_dim': 2048},
-        85: {'jpeg': 85, 'max_dim': 1920},
-        75: {'jpeg': 75, 'max_dim': 1680},
-        65: {'jpeg': 65, 'max_dim': 1440},
-    }
+            95: {'jpeg': 88, 'max_dim': 2048},
+            85: {'jpeg': 78, 'max_dim': 1920},
+            75: {'jpeg': 68, 'max_dim': 1680},
+            65: {'jpeg': 58, 'max_dim': 1440},
+        }
 
     settings_q = quality_map.get(quality, quality_map[85])
 
@@ -1446,16 +1451,23 @@ def compress_images(request):
                 output_path = fs.path(output_name)
 
                 img.save(
-                    output_path,
-                    'JPEG',
-                    quality=settings_q['jpeg'],
-                    optimize=True
-                )
+                output_path,
+                'JPEG',
+                quality=settings_q['jpeg'],
+                optimize=True,
+                progressive=True
+            )
 
             compressed_size = os.path.getsize(output_path)
-            total_compressed += compressed_size
 
-            compressed_files.append(output_name)
+            # If compressed file is bigger than original, keep original
+            if compressed_size >= original_size:
+                os.remove(output_path)   # delete bigger compressed file
+                total_compressed += original_size
+                compressed_files.append(f)   # keep original uploaded file
+            else:
+                total_compressed += compressed_size
+                compressed_files.append(output_name)
 
         except:
             continue
@@ -1793,13 +1805,13 @@ def resize_images_result(request):
 def crop_images(request):
     try:
         cleanup_old_files()
-    except Exception as e:
-        print("Cleanup failed:", e)
+    except:
+        pass
 
     if request.method == 'POST' and request.FILES.getlist('images'):
+
         images = request.FILES.getlist('images')
 
-        # File validations
         is_valid, msg = validate_file_count(images)
         if not is_valid:
             messages.error(request, msg)
@@ -1816,32 +1828,20 @@ def crop_images(request):
             messages.error(request, msg)
             return redirect('crop_images')
 
-        # Crop data
         try:
             crop_data = json.loads(request.POST.get('crop_data', '[]'))
-        except Exception as e:
-            messages.error(request, f"Invalid crop data")
+        except:
+            messages.error(request, "Invalid crop data")
             return redirect('crop_images')
 
         fs = FileSystemStorage()
         output_files = []
-        session_id = str(uuid.uuid4())[:8]
-
-        # 🚨 IMPORTANT FIX: ensure crop_data is usable
-        if not isinstance(crop_data, list):
-            crop_data = []
+        session_id = uuid.uuid4().hex[:8]
 
         for i, img in enumerate(images):
+
             try:
-                if not is_safe_image(img):
-                    continue
-
-                if not validate_image_size(img):
-                    continue
-
-                # FIX: skip if crop missing BUT LOG IT
-                if i >= len(crop_data) or not crop_data[i]:
-                    print(f"Missing crop data for image {i}")
+                if i >= len(crop_data):
                     continue
 
                 data = crop_data[i]
@@ -1854,56 +1854,78 @@ def crop_images(request):
                 if w <= 0 or h <= 0:
                     continue
 
-                temp = fs.save(f"tmp_{uuid.uuid4().hex}", img)
-                path = fs.path(temp)
+                image = Image.open(img)
 
-                with Image.open(path) as im:
+                if image.mode != "RGB":
+                    image = image.convert("RGB")
 
-                    if x < 0 or y < 0 or x + w > im.width or y + h > im.height:
-                        os.remove(path)
-                        continue
+                if x < 0 or y < 0:
+                    continue
 
-                    cropped = im.crop((x, y, x + w, y + h)).convert('RGB')
+                if x + w > image.width:
+                    w = image.width - x
 
-                    timestamp = int(time.time())
-                    name = f"easypdf_cropped_{session_id}_{timestamp}_{i}.jpg"
-                    output_path = fs.path(name)
+                if y + h > image.height:
+                    h = image.height - y
 
-                    cropped.save(output_path, "JPEG", quality=85, optimize=True)
+                cropped = image.crop((x, y, x + w, y + h))
 
-                    output_files.append(name)
+                output_name = f"cropped_{session_id}_{i}.jpg"
+                output_path = fs.path(output_name)
 
-                os.remove(path)
+                cropped.save(
+                    output_path,
+                    "JPEG",
+                    quality=90,
+                    optimize=True
+                )
+
+                output_files.append(output_name)
 
             except Exception as e:
-                print("Error processing image:", e)
+                print("Crop Error:", e)
                 continue
 
-        # 🚨 HARD FIX: stop silent failure
-        if len(output_files) == 0:
-            messages.error(request, "Cropping failed: No valid cropped images generated. Please crop all images properly.")
+        if not output_files:
+            messages.error(request, "Cropping failed")
             return redirect('crop_images')
 
-        # session save
         request.session['my_files'] = request.session.get('my_files', []) + output_files
 
-        request.session['crop_result'] = {
-            'files': output_files,
-            'count': len(output_files),
-            'file_url': output_files[0],
-            'is_zip': len(output_files) > 1
-        }
+        if len(output_files) > 1:
+
+            zip_name = f"cropped_{uuid.uuid4().hex}.zip"
+            zip_path = fs.path(zip_name)
+
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for file in output_files:
+                    zipf.write(fs.path(file), arcname=file)
+
+            request.session['my_files'].append(zip_name)
+
+            request.session['crop_result'] = {
+                'files': output_files,
+                'count': len(output_files),
+                'file_url': zip_name,
+                'is_zip': True
+            }
+
+        else:
+            request.session['crop_result'] = {
+                'files': output_files,
+                'count': 1,
+                'file_url': output_files[0],
+                'is_zip': False
+            }
 
         request.session.modified = True
 
-        # usage update
         output_size = sum(os.path.getsize(fs.path(f)) for f in output_files)
         update_usage(request, output_size, len(output_files))
 
         return redirect('crop_images_result')
 
     return render(request, 'crop_images.html')
-
 
 def crop_images_result(request):
     data = request.session.get('crop_result')

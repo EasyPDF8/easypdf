@@ -1,5 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
+from .models import Blog
+
 
 class StaticViewSitemap(Sitemap):
     priority = 0.8
@@ -53,7 +55,41 @@ class StaticViewSitemap(Sitemap):
             'pdf_reorganizer',
             'todo_list',
             'word_counter',
+
+            # Blog Main Page
+            'blog_list',
+
+            # Manual Blog Pages
+            'blog_merge_pdf',
+            'blog_rotate_pdf',
+            'blog_study_timetable',
+            'blog_pdf_to_word',
+            'blog_website_to_pdf',
+            'blog_ocr_guide',
+            'blog_secure_pdf',
+            'blog_split_pdf',
+            'blog_compress_pdf',
+            'blog_jpg_to_pdf',
+            'blog_protect_pdf',
+            'blog_remove_pages',
+            'blog_add_page_numbers',
+            'blog_resize_images',
+            'blog_best_pdf_tools',
         ]
 
     def location(self, item):
         return reverse(item)
+
+
+class BlogSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        return Blog.objects.all()
+
+    def lastmod(self, obj):
+        return obj.created_at
+
+    def location(self, obj):
+        return f"/blog/{obj.slug}/"

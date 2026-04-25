@@ -1,0 +1,292 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Complete | EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: black;
+            transition: 0.2s;
+        }
+
+        .nav-btn:hover {
+            color: var(--accent);
+        }
+
+        .result-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .result-card {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            padding: clamp(2rem, 4vw, 3rem);
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15), 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .success-animation {
+            margin: 0 auto 1.5rem;
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #E34234;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: rotateCircle 0.6s ease-out forwards;
+        }
+
+        @keyframes rotateCircle {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.1) rotate(180deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        .tick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 65px;
+            height: 65px;
+        }
+
+        .tick svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tick svg polyline {
+            fill: none;
+            stroke: #E34234;
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawTick 0.5s ease-out 0.5s forwards;
+        }
+
+        @keyframes drawTick {
+            0% {
+                stroke-dashoffset: 100;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .result-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 0.8s forwards;
+        }
+
+        .result-stats {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 1s forwards;
+        }
+
+        .result-stats p {
+            margin: 0.25rem 0;
+            color: #333;
+        }
+
+        .result-stats strong {
+            color: #E34234;
+        }
+
+        .files-list {
+            margin: 1.5rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 1.1s forwards;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .file-info {
+            text-align: left;
+        }
+
+        .file-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .file-pages {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        .btn-small {
+            background: #E34234;
+            color: white;
+            padding: 0.4rem 1rem;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .btn-small:hover {
+            background: #C0362C;
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            margin-top: 1.5rem;
+            display: inline-block;
+            font-size: 0.85rem;
+            text-decoration: none;
+            color: #666;
+            transition: 0.2s;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 1.2s forwards;
+        }
+
+        .back-link:hover {
+            color: #E34234;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .success-animation {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .circle {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .tick {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .file-item {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .file-info {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="result-wrapper">
+    <div class="result-card">
+        <div class="success-animation">
+            <div class="circle"></div>
+            <div class="tick">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="5 13 10 18 19 7" />
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="result-title">Split Complete</h1>
+        
+        <div class="result-stats">
+            <p><strong>{{ total_splits }}</strong> file(s) created</p>
+            <p>From <strong>{{ original_pages }}</strong> total pages</p>
+        </div>
+
+        <div class="files-list">
+            {% for file in files %}
+            <div class="file-item">
+                <div class="file-info">
+                    <div class="file-name">Part {{ forloop.counter }}</div>
+                    <div class="file-pages">Pages: {{ file.pages }}</div>
+                </div>
+                <a href="{% url 'download_file' file.filename %}" class="btn-small">
+                    Download PDF
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'split_pdf' %}" class="back-link">
+            Split another PDF
+        </a>
+    </div>
+</main>
+
+</body>
+</html>

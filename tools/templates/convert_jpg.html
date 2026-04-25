@@ -1,0 +1,122 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to JPG - EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(4rem, 10vh, 8rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        .upload-trigger {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: clamp(1.2rem, 2vw, 1.8rem) clamp(2rem, 5vw, 6rem);
+            border-radius: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 3rem;
+            border: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 0px var(--accent-hover);
+        }
+
+        .supported-formats {
+            margin-top: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .supported-formats ul {
+            display: inline-block;
+            text-align: left;
+            margin-top: 0.5rem;
+        }
+
+        #loading-container {
+            display: none;
+            margin-top: 3rem;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .loading-ring {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f2f2f2;
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">PDF to JPG</h1>
+    <p class="page-subtitle">Convert your PDF pages to high-quality JPG images</p>
+
+    <form id="uploadForm" action="{% url 'convert_to_jpg' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="pdfInput" class="upload-trigger">
+            Select PDF File
+            <input type="file" name="pdf" id="pdfInput" hidden required accept=".pdf">
+        </label>
+
+        <div class="supported-formats">
+            <p>Supported formats:</p>
+            <ul>
+                <li>PDF (up to 50MB)</li>
+                <li>Maximum 100 pages</li>
+                <li>Output: High-quality JPG</li>
+            </ul>
+        </div>
+
+        <div id="loading-container">
+            <div class="loading-ring"></div>
+            <div id="loading-text">Converting PDF to Images...</div>
+        </div>
+    </form>
+</main>
+
+<script nonce="{{ request.csp_nonce }}">
+    const input = document.getElementById('pdfInput');
+    const form = document.getElementById('uploadForm');
+    const loadingContainer = document.getElementById('loading-container');
+    const trigger = document.querySelector('.upload-trigger');
+
+    input.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            trigger.style.display = 'none';
+            loadingContainer.style.display = 'flex';
+            form.submit();
+        }
+    });
+</script>
+
+</body>
+</html>

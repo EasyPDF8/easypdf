@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timetable Tips - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
+        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .blog-meta i { margin-right: 0.3rem; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
+        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
+        .blog-content li { margin: 0.5rem 0; }
+        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .tip-box strong { color: #E34234; }
+        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
+        .table-of-contents li { margin: 0.5rem 0; }
+        /* Sindhoor Red Color for Table of Contents Links */
+        .table-of-contents a {
+            color: #E34234 !important;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            color: #c53024 !important;
+            text-decoration: underline;
+        }
+        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
+        .cta-box h3 { margin-top: 0; color: #E34234; }
+        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
+        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>Study Timetable Tips: How to Plan Your Studies Effectively</h1>
+    <div class="blog-meta">
+        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+        <span><i class="fas fa-clock"></i> 5 min read</span>
+        <span><i class="fas fa-tag"></i> Student Tips</span>
+    </div>
+    
+    <div class="blog-content">
+        <p>Creating an effective study timetable is crucial for exam success. Whether you're preparing for finals or managing daily coursework, a well-planned schedule can make all the difference.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#why-timetable">Why You Need a Study Timetable</a></li>
+                <li><a href="#how-to">Step-by-Step Guide to Create Your Timetable</a></li>
+                <li><a href="#tips">Pro Tips for Effective Studying</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="why-timetable">Why You Need a Study Timetable</h2>
+        <p>A good study timetable helps you:</p>
+        <ul>
+            <li><strong>Stay Organized:</strong> Know exactly what to study and when</li>
+            <li><strong>Reduce Stress:</strong> Eliminate last-minute cramming</li>
+            <li><strong>Improve Retention:</strong> Regular study sessions improve memory</li>
+            <li><strong>Balance Subjects:</strong> Ensure all subjects get adequate attention</li>
+            <li><strong>Track Progress:</strong> See what you've accomplished</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> Study during your peak energy hours. Morning person? Study early. Night owl? Study later. Work with your natural rhythm!
+        </div>
+        
+        <h2 id="how-to">Step-by-Step Guide to Create Your Timetable</h2>
+        
+        <h3>Step 1: List All Your Subjects</h3>
+        <p>Write down every subject or topic you need to study. Be specific about what each subject covers.</p>
+        
+        <h3>Step 2: Set Your Study Hours</h3>
+        <p>Determine how many hours per day you can realistically dedicate to studying. Start with 4-6 hours and adjust as needed.</p>
+        
+        <h3>Step 3: Use Our Study Timetable Generator</h3>
+        <p>Go to our <a href="{% url 'study_timetable' %}">Study Timetable Generator</a> — enter your subjects and available hours, and get a personalized schedule instantly!</p>
+        
+        <h3>Step 4: Follow and Adjust</h3>
+        <p>Stick to your schedule for a week, then make adjustments based on what works best for you.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Note:</strong> Remember to include breaks! Studying for hours without rest reduces productivity.
+        </div>
+        
+        <h2 id="tips">Pro Tips for Effective Studying</h2>
+        <ul>
+            <li><strong>Use the Pomodoro Technique:</strong> Study for 25 minutes, take a 5-minute break</li>
+            <li><strong>Review Difficult Subjects First:</strong> Study challenging topics when you're most alert</li>
+            <li><strong>Include Revision Time:</strong> Schedule regular review sessions</li>
+            <li><strong>Stay Hydrated:</strong> Keep water nearby while studying</li>
+            <li><strong>Eliminate Distractions:</strong> Put your phone away during study sessions</li>
+            <li><strong>Take Regular Breaks:</strong> A 10-15 minute break every hour improves focus</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>How many hours should I study per day?</h3>
+        <p>For most students, 4-6 hours of focused study per day is effective. Quality matters more than quantity!</p>
+        
+        <h3>Should I study the same subject every day?</h3>
+        <p>No! Rotate between subjects to keep your mind engaged and prevent burnout.</p>
+        
+        <h3>Is it better to study in the morning or at night?</h3>
+        <p>It depends on your personal rhythm. Study when you feel most alert and focused.</p>
+        
+        <h3>How do I stay motivated?</h3>
+        <p>Set small, achievable goals and reward yourself when you complete them.</p>
+        
+        <div class="cta-box">
+            <h3>Create Your Personalized Study Timetable</h3>
+            <p>Generate a custom study schedule in seconds — free, no registration required</p>
+            <a href="{% url 'study_timetable' %}" class="cta-btn"><i class="fas fa-calendar-week"></i> Create Timetable Now</a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'quiz_generator' %}" class="related-tool">Quiz Generator</a>
+            <a href="{% url 'flashcard_generator' %}" class="related-tool">Flashcard Generator</a>
+            <a href="{% url 'study_timer' %}" class="related-tool">Study Timer</a>
+            <a href="{% url 'grade_calculator' %}" class="related-tool">Grade Calculator</a>
+        </div>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

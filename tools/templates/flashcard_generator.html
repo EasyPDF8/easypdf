@@ -1,0 +1,804 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Generator - Create Study Flashcards from Notes | EasyPDF</title>
+    <meta name="description" content="Free online flashcard generator. Create interactive study flashcards from your notes. Choose difficulty level (Easy, Medium, Hard). Perfect for exam preparation and active recall.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+
+        /* Page Layout */
+        .container {
+            text-align: center;
+            padding-top: 3rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .page-title { 
+            font-size: clamp(1.8rem, 4vw, 2.5rem); 
+            font-weight: 800; 
+            color: #1a1a2e; 
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle { 
+            color: #666; 
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        /* Input Container */
+        .input-container {
+            max-width: 500px;
+            margin: 0 auto 1rem;
+            text-align: left;
+        }
+
+        .input-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        textarea:focus { outline: none; border-color: var(--pdf-red); }
+
+        .options-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .options-row input, .options-row select {
+            flex: 1;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .btn-generate {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 1rem auto;
+            display: block;
+            width: 250px;
+        }
+
+        .btn-generate:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-generate:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Flashcard Container & Cards */
+        .flashcard-container { display: none; margin: 1rem auto; max-width: 500px; }
+        .flashcard-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding: 0.4rem 1rem;
+            background: #f5f7fb;
+            border-radius: 12px;
+        }
+
+        .progress-bar { flex: 1; height: 4px; background: #e0e0e0; border-radius: 2px; margin: 0 1rem; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: var(--pdf-red); transition: width 0.3s ease; }
+
+        .flashcard {
+            width: 100%;
+            height: 320px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .flashcard.flipped { transform: rotateY(180deg); }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .flashcard-front { background: white; border: 2px solid var(--pdf-red); }
+        .flashcard-back { background: var(--pdf-red); color: white; transform: rotateY(180deg); }
+
+        .flip-hint { font-size: 0.7rem; opacity: 0.7; margin-top: 1rem; }
+
+        .nav-btn-primary { background: var(--pdf-red); color: white; }
+        .nav-btn-primary:hover { background: var(--pdf-red-hover); }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .options-row { flex-direction: column; }
+            .flashcard { height: 280px; }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div>
+        <h1 class="page-title">Flashcard Generator</h1>
+        <p class="page-subtitle">Create interactive study flashcards from your notes. Flip, shuffle, and listen to audio for better memorization.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 5000 characters max | 15 flashcards max | 3 difficulty levels
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="input-container">
+        <label>Paste your study notes:</label>
+        <textarea id="notes" placeholder="Paste your study notes here (min 10 words). Flashcards will be generated from key concepts..." maxlength="5000"></textarea>
+        
+        <div class="options-row">
+            <input type="number" id="numCards" placeholder="Number of flashcards" value="5" min="1" max="15">
+            <select id="difficultySelect">
+                <option value="easy">Easy - Basic term</option>
+                <option value="medium" selected>Medium - Standard definition</option>
+                <option value="hard">Hard - Explain concept</option>
+            </select>
+        </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn">
+        <i class="fas fa-magic"></i> Generate Flashcards
+    </button>
+
+    <div id="flashcardContainer" class="flashcard-container">
+        <div class="flashcard-stats">
+            <span class="flashcard-counter">Card <strong id="currentCard">1</strong> of <strong id="totalCards">0</strong></span>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <span class="flashcard-counter"><span id="remainingCards">0</span> remaining</span>
+        </div>
+        <div id="cardWrapper"></div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-left"></i> Previous</button>
+            <button class="nav-btn" id="audioBtn"><i class="fas fa-volume-up"></i> Speak</button>
+            <button class="nav-btn nav-btn-primary" id="shuffleBtn"><i class="fas fa-random"></i> Shuffle</button>
+            <button class="nav-btn" id="nextBtn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Flashcard Generator: Create Study Flashcards from Notes</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a Flashcard Generator?</h3>
+            <p>A flashcard generator creates interactive study cards from your notes. Our free online tool extracts key concepts and definitions to help you memorize information through active recall. Perfect for students preparing for exams, learning new languages, or mastering any subject.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Create flashcards from lecture notes and textbooks</li>
+                <li><strong>Language Learners:</strong> Build vocabulary flashcards</li>
+                <li><strong>Exam Prep:</strong> Create study cards for final exams and certifications</li>
+                <li><strong>Self-learners:</strong> Master any subject through spaced repetition</li>
+            </ul>
+            
+            <h3>How to Use the Flashcard Generator</h3>
+            <ol>
+                <li>Paste your study notes (minimum 10 words, up to 5000 characters)</li>
+                <li>Select number of flashcards (1-15)</li>
+                <li>Choose difficulty level (Easy, Medium, or Hard)</li>
+                <li>Click "Generate Flashcards" to create your study deck</li>
+                <li>Click or tap on flashcards to flip them and see answers</li>
+                <li>Use navigation buttons to move between cards</li>
+                <li>Click "Speak" to hear the card content aloud</li>
+                <li>Use "Shuffle" to randomize card order for better memorization</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">AI-Powered</span>
+                <span class="benefit-tag">3 Difficulty Levels</span>
+                <span class="benefit-tag">Text-to-Speech</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">5000 Characters</span>
+                <span class="benefit-tag">15 Cards Max</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Flashcard Generator</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How does the flashcard generator work?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Our tool extracts key concepts from your notes and creates term-definition pairs. You can flip each card to reveal the answer and use audio to hear the content.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What do the difficulty levels mean?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Easy shows basic terms, Medium provides standard definitions, and Hard focuses on explaining concepts in more detail.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many flashcards can I create?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can create between 1 and 15 flashcards per session. The number depends on the length and complexity of your notes.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Are my notes stored or shared?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No! Your notes are processed locally in your browser. We never store or access your content. Everything stays private on your device.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'quiz_generator' %}" class="related-tool-link">Quiz Generator</a>
+                <a href="{% url 'study_timetable' %}" class="related-tool-link">Study Timetable</a>
+                <a href="{% url 'study_timer' %}" class="related-tool-link">Study Timer</a>
+                <a href="{% url 'word_counter' %}" class="related-tool-link">Word Counter</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your notes are processed locally in your browser. EasyPDF - Free online study tools for students.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does the flashcard generator work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our tool extracts key concepts from your notes and creates term-definition pairs. You can flip each card to reveal the answer and use audio to hear the content."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do the difficulty levels mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Easy shows basic terms, Medium provides standard definitions, and Hard focuses on explaining concepts in more detail."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many flashcards can I create?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can create between 1 and 15 flashcards per session. The number depends on the length and complexity of your notes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my notes stored or shared?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No! Your notes are processed locally in your browser. We never store or access your content. Everything stays private on your device."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    const generateBtn = document.getElementById('generateBtn');
+    const notesInput = document.getElementById('notes');
+    const numCardsInput = document.getElementById('numCards');
+    const flashcardContainer = document.getElementById('flashcardContainer');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const cardWrapper = document.getElementById('cardWrapper');
+    const currentCardSpan = document.getElementById('currentCard');
+    const totalCardsSpan = document.getElementById('totalCards');
+    const progressFill = document.getElementById('progressFill');
+    const remainingSpan = document.getElementById('remainingCards');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const audioBtn = document.getElementById('audioBtn');
+    const errorMessage = document.getElementById('errorMessage');
+
+    let currentCards = [];
+    let currentIndex = 0;
+
+    const MAX_CHARS = 5000;
+    const MAX_CARDS = 15;
+    const MIN_WORDS = 10;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function showError(msg) {
+        errorMessage.innerHTML = msg;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 4000);
+    }
+
+    // 🔊 Text to Speech
+    function speakText(text) {
+        const speech = new SpeechSynthesisUtterance(text);
+        speech.rate = 0.9;
+        speech.pitch = 1;
+        speech.volume = 1;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(speech);
+    }
+
+    function generateSmartFlashcards(text, count, difficulty) {
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+        
+        if (sentences.length === 0) return [];
+        
+        const flashcards = [];
+        
+        for (let i = 0; i < Math.min(count, sentences.length); i++) {
+            const sentence = sentences[i % sentences.length].trim();
+            const words = sentence.split(' ');
+            
+            let term = '';
+            let definition = sentence;
+            
+            if (difficulty === 'easy') {
+                term = words.slice(0, Math.min(4, words.length)).join(' ') + (words.length > 4 ? '...' : '');
+            } else if (difficulty === 'medium') {
+                term = words.slice(0, Math.min(6, words.length)).join(' ') + (words.length > 6 ? '...' : '');
+            } else {
+                term = "Explain: " + words.slice(0, Math.min(7, words.length)).join(' ') + (words.length > 7 ? '...' : '');
+            }
+            
+            flashcards.push({ term, definition });
+        }
+        
+        return flashcards;
+    }
+
+    function updateProgress() {
+        const progress = ((currentIndex + 1) / currentCards.length) * 100;
+        progressFill.style.width = `${progress}%`;
+        currentCardSpan.textContent = currentIndex + 1;
+        totalCardsSpan.textContent = currentCards.length;
+        remainingSpan.textContent = currentCards.length - (currentIndex + 1);
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function renderCard() {
+        const card = currentCards[currentIndex];
+        
+        cardWrapper.innerHTML = `
+            <div class="flashcard" id="activeCard">
+                <div class="flashcard-front">
+                    <h3><i class="fas fa-question-circle"></i> Term / Concept</h3>
+                    <p>${escapeHtml(card.term)}</p>
+                    <div class="flip-hint"><i class="fas fa-hand-pointer"></i> Click to flip</div>
+                </div>
+                <div class="flashcard-back">
+                    <h3><i class="fas fa-lightbulb"></i> Definition</h3>
+                    <p>${escapeHtml(card.definition)}</p>
+                    <div class="flip-hint"><i class="fas fa-undo-alt"></i> Click to flip back</div>
+                </div>
+            </div>
+        `;
+        
+        const flashcard = document.getElementById('activeCard');
+        flashcard.addEventListener('click', () => {
+            flashcard.classList.toggle('flipped');
+        });
+        
+        updateProgress();
+    }
+
+    function nextCard() {
+        if (currentIndex < currentCards.length - 1) {
+            currentIndex++;
+            renderCard();
+        }
+    }
+
+    function prevCard() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderCard();
+        }
+    }
+
+    function shuffleCards() {
+        for (let i = currentCards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [currentCards[i], currentCards[j]] = [currentCards[j], currentCards[i]];
+        }
+        currentIndex = 0;
+        renderCard();
+    }
+
+    function speakCurrentCard() {
+        if (currentCards.length > 0) {
+            const card = currentCards[currentIndex];
+            speakText(`${card.term}. ${card.definition}`);
+        }
+    }
+
+    prevBtn.addEventListener('click', prevCard);
+    nextBtn.addEventListener('click', nextCard);
+    shuffleBtn.addEventListener('click', shuffleCards);
+    audioBtn.addEventListener('click', speakCurrentCard);
+
+    generateBtn.addEventListener('click', () => {
+        const text = notesInput.value.trim();
+        let count = parseInt(numCardsInput.value) || 5;
+        const difficulty = difficultySelect.value;
+        
+        // Validation
+        if (!text) {
+            showError('Please paste your study notes first');
+            return;
+        }
+        
+        if (text.length > MAX_CHARS) {
+            showError(`Notes exceed ${MAX_CHARS} character limit. Please shorten your notes.`);
+            return;
+        }
+        
+        const wordCount = text.split(/\s+/).length;
+        if (wordCount < MIN_WORDS) {
+            showError(`Please paste more comprehensive notes (minimum ${MIN_WORDS} words). Current: ${wordCount} words.`);
+            return;
+        }
+        
+        if (count < 1) count = 1;
+        if (count > MAX_CARDS) {
+            showError(`Maximum ${MAX_CARDS} flashcards allowed.`);
+            count = MAX_CARDS;
+        }
+        
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Generating...';
+        
+        setTimeout(() => {
+            const cards = generateSmartFlashcards(text, Math.min(count, MAX_CARDS), difficulty);
+            
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Flashcards';
+            
+            if (cards.length === 0) {
+                showError('Could not generate flashcards. Please paste more detailed notes.');
+                return;
+            }
+            
+            currentCards = cards;
+            currentIndex = 0;
+            renderCard();
+            flashcardContainer.style.display = 'block';
+            flashcardContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            errorMessage.style.display = 'none';
+        }, 100);
+    });
+
+    // Reset on page show
+    window.addEventListener('pageshow', function() {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Generate Flashcards';
+    });
+</script>
+
+</body>
+</html>

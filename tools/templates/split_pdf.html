@@ -1,0 +1,1037 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split PDF Online - Extract Pages from PDF Free | EasyPDF</title>
+    <meta name="description" content="Free online PDF splitter. Extract specific pages from PDF or split into multiple files. Choose custom pages or fixed intervals. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --split-red: #E34234;
+            --split-red-hover: #C0362C;
+        }
+
+        body {
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-section h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-section p {
+            color: #666;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box */
+        .limit-info {
+            background: #fef7e0;
+            border-left: 4px solid #f59e0b;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #92400e;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #f59e0b;
+        }
+
+        .limit-info strong {
+            color: #92400e;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 0 auto 1rem;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--split-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--split-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-name {
+            text-align: center;
+            margin: 0.5rem auto;
+            font-weight: 600;
+            color: var(--split-red);
+            font-size: 0.9rem;
+        }
+
+        .mode-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem auto;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 50px;
+            max-width: 350px;
+        }
+
+        .mode-option {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            padding: 0.7rem 1rem;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #333;
+            background: transparent;
+        }
+
+        .mode-option:hover {
+            background: rgba(227, 66, 52, 0.1);
+        }
+
+        .mode-option.active {
+            background: var(--split-red);
+            color: white;
+        }
+
+        .fixed-mode-box {
+            display: none;
+            text-align: center;
+            margin: 1rem auto;
+            max-width: 300px;
+        }
+
+        .fixed-mode-box input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .fixed-mode-box input:focus {
+            outline: none;
+            border-color: var(--split-red);
+        }
+
+        .fixed-preview-info {
+            display: none;
+            text-align: center;
+            margin: 1rem auto;
+            padding: 0.8rem;
+            background: #e8f5e9;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #2e7d32;
+            max-width: 400px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .page-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            position: relative;
+        }
+
+        .page-card:hover {
+            border-color: var(--split-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(227, 66, 52, 0.15);
+        }
+
+        .page-card.selected {
+            border: 3px solid var(--split-red);
+            background: #fff5f4;
+        }
+
+        .page-card canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .page-tag {
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: #555;
+        }
+
+        .page-card.selected .page-tag {
+            color: var(--split-red);
+        }
+
+        .split-group-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--split-red);
+            color: white;
+            font-size: 0.6rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .btn-extract {
+            display: none;
+            background: var(--split-red);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 2rem auto;
+            width: 300px;
+        }
+
+        .btn-extract:hover {
+            background: var(--split-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .selection-info {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .selection-info span {
+            font-weight: 700;
+            color: var(--split-red);
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--split-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .preview-grid { grid-template-columns: repeat(2, 1fr); }
+            .seo-section { margin: 5rem auto 3rem auto; }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .preview-grid { grid-template-columns: repeat(1, 1fr); }
+            .seo-section { margin: 4rem auto 2rem auto; }
+            .seo-card { padding: 1.2rem; }
+            .btn-extract { width: 100%; max-width: 300px; }
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div class="header-section">
+        <h1>Split PDF Online</h1>
+        <p>Extract specific pages from a PDF or split into multiple files. Choose custom pages or fixed intervals.</p>
+    </div>
+
+    <!-- Limit Info Box -->
+    <div class="limit-info" style="background:#E34234;border-color:#ff8175;color:#ffffff;">
+        <i class="fas fa-info-circle"></i> <strong style="color:#ffffff;">Limits:</strong> 100 pages per PDF | 300MB max file size
+    </div>
+
+    <div id="pageLimitError" class="error-message"></div>
+
+    <form method="POST" id="splitForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="pdfInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                <i class="fas fa-cut"></i>
+            </div>
+            <h3 style="margin-bottom: 0.25rem;">Select PDF file to split</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop PDF here</p>
+            <input type="file" name="pdf_file" id="pdfInput" accept="application/pdf" hidden>
+        </label>
+        <div id="fileDisplay" class="file-name"></div>
+
+        <div class="mode-container">
+            <div class="mode-option active" data-mode="custom">Custom Select</div>
+            <div class="mode-option" data-mode="fixed">Fixed Interval</div>
+        </div>
+        <input type="hidden" name="mode" id="modeInput" value="custom">
+
+        <div id="fixedBox" class="fixed-mode-box">
+            <input type="number" id="fixedPages" name="fixed_pages" placeholder="Pages per split (e.g., 5)" min="1" oninput="updateFixedSplitPreview()">
+        </div>
+
+        <div id="fixedPreviewInfo" class="fixed-preview-info">
+            <i class="fas fa-info-circle"></i> <span id="fixedInfoText">Enter number of pages per split</span>
+        </div>
+
+        <input type="hidden" name="ranges" id="ranges">
+        
+        <div id="previewArea" class="preview-grid"></div>
+        
+        <div id="selectionInfo" class="selection-info" style="display: none;">
+            <span id="selectedCount">0</span> page(s) selected
+        </div>
+
+        <button type="submit" class="btn-extract" id="submitBtn">Extract Selected Pages</button>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>PDF Splitter Tool: Extract Pages from PDF</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a PDF Splitter?</h3>
+            <p>A PDF splitter lets you extract specific pages from a PDF document or divide a large PDF into multiple smaller files. Our free online tool offers two modes: custom page selection or fixed interval splitting. No software installation needed.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Extract only exam questions or specific chapters from a textbook PDF</li>
+                <li><strong>Business:</strong> Split monthly invoices or reports into individual files per month</li>
+                <li><strong>Legal:</strong> Separate exhibits or individual documents from a large case file</li>
+                <li><strong>Publishers:</strong> Divide a book manuscript into individual chapters</li>
+            </ul>
+            
+            <h3>How to Split PDF Files</h3>
+            <ol>
+                <li>Upload your PDF file using the button above</li>
+                <li>Choose between Custom Select or Fixed Interval mode</li>
+                <li>Select individual pages or enter pages per split</li>
+                <li>Click "Extract Selected Pages" to split your PDF</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">No Watermark</span>
+                <span class="benefit-tag">Fast Processing</span>
+                <span class="benefit-tag">Secure & Private</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">2 Split Modes</span>
+                <span class="benefit-tag">100 Pages/PDF</span>
+                <span class="benefit-tag">300MB Limit</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Splitting PDFs</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is the difference between Custom Select and Fixed Interval?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Custom Select lets you pick individual pages manually. Fixed Interval automatically splits the PDF every X pages (e.g., every 5 pages creates separate files with 5 pages each).</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I extract non-consecutive pages?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! In Custom Select mode, you can select any combination of pages (e.g., pages 1, 3, 5, 10). The tool will extract only the pages you select.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens in Fixed Interval mode?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">If you enter "5", the tool creates files with 5 pages each: File 1 = pages 1-5, File 2 = pages 6-10, etc. The last file may have fewer pages.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a page limit for splitting?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, the PDF cannot exceed 100 pages per file. This ensures fast processing and stable performance for all users.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens if my PDF has more than 100 pages?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The file will be rejected with a clear error message. Please use our Split PDF tool to split it into smaller parts first.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+                <a href="{% url 'rotate_pdf' %}" class="related-tool-link">Rotate PDF</a>
+                <a href="{% url 'pdf_to_word' %}" class="related-tool-link">PDF to Word</a>
+                <a href="{% url 'remove_password' %}" class="related-tool-link">Remove Password</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online PDF tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Splitting PDF...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between Custom Select and Fixed Interval?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Custom Select lets you pick individual pages manually. Fixed Interval automatically splits the PDF every X pages (e.g., every 5 pages creates separate files with 5 pages each)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I extract non-consecutive pages?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! In Custom Select mode, you can select any combination of pages (e.g., pages 1, 3, 5, 10). The tool will extract only the pages you select."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens in Fixed Interval mode?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you enter 5, the tool creates files with 5 pages each: File 1 = pages 1-5, File 2 = pages 6-10, etc. The last file may have fewer pages."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a page limit for splitting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the PDF cannot exceed 100 pages per file. This ensures fast processing and stable performance for all users."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if my PDF has more than 100 pages?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The file will be rejected with a clear error message. Please use our Split PDF tool to split it into smaller parts first."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    let selectedPages = [];
+    let totalPages = 0;
+
+    const MAX_PAGES_PER_PDF = 100;
+    const MAX_FILE_SIZE_MB = 300;
+
+    const input = document.getElementById('pdfInput');
+    const dropZone = document.getElementById('drop-zone');
+    const previewArea = document.getElementById('previewArea');
+    const submitBtn = document.getElementById('submitBtn');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const selectionInfo = document.getElementById('selectionInfo');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const splitForm = document.getElementById('splitForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const fixedBox = document.getElementById('fixedBox');
+    const fixedPagesInput = document.getElementById('fixedPages');
+    const fixedPreviewInfo = document.getElementById('fixedPreviewInfo');
+    const fixedInfoText = document.getElementById('fixedInfoText');
+    const pageLimitError = document.getElementById('pageLimitError');
+
+    const modeOptions = document.querySelectorAll('.mode-option');
+    const modeInput = document.getElementById('modeInput');
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    modeOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            modeOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            const selectedMode = option.getAttribute('data-mode');
+            modeInput.value = selectedMode;
+            
+            if (selectedMode === 'fixed') {
+                fixedBox.style.display = 'block';
+                fixedPreviewInfo.style.display = 'block';
+                previewArea.style.display = 'grid';
+                selectionInfo.style.display = 'none';
+                submitBtn.style.display = 'block';
+                submitBtn.innerHTML = 'Split PDF';
+                if (totalPages > 0 && fixedPagesInput.value) {
+                    updateFixedSplitPreview();
+                }
+            } else {
+                fixedBox.style.display = 'none';
+                fixedPreviewInfo.style.display = 'none';
+                if (totalPages > 0) {
+                    previewArea.style.display = 'grid';
+                    selectionInfo.style.display = 'block';
+                    submitBtn.style.display = selectedPages.length ? 'block' : 'none';
+                    submitBtn.innerHTML = 'Extract Selected Pages';
+                    clearFixedPreviewHighlight();
+                }
+            }
+        });
+    });
+
+    // Simple validation - no heavy page counting
+    function validateFile(file) {
+        pageLimitError.style.display = 'none';
+        
+        // Check file type
+        if (file.type !== 'application/pdf') {
+            pageLimitError.innerHTML = `❌ "${file.name}" is not a PDF file. Please upload a valid PDF.`;
+            pageLimitError.style.display = 'block';
+            return false;
+        }
+        
+        // Check file size
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            pageLimitError.innerHTML = `❌ "${file.name}" is too large (${sizeMB.toFixed(2)}MB). Max ${MAX_FILE_SIZE_MB}MB allowed.`;
+            pageLimitError.style.display = 'block';
+            return false;
+        }
+        
+        return true;
+    }
+
+    function updateFixedSplitPreview() {
+        let pagesPerSplit = parseInt(fixedPagesInput.value);
+        
+        if (isNaN(pagesPerSplit) || pagesPerSplit < 1) {
+            fixedInfoText.innerHTML = 'Enter valid number of pages per split';
+            fixedPreviewInfo.style.background = '#fff3e0';
+            fixedPreviewInfo.style.color = '#e65100';
+            clearFixedPreviewHighlight();
+            return;
+        }
+        
+        if (pagesPerSplit > totalPages) {
+            fixedInfoText.innerHTML = `Pages per split (${pagesPerSplit}) exceeds total pages (${totalPages}). Will create 1 split.`;
+        } else {
+            const totalSplits = Math.ceil(totalPages / pagesPerSplit);
+            fixedInfoText.innerHTML = `Will create ${totalSplits} split file(s) with ${pagesPerSplit} pages each (last file may have fewer pages)`;
+        }
+        
+        fixedPreviewInfo.style.background = '#e8f5e9';
+        fixedPreviewInfo.style.color = '#2e7d32';
+        highlightFixedSplitGroups(pagesPerSplit);
+        submitBtn.style.display = 'block';
+    }
+    
+    function highlightFixedSplitGroups(pagesPerSplit) {
+        const cards = document.querySelectorAll('.page-card');
+        cards.forEach(card => {
+            card.classList.remove('selected');
+            const existingBadge = card.querySelector('.split-group-badge');
+            if (existingBadge) existingBadge.remove();
+        });
+        
+        if (pagesPerSplit < 1) return;
+        
+        let groupNum = 1;
+        for (let i = 0; i < totalPages; i += pagesPerSplit) {
+            const startPage = i + 1;
+            const endPage = Math.min(i + pagesPerSplit, totalPages);
+            
+            for (let j = startPage; j <= endPage; j++) {
+                const card = cards[j - 1];
+                if (card) {
+                    card.classList.add('selected');
+                    const badge = document.createElement('div');
+                    badge.className = 'split-group-badge';
+                    badge.textContent = `Split ${groupNum}`;
+                    card.appendChild(badge);
+                }
+            }
+            groupNum++;
+        }
+        
+        selectedCountSpan.innerText = totalPages;
+        selectionInfo.style.display = 'block';
+        selectionInfo.innerHTML = `<span>${totalPages}</span> page(s) will be split into <span>${Math.ceil(totalPages / pagesPerSplit)}</span> file(s)`;
+    }
+    
+    function clearFixedPreviewHighlight() {
+        const cards = document.querySelectorAll('.page-card');
+        cards.forEach(card => {
+            card.classList.remove('selected');
+            const existingBadge = card.querySelector('.split-group-badge');
+            if (existingBadge) existingBadge.remove();
+        });
+        selectionInfo.style.display = 'none';
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const isValid = validateFile(files[0]);
+            if (isValid) {
+                input.files = files;
+                const changeEvent = new Event('change');
+                input.dispatchEvent(changeEvent);
+            }
+        }
+    });
+
+    input.addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const isValid = validateFile(file);
+        if (!isValid) {
+            fileDisplay.innerHTML = '';
+            previewArea.innerHTML = '';
+            previewArea.style.display = 'none';
+            selectionInfo.style.display = 'none';
+            submitBtn.style.display = 'none';
+            return;
+        }
+
+        fileDisplay.innerHTML = `📄 ${file.name}`;
+        previewArea.innerHTML = '<div style="text-align:center; padding:2rem;">Loading PDF preview...</div>';
+        
+        const url = URL.createObjectURL(file);
+        
+        try {
+            const pdf = await pdfjsLib.getDocument(url).promise;
+            totalPages = pdf.numPages;
+            
+            // Check page limit after loading
+            if (totalPages > MAX_PAGES_PER_PDF) {
+                pageLimitError.innerHTML = `❌ Page limit exceeded: "${file.name}" has ${totalPages} pages. Maximum allowed is ${MAX_PAGES_PER_PDF} pages.`;
+                pageLimitError.style.display = 'block';
+                previewArea.innerHTML = '';
+                previewArea.style.display = 'none';
+                selectionInfo.style.display = 'none';
+                submitBtn.style.display = 'none';
+                URL.revokeObjectURL(url);
+                return;
+            }
+            
+            previewArea.innerHTML = '';
+            previewArea.style.display = 'grid';
+            selectedPages = [];
+            updateSelectionInfo();
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 0.3 });
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                const card = document.createElement('div');
+                card.classList.add('page-card');
+                card.setAttribute('data-page', i);
+
+                card.innerHTML = `<div class="page-tag">Page ${i}</div>`;
+                card.prepend(canvas);
+
+                card.onclick = () => {
+                    const currentMode = modeInput.value;
+                    if (currentMode === 'custom') {
+                        card.classList.toggle('selected');
+                        if (selectedPages.includes(i)) {
+                            selectedPages = selectedPages.filter(p => p !== i);
+                        } else {
+                            selectedPages.push(i);
+                        }
+                        updateSelectionInfo();
+                        submitBtn.style.display = selectedPages.length ? 'block' : 'none';
+                    }
+                };
+
+                previewArea.appendChild(card);
+            }
+            
+            selectionInfo.style.display = 'block';
+            if (modeInput.value === 'fixed' && fixedPagesInput.value) {
+                updateFixedSplitPreview();
+            }
+            
+        } catch (error) {
+            previewArea.innerHTML = '<div style="color: #E34234; text-align:center; padding:2rem;">Error loading PDF. Please try another file.</div>';
+        }
+        
+        URL.revokeObjectURL(url);
+    });
+
+    function updateSelectionInfo() {
+        selectedPages.sort((a, b) => a - b);
+        selectedCountSpan.innerText = selectedPages.length;
+        selectionInfo.innerHTML = `<span>${selectedPages.length}</span> page(s) selected`;
+    }
+
+    splitForm.addEventListener('submit', function(e) {
+        const currentMode = modeInput.value;
+        
+        if (currentMode === 'custom') {
+            if (selectedPages.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one page to extract');
+                return false;
+            }
+            selectedPages.sort((a, b) => a - b);
+            document.getElementById('ranges').value = selectedPages.map(p => `${p}-${p}`).join(',');
+        } else {
+            const pagesPerSplit = parseInt(fixedPagesInput.value);
+            if (isNaN(pagesPerSplit) || pagesPerSplit < 1) {
+                e.preventDefault();
+                alert('Please enter valid number of pages per split');
+                return false;
+            }
+        }
+        
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+        return true;
+    });
+</script>
+
+
+</body>
+</html>

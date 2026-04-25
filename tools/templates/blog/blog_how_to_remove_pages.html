@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Remove Pages from a PDF Easily | EasyPDF</title>
+    <meta name="description" content="Learn how to delete unwanted pages from PDF files online for free. Step-by-step guide to remove specific pages, extract ranges, and clean up your PDF documents.">
+    <meta name="keywords" content="remove pages from PDF, delete PDF pages, PDF page remover, extract PDF pages, PDF editor">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="How to Remove Pages from a PDF Easily">
+    <meta property="og:description" content="Delete unwanted PDF pages online for free. Easy step-by-step guide.">
+    <meta property="og:type" content="article">
+    <meta name="author" content="EasyPDF Student Developer">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2.2rem; color: #1a1a2e; margin-bottom: 1rem; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+        .blog-category:hover { background: #E34234; color: white; }
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #555; text-decoration: none; }
+        .table-of-contents a:hover { color: #E34234; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 2rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin: 1.5rem 0; border-radius: 8px; }
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .cta-box p { margin-bottom: 1rem; opacity: 0.9; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .related-posts { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-posts h3 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background: #f5f7fb; padding: 1rem; border-radius: 12px; text-decoration: none; transition: 0.2s; display: block; }
+        .related-card:hover { transform: translateY(-3px); background: #fff5f4; }
+        .related-card h4 { font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .related-card p { font-size: 0.7rem; color: #666; }
+        .author-box { background: #f5f7fb; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .author-avatar { width: 50px; height: 50px; background: #E34234; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .author-info h4 { margin: 0 0 0.2rem 0; color: #1a1a2e; }
+        .author-info p { margin: 0; font-size: 0.8rem; color: #666; }
+        .share-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; flex-wrap: wrap; }
+        .share-buttons span { font-weight: 600; color: #666; }
+        .share-buttons a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .share-buttons a:hover { color: #E34234; }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        @media (max-width: 768px) { .blog-container { margin: 1rem; padding: 1.5rem; } .blog-header h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Remove Pages from a PDF Easily</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+            <span><i class="fas fa-clock"></i> 4 min read</span>
+            <a href="{% url 'blog_list' %}?category=pdf" class="blog-category">PDF Tools</a>
+        </div>
+    </div>
+    
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-remove">Why Remove Pages from PDF?</a></li>
+            <li><a href="#step-by-step">How to Remove Pages from PDF Using EasyPDF</a></li>
+            <li><a href="#page-ranges">Understanding Page Ranges</a></li>
+            <li><a href="#extract">Extracting vs Removing Pages</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
+    </div>
+    
+    <div class="blog-content">
+        <h2 id="why-remove">Why Remove Pages from PDF?</h2>
+        <p>Removing unwanted pages from PDF documents helps you clean up files and share only the relevant content. Whether you have blank pages, incorrect scans, or outdated information, deleting specific pages makes your PDF cleaner and more professional.</p>
+        
+        <p><strong>Common reasons to remove PDF pages:</strong></p>
+        <ul>
+            <li><strong>Students:</strong> Remove blank or duplicate pages from scanned assignments</li>
+            <li><strong>Professionals:</strong> Delete outdated information from reports</li>
+            <li><strong>Legal:</strong> Remove confidential pages before sharing documents</li>
+            <li><strong>Personal:</strong> Delete unwanted pages from ebooks or manuals</li>
+            <li><strong>Scanning:</strong> Remove blank or mis-scanned pages from batches</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Before removing pages, note down the page numbers you want to keep or delete. This makes the process faster and prevents accidental removal.
+        </div>
+        
+        <h2 id="step-by-step">How to Remove Pages from PDF Using EasyPDF</h2>
+        
+        <h3>Step 1: Go to the Remove Pages Tool</h3>
+        <p>Visit our <a href="{% url 'remove_pages' %}" style="color: #E34234; font-weight: 600;">Remove Pages tool</a> from the homepage or PDF Tools menu.</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Click the upload area and select the PDF file you want to edit. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Enter Pages to Remove</h3>
+        <p>Specify which pages to delete using page numbers or ranges. For example: "2, 5, 8-12" removes pages 2, 5, and pages 8 through 12.</p>
+        
+        <h3>Step 4: Remove and Download</h3>
+        <p>Click "Remove Pages" and download your cleaned PDF without the unwanted pages.</p>
+        
+        <div class="warning-box">
+            <strong><i class="fas fa-shield-alt"></i> Privacy Note:</strong> Your files are automatically deleted from our servers within 5 minutes after processing.
+        </div>
+        
+        <h2 id="page-ranges">Understanding Page Ranges</h2>
+        <p>Our Remove Pages tool supports flexible page range formats:</p>
+        <ul>
+            <li><strong>Single page:</strong> "5" - removes just page 5</li>
+            <li><strong>Range:</strong> "10-20" - removes pages 10 through 20</li>
+            <li><strong>Multiple ranges:</strong> "1-3, 8, 15-18" - removes pages 1-3, page 8, and pages 15-18</li>
+            <li><strong>From start:</strong> "1-5" - removes first 5 pages</li>
+            <li><strong>To end:</strong> "20-25" - removes pages 20 to the end</li>
+        </ul>
+        
+        <h2 id="extract">Extracting vs Removing Pages</h2>
+        <p><strong>Removing pages</strong> deletes specified pages and keeps the rest. <strong>Extracting pages</strong> creates a new PDF with only the pages you specify. Use our <a href="{% url 'split_pdf' %}" style="color: #E34234;">Split PDF tool</a> for extraction if you want to save only specific pages as a new document.</p>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <p><strong>Can I remove multiple non-consecutive pages?</strong><br>
+        Yes! Use commas to separate page numbers: "2, 5, 8, 12" removes pages 2, 5, 8, and 12.</p>
+        
+        <p><strong>Will removing pages affect the rest of the PDF?</strong><br>
+        No. The remaining pages stay in their original order and maintain their quality.</p>
+        
+        <p><strong>Can I undo page removal?</strong><br>
+        Once downloaded, the changes are permanent. Keep the original file if you might need those pages later.</p>
+        
+        <p><strong>What's the maximum file size?</strong><br>
+        Each PDF can be up to 300MB. There's no limit on total pages.</p>
+        
+        <p><strong>Is this free?</strong><br>
+        Yes! All EasyPDF tools are completely free with no registration required.</p>
+        
+        <h2>Ready to Clean Up Your PDF?</h2>
+        <p>Remove unwanted pages from your PDF files instantly. Free and easy to use.</p>
+    </div>
+    
+    <div class="cta-box">
+        <h3><i class="fas fa-trash-alt"></i> Ready to remove pages?</h3>
+        <p>Delete unwanted pages from your PDF files instantly. Free and easy.</p>
+        <a href="{% url 'remove_pages' %}" class="cta-button">Remove Pages Now →</a>
+    </div>
+    
+    <div class="author-box">
+        <div class="author-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div class="author-info">
+            <h4>Written by EasyPDF Student Developer</h4>
+            <p>A student developer creating free tools to help fellow students with PDFs and document management.</p>
+        </div>
+    </div>
+    
+    <div class="related-posts">
+        <h3><i class="fas fa-link"></i> You might also like</h3>
+        <div class="related-grid">
+            <a href="{% url 'blog_split_pdf' %}" class="related-card"><h4>How to Split PDF Files</h4><p>Extract specific pages from PDFs.</p></a>
+            <a href="{% url 'blog_merge_pdf' %}" class="related-card"><h4>How to Merge PDF Files</h4><p>Combine multiple PDFs into one.</p></a>
+            <a href="{% url 'blog_rotate_pdf' %}" class="related-card"><h4>How to Rotate PDF Pages</h4><p>Fix page orientation.</p></a>
+        </div>
+    </div>
+    
+    <div class="share-buttons">
+        <span><i class="fas fa-share-alt"></i> Share this guide:</span>
+        <a href="https://twitter.com/intent/tweet?text=How%20to%20Remove%20Pages%20from%20PDF&url={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title=How%20to%20Remove%20Pages%20from%20PDF" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:?subject=How%20to%20Remove%20Pages%20from%20PDF&body={{ request.build_absolute_uri|urlencode }}"><i class="fas fa-envelope"></i> Email</a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Remove Pages from a PDF Easily",
+  "description": "Learn how to delete unwanted pages from PDF files online for free.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+</body>
+</html>

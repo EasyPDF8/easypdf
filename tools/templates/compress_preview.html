@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Images - Compress Images | EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        :root {
+            --accent: #E34234;
+            --accent-hover: #C0362C;
+        }
+
+        .preview-container {
+            text-align: center;
+            padding: clamp(2rem, 5vh, 4rem) 1rem;
+        }
+
+        .image-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .image-box {
+            border: 1px solid #eeeeee;
+            padding: 4px;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .image-box img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        .total-size-info {
+            background: #f5f5f5;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 300px;
+            font-size: 0.9rem;
+        }
+
+        .total-size-info span {
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .quality-selector {
+            margin: 1.5rem auto;
+            max-width: 300px;
+        }
+
+        .quality-selector select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .compress-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .compress-btn:hover {
+            transform: translateY(-2px);
+            background: var(--accent-hover);
+        }
+
+        .compress-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: red;
+            background: #ffeeee;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px auto;
+            max-width: 400px;
+            display: none;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+
+<main class="preview-container">
+    <h2 style="font-weight: 800;">Review Images</h2>
+    
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="image-wrapper">
+        {% for file in files %}
+            <div class="image-box">
+                <img src="{{ MEDIA_URL }}{{ file }}" alt="preview" onerror="this.parentElement.innerHTML='<div style=\'padding:40px;text-align:center;\'>❌ Image failed to load</div>'">
+            </div>
+        {% empty %}
+            <p>No images found. Please <a href="{% url 'compress_page' %}">upload again</a>.</p>
+        {% endfor %}
+    </div>
+
+    <div class="total-size-info" id="totalSizeInfo">
+        Calculating...
+    </div>
+
+    <form action="{% url 'compress_images' %}" method="POST" id="compressForm">
+        {% csrf_token %}
+        
+        <div class="quality-selector">
+            <select name="quality" id="quality">
+                <option value="95">Maximum Quality (95%)</option>
+                <option value="85" selected>Recommended (85%)</option>
+                <option value="75">Strong Compression (75%)</option>
+                <option value="65">Maximum Compression (65%)</option>
+            </select>
+        </div>
+        
+        <button type="button" class="compress-btn" id="compressBtn">
+            Compress Images
+        </button>
+    </form>
+    
+    <a href="{% url 'compress_page' %}" class="back-link">← Back to upload more images</a>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Processing... Please wait</div>
+</div>
+
+<script>
+    const imageFiles = {{ files|safe }};
+    const mediaUrl = "{{ MEDIA_URL }}";
+    const compressBtn = document.getElementById('compressBtn');
+    const compressForm = document.getElementById('compressForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorMessage = document.getElementById('errorMessage');
+
+    async function showTotalSize() {
+        let totalBytes = 0;
+        let loadedCount = 0;
+        
+        if (!imageFiles || imageFiles.length === 0) {
+            document.getElementById('totalSizeInfo').innerHTML = '<span>No files to compress</span>';
+            compressBtn.disabled = true;
+            return;
+        }
+        
+        for (let i = 0; i < imageFiles.length; i++) {
+            const fileUrl = mediaUrl + imageFiles[i];
+            
+            try {
+                const response = await fetch(fileUrl, { method: 'HEAD' });
+                if (response.ok) {
+                    const contentLength = response.headers.get('content-length');
+                    if (contentLength) {
+                        totalBytes += parseInt(contentLength);
+                    }
+                    loadedCount++;
+                }
+            } catch (error) {
+                console.error('Error fetching:', fileUrl, error);
+                errorMessage.style.display = 'block';
+                errorMessage.innerHTML = 'Some images failed to load. They may have expired. Please <a href="{% url "compress_page" %}">upload again</a>.';
+            }
+        }
+        
+        const totalSizeMB = totalBytes / (1024 * 1024);
+        const sizeInfo = document.getElementById('totalSizeInfo');
+        
+        if (imageFiles.length === 1) {
+            sizeInfo.innerHTML = `File size: <span>${totalSizeMB.toFixed(2)} MB</span>`;
+        } else {
+            sizeInfo.innerHTML = `Total size (${loadedCount} of ${imageFiles.length} files): <span>${totalSizeMB.toFixed(2)} MB</span>`;
+        }
+    }
+
+    if (compressBtn) {
+        compressBtn.addEventListener('click', function() {
+            compressBtn.disabled = true;
+            compressBtn.style.opacity = '0.6';
+            loadingOverlay.style.display = 'flex';
+            compressForm.submit();
+        });
+    }
+
+    showTotalSize();
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

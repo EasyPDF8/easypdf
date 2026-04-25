@@ -1,0 +1,415 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyPDF Blog: PDF Tips, Tutorials & Free Tool Guides for Students</title>
+    <meta name="description" content="Learn how to merge PDFs, convert files, compress images, and use free student tools with EasyPDF guides. Step-by-step tutorials and tips for academic success.">
+    <meta name="keywords" content="PDF tips, student tools, merge PDF, compress PDF, PDF to Word, study timetable, flashcard generator, free online tools">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+        
+        /* Blog Header - Sindhoor Color Gradient */
+        .blog-header {
+            background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .blog-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+        
+        .blog-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        /* SEO Intro Text */
+        .seo-intro {
+            max-width: 1280px;
+            margin: 0 auto 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .seo-intro-text {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            color: #444;
+            line-height: 1.7;
+            font-size: 0.95rem;
+            border-left: 4px solid #E34234;
+        }
+        
+        .seo-intro-text p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .seo-intro-text p:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Category Filter Links */
+        .category-filter {
+            max-width: 1280px;
+            margin: 0 auto 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+        
+        .filter-link {
+            background: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.2s;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .filter-link:hover,
+        .filter-link.active {
+            background: #E34234;
+            color: white;
+            border-color: #E34234;
+        }
+        
+        /* Blog Container */
+        .blog-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+        
+        /* Featured Post */
+        .featured-post {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            margin-bottom: 3rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .featured-image {
+            background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%);
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .featured-image i {
+            font-size: 6rem;
+            color: white;
+            opacity: 0.9;
+        }
+        
+        .featured-content {
+            padding: 2rem;
+        }
+        
+        .featured-badge {
+            background: #E34234;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .featured-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+        
+        .featured-content p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Blog Grid */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        /* Blog Card */
+        .blog-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .card-image {
+            height: 200px;
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-image i {
+            font-size: 3rem;
+            color: #E34234;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .blog-date {
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .blog-date i {
+            font-size: 0.7rem;
+            color: #E34234;
+        }
+        
+        .blog-category {
+            display: inline-block;
+            font-size: 0.7rem;
+            color: #E34234;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .blog-category:hover {
+            text-decoration: underline;
+        }
+        
+        .blog-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.75rem;
+            color: #1a1a2e;
+            line-height: 1.4;
+        }
+        
+        .blog-card p {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .read-more {
+            color: #E34234;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: gap 0.2s;
+        }
+        
+        .read-more:hover {
+            gap: 0.6rem;
+            color: #B52D1F;
+        }
+        
+        /* Responsive */
+        @media (max-width: 900px) {
+            .featured-post {
+                grid-template-columns: 1fr;
+            }
+            
+            .blog-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+            
+            .blog-header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .blog-container {
+                padding: 0 1rem 3rem;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .seo-intro {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<!-- Blog Header -->
+<div class="blog-header">
+    <h1>EasyPDF Blog</h1>
+    <p>Step-by-step tutorials and guides for students, professionals, and anyone working with PDFs</p>
+</div>
+
+<!-- SEO INTRO TEXT -->
+<div class="seo-intro">
+    <div class="seo-intro-text">
+        <p><strong>Welcome to the EasyPDF Blog!</strong> Here you'll find comprehensive guides on <strong>PDF tools</strong>, <strong>image editing</strong>, and <strong>student productivity tools</strong>. Whether you need to <strong>merge PDFs for an assignment</strong>, <strong>compress images for email submission</strong>, or learn how to create an effective <strong>study timetable</strong>, our step-by-step tutorials are designed for students and professionals who need quick, reliable solutions.</p>
+        <p>All our guides are 100% free and include practical tips you can use immediately. Browse by category below or check out our featured articles.</p>
+    </div>
+</div>
+
+<!-- CATEGORY LINKS -->
+<div class="category-filter">
+    <a href="{% url 'blog_list' %}" class="filter-link {% if not request.GET.category %}active{% endif %}">All</a>
+    <a href="{% url 'blog_list' %}?category=pdf" class="filter-link {% if request.GET.category == 'pdf' %}active{% endif %}">PDF Tools</a>
+    <a href="{% url 'blog_list' %}?category=student" class="filter-link {% if request.GET.category == 'student' %}active{% endif %}">Student Success</a>
+    <a href="{% url 'blog_list' %}?category=conversion" class="filter-link {% if request.GET.category == 'conversion' %}active{% endif %}">Conversion</a>
+    <a href="{% url 'blog_list' %}?category=web" class="filter-link {% if request.GET.category == 'web' %}active{% endif %}">Web Tools</a>
+    <a href="{% url 'blog_list' %}?category=security" class="filter-link {% if request.GET.category == 'security' %}active{% endif %}">Security</a>
+    <a href="{% url 'blog_list' %}?category=ai" class="filter-link {% if request.GET.category == 'ai' %}active{% endif %}">AI Tools</a>
+</div>
+
+<div class="blog-container">
+    <!-- Featured Post -->
+    {% for blog in blogs %}
+        {% if blog.featured %}
+        <div class="featured-post">
+            <div class="featured-image">
+                <i class="fas fa-object-group"></i>
+            </div>
+            <div class="featured-content">
+                <span class="featured-badge">FEATURED</span>
+                <h2>{{ blog.title }}</h2>
+                <p>{{ blog.description|truncatechars:120 }}</p>
+                <a href="{% url blog.url %}" class="read-more">Read Full Article →</a>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+    
+    <!-- Blog Grid -->
+    <div class="blog-grid">
+        {% for blog in blogs %}
+            {% if not blog.featured %}
+            <div class="blog-card">
+                <div class="card-image">
+                    <i class="fas 
+                        {% if 'Merge' in blog.title %}fa-object-group
+                        {% elif 'Rotate' in blog.title %}fa-undo-alt
+                        {% elif 'Study' in blog.title or 'Timetable' in blog.title %}fa-calendar-week
+                        {% elif 'PDF to Word' in blog.title %}fa-file-word
+                        {% elif 'Website' in blog.title %}fa-globe
+                        {% elif 'OCR' in blog.title %}fa-robot
+                        {% elif 'Secure' in blog.title or 'Password' in blog.title %}fa-lock
+                        {% else %}fa-file-alt{% endif %}"></i>
+                </div>
+                <div class="card-content">
+                    <div class="blog-date"><i class="fas fa-calendar-alt"></i> {{ blog.date }}</div>
+                    <a href="{% url 'blog_list' %}?category={{ blog.category|slugify }}" class="blog-category">{{ blog.category }}</a>
+                    <h3>{{ blog.title }}</h3>
+                    <p>{{ blog.description|truncatechars:100 }}</p>
+                    <a href="{% url blog.url %}" class="read-more">Read More →</a>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<!-- Blog Schema Markup -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": "EasyPDF Blog",
+  "description": "Step-by-step tutorials and guides for PDF tools, image editing, and student productivity tools.",
+  "url": "{{ request.build_absolute_uri }}",
+  "publisher": {
+    "@type": "Person",
+    "name": "EasyPDF Creator"
+  }
+}
+</script>
+
+<!-- ItemList Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for blog in blogs %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "url": "{{ request.scheme }}://{{ request.get_host }}{% url blog.url %}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    // Category filter functionality
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
+    
+    if (categoryParam) {
+        const blogCards = document.querySelectorAll('.blog-card');
+        blogCards.forEach(card => {
+            const cardCategory = card.querySelector('.blog-category')?.textContent.toLowerCase();
+            if (cardCategory && !cardCategory.includes(categoryParam.toLowerCase())) {
+                card.style.display = 'none';
+            } else {
+                card.style.display = 'block';
+            }
+        });
+    }
+</script>
+</body>
+</html>

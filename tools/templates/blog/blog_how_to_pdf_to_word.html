@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Convert PDF to Word - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
+        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .blog-meta i { margin-right: 0.3rem; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
+        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
+        .blog-content li { margin: 0.5rem 0; }
+        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .tip-box strong { color: #E34234; }
+        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
+        .table-of-contents li { margin: 0.5rem 0; }
+        /* Sindhoor Red Color for Table of Contents Links */
+        .table-of-contents a {
+            color: #E34234 !important;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            color: #c53024 !important;
+            text-decoration: underline;
+        }
+        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
+        .cta-box h3 { margin-top: 0; color: #E34234; }
+        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
+        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>How to Convert PDF to Word Without Losing Formatting</h1>
+    <div class="blog-meta">
+        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+        <span><i class="fas fa-clock"></i> 4 min read</span>
+        <span><i class="fas fa-tag"></i> Conversion</span>
+    </div>
+    
+    <div class="blog-content">
+        <p>Need to edit a PDF file? Converting PDF to Word is the best way to extract and modify content. Here's how to do it while preserving formatting.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#why-convert">Why Convert PDF to Word</a></li>
+                <li><a href="#how-to">Step-by-Step Guide</a></li>
+                <li><a href="#tips">Tips for Best Results</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="why-convert">Why Convert PDF to Word</h2>
+        <p>Converting PDF to Word allows you to:</p>
+        <ul>
+            <li><strong>Edit Content:</strong> Modify text, images, and formatting</li>
+            <li><strong>Extract Data:</strong> Copy tables, charts, and text</li>
+            <li><strong>Repurpose Documents:</strong> Use content in new projects</li>
+            <li><strong>Fix Errors:</strong> Correct typos or outdated information</li>
+            <li><strong>Collaborate:</strong> Share editable documents with team members</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> For best results, use PDFs that were originally created digitally (not scanned). Scanned PDFs may require OCR technology.
+        </div>
+        
+        <h2 id="how-to">Step-by-Step Guide</h2>
+        
+        <h3>Step 1: Access the PDF to Word Tool</h3>
+        <p>Go to our <a href="{% url 'pdf_to_word' %}">PDF to Word converter</a> — completely free, no registration required!</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Select the PDF file you want to convert. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Click Convert</h3>
+        <p>Click "Convert to Word" and wait a few seconds for processing.</p>
+        
+        <h3>Step 4: Download Your DOCX File</h3>
+        <p>Download the converted Word document and start editing immediately!</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Note:</strong> Complex formatting (tables, images) may need minor adjustments after conversion.
+        </div>
+        
+        <h2 id="tips">Tips for Best Results</h2>
+        <ul>
+            <li><strong>Use High-Quality PDFs:</strong> Clear text converts more accurately</li>
+            <li><strong>Check the Output:</strong> Review the Word document for any formatting issues</li>
+            <li><strong>For Scanned PDFs:</strong> Use OCR-enabled tools for text extraction</li>
+            <li><strong>Keep a Backup:</strong> Always save your original PDF file</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>Will my formatting be preserved?</h3>
+        <p>Our tool preserves basic formatting like fonts, paragraphs, and bullet points. Complex layouts may need minor adjustments.</p>
+        
+        <h3>Can I convert scanned PDFs?</h3>
+        <p>For scanned PDFs (image-based), you may need OCR technology to extract text. Our tool works best with digital PDFs.</p>
+        
+        <h3>Is this really free?</h3>
+        <p>Yes! EasyPDF is 100% free for all users. No registration, no hidden costs.</p>
+        
+        <h3>Are my files secure?</h3>
+        <p>Absolutely. Files are automatically deleted after 5 minutes. We never store your documents.</p>
+        
+        <div class="cta-box">
+            <h3>Ready to Convert Your PDF?</h3>
+            <p>Convert PDF to Word instantly — free, fast, and no registration required</p>
+            <a href="{% url 'pdf_to_word' %}" class="cta-btn"><i class="fas fa-file-word"></i> Convert PDF to Word Now</a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'word_to_pdf' %}" class="related-tool">Word to PDF</a>
+            <a href="{% url 'pdf_to_text' %}" class="related-tool">PDF to Text</a>
+            <a href="{% url 'excel_to_pdf' %}" class="related-tool">Excel to PDF</a>
+        </div>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

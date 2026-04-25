@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Convert Website to PDF - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
+        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .blog-meta i { margin-right: 0.3rem; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
+        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
+        .blog-content li { margin: 0.5rem 0; }
+        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .tip-box strong { color: #E34234; }
+        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
+        .table-of-contents li { margin: 0.5rem 0; }
+        /* Sindhoor Red Color for Table of Contents Links */
+        .table-of-contents a {
+            color: #E34234 !important;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            color: #c53024 !important;
+            text-decoration: underline;
+        }
+        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
+        .cta-box h3 { margin-top: 0; color: #E34234; }
+        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
+        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>How to Convert Any Website to PDF</h1>
+    <div class="blog-meta">
+        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+        <span><i class="fas fa-clock"></i> 3 min read</span>
+        <span><i class="fas fa-tag"></i> Web Tools</span>
+    </div>
+    
+    <div class="blog-content">
+        <p>Want to save a webpage for offline reading? Converting websites to PDF is the perfect solution. Here's how to do it easily.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#why">Why Convert Websites to PDF</a></li>
+                <li><a href="#how">Step-by-Step Guide</a></li>
+                <li><a href="#tips">Pro Tips</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="why">Why Convert Websites to PDF</h2>
+        <ul>
+            <li><strong>Offline Reading:</strong> Access articles without internet</li>
+            <li><strong>Save Receipts:</strong> Keep online purchase records</li>
+            <li><strong>Research:</strong> Collect web content for projects</li>
+            <li><strong>Share Content:</strong> Send webpages as PDF attachments</li>
+            <li><strong>Archive:</strong> Preserve web content before it changes</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> Use our tool to save articles, receipts, and important web pages before they disappear or change!
+        </div>
+        
+        <h2 id="how">Step-by-Step Guide</h2>
+        
+        <h3>Step 1: Copy the URL</h3>
+        <p>Copy the full URL of the webpage you want to save.</p>
+        
+        <h3>Step 2: Use a Website to PDF Tool</h3>
+        <p>While we don't have a direct website-to-PDF tool yet, you can use your browser's "Print to PDF" feature (Ctrl+P → Save as PDF).</p>
+        
+        <h3>Step 3: Save and Organize</h3>
+        <p>Name your PDF file and save it to your computer for easy access.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Note:</strong> Some websites may block PDF conversion due to copyright or technical restrictions.
+        </div>
+        
+        <h2 id="tips">Pro Tips</h2>
+        <ul>
+            <li>Use browser extensions for one-click conversion</li>
+            <li>Remove ads and clutter before saving</li>
+            <li>Choose "Save as PDF" from print dialog (works on any browser)</li>
+            <li>Adjust page margins and scale for better formatting</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>Can I save an entire website as one PDF?</h3>
+        <p>For single pages, use print-to-PDF. For entire sites, you may need specialized tools.</p>
+        
+        <h3>Will images be included?</h3>
+        <p>Yes, most images and formatting are preserved when using print-to-PDF.</p>
+        
+        <div class="cta-box">
+            <h3>Need Other PDF Tools?</h3>
+            <p>Explore our free PDF tools for all your document needs</p>
+            <a href="{% url 'home' %}" class="cta-btn">Explore PDF Tools →</a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'pdf_to_word' %}" class="related-tool">PDF to Word</a>
+            <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
+            <a href="{% url 'compress_page' %}" class="related-tool">Compress Images</a>
+        </div>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

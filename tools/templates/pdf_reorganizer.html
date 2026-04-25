@@ -1,0 +1,1040 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Page Reorganizer - Reorder PDF Pages Online Free | EasyPDF</title>
+    <meta name="description" content="Free online PDF page reorganizer. Drag and drop to reorder PDF pages. Rearrange, reverse, or reset page order. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root { --pdf-red: #E34234; --pdf-red-hover: #C0362C; }
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+        .header-section { text-align: center; margin-bottom: 2rem; }
+        .header-section h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 0.5rem; }
+        .header-section p { color: #666; font-size: clamp(0.9rem, 1.2vw, 1rem); max-width: 600px; margin: 0 auto; }
+        
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area { border: 2px solid #dddddd; background: #f9f9f9; border-radius: 20px; padding: 2.5rem 2rem; transition: all 0.3s ease; cursor: pointer; display: block; max-width: 500px; margin: 0 auto 1rem; text-align: center; }
+        .upload-area:hover { border-color: var(--pdf-red); background: #fffafa; }
+        .file-name { text-align: center; margin: 0.5rem auto; font-weight: 600; color: var(--pdf-red); font-size: 0.9rem; }
+        
+        /* Pages Container */
+        .pages-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            min-height: 500px;
+        }
+        
+        .page-list {
+            width: 320px;
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .page-list h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--pdf-red);
+        }
+        
+        .sortable-list {
+            min-height: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .page-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .page-item:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+        
+        .page-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .page-number {
+            width: 35px;
+            height: 35px;
+            background: var(--pdf-red);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .page-preview {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #333;
+        }
+        
+        .drag-icon {
+            color: #999;
+            font-size: 1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--pdf-red);
+            color: white;
+        }
+        
+        .preview-area {
+            flex: 1;
+            background: #e0e0e0;
+            border-radius: 16px;
+            padding: 1rem;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+        
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        
+        .preview-card {
+            background: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .preview-card.active {
+            border-color: var(--pdf-red);
+            background: #fff5f4;
+        }
+        
+        .preview-card canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        
+        .preview-page-num {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+            color: #666;
+        }
+        
+        /* Download Button */
+        .download-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn-download {
+            background: var(--pdf-red);
+            color: white;
+            padding: 0.7rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            min-width: 200px;
+        }
+        
+        .btn-download:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-download:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            font-size: 0.85rem;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .loading-subtext {
+            color: #ccc;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .pages-container {
+                flex-direction: column;
+            }
+            .page-list {
+                width: 100%;
+            }
+            .btn-download {
+                width: 100%;
+                max-width: 300px;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div class="header-section">
+        <h1>PDF Page Reorganizer</h1>
+        <p>Drag and drop to reorder PDF pages. Rearrange, reverse, or reset page order instantly.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 100 pages per PDF | 300MB max file size
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="upload-area" id="drop-zone">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">
+            <i class="fas fa-arrows-alt"></i>
+        </div>
+        <h3>Select PDF file</h3>
+        <p style="color: #666; font-size: 0.85rem;">Click to upload</p>
+        <input type="file" id="pdfInput" accept="application/pdf" hidden>
+    </div>
+    <div id="fileDisplay" class="file-name"></div>
+
+    <div class="pages-container" id="reorganizerContainer" style="display: none;">
+        <!-- Left Side - Sortable Page List -->
+        <div class="page-list">
+            <h3><i class="fas fa-arrows-alt"></i> Page Order (Drag to Reorder)</h3>
+            <div id="sortableList" class="sortable-list"></div>
+            
+            <div class="action-buttons">
+                <button class="action-btn" id="reverseBtn"><i class="fas fa-arrow-down"></i> Reverse</button>
+                <button class="action-btn" id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+        </div>
+        
+        <!-- Right Side - Preview -->
+        <div class="preview-area">
+            <h3 style="margin-bottom: 1rem;"><i class="fas fa-eye"></i> Preview (New Order)</h3>
+            <div id="previewGrid" class="preview-grid">
+                <div style="text-align: center; padding: 2rem; color: #666;">Loading preview...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="download-wrapper" id="downloadWrapper" style="display: none;">
+        <button class="btn-download" id="downloadBtn">
+            <i class="fas fa-download"></i> Download Reorganized PDF
+        </button>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>PDF Page Reorganizer: Reorder PDF Pages Online</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is PDF Page Reorganizer?</h3>
+            <p>PDF page reorganizer allows you to reorder, rearrange, and reorganize pages in your PDF document. Our free online tool lets you drag and drop pages to change their order, reverse the entire document, or reset to original order. Perfect for fixing page sequences, organizing scanned documents, or preparing presentations.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Reorder scanned notes and textbook pages</li>
+                <li><strong>Business:</strong> Rearrange report pages and presentation slides</li>
+                <li><strong>Legal:</strong> Organize multi-page legal documents</li>
+                <li><strong>Publishers:</strong> Fix page order in manuscripts and eBooks</li>
+            </ul>
+            
+            <h3>How to Reorganize PDF Pages</h3>
+            <ol>
+                <li>Upload your PDF file using the button above (up to 100 pages)</li>
+                <li>Drag and drop pages in the left panel to reorder them</li>
+                <li>Use Reverse button to flip page order or Reset to restore original</li>
+                <li>Click "Download Reorganized PDF" to save your rearranged document</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Drag & Drop</span>
+                <span class="benefit-tag">Instant Preview</span>
+                <span class="benefit-tag">Reverse Order</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">100 Pages Max</span>
+                <span class="benefit-tag">300MB Limit</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About PDF Page Reorganizer</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I drag and drop pages to reorder them?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! Simply drag any page in the left panel and drop it at the desired position. The preview on the right updates instantly.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens when I click Reverse?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The Reverse button flips the entire page order. Page 1 becomes last, page 2 becomes second last, and so on.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a page limit for reorganization?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, the PDF cannot exceed 100 pages. This ensures smooth drag and drop performance for all users.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded file?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your file is automatically deleted from our servers within 5 minutes after download. We never store or access your documents permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+                <a href="{% url 'split_pdf' %}" class="related-tool-link">Split PDF</a>
+                <a href="{% url 'rotate_pdf' %}" class="related-tool-link">Rotate PDF</a>
+                <a href="{% url 'remove_pages' %}" class="related-tool-link">Remove Pages</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online PDF tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="status-msg" id="statusMsg">
+    <i class="fas fa-check-circle"></i> <span id="statusText"></span>
+</div>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text" id="loadingText">Processing PDF...</div>
+    <div class="loading-subtext" id="loadingSubtext">Please wait</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I drag and drop pages to reorder them?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Simply drag any page in the left panel and drop it at the desired position. The preview on the right updates instantly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when I click Reverse?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Reverse button flips the entire page order. Page 1 becomes last, page 2 becomes second last, and so on."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a page limit for reorganization?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the PDF cannot exceed 100 pages. This ensures smooth drag and drop performance for all users."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your file is automatically deleted from our servers within 5 minutes after download. We never store or access your documents permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    let pdfDoc = null;
+    let totalPages = 0;
+    let pageOrder = [];
+    let currentPDFData = null;
+    let pagePreviews = [];
+    
+    // DOM elements
+    const input = document.getElementById('pdfInput');
+    const dropZone = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const reorganizerContainer = document.getElementById('reorganizerContainer');
+    const sortableList = document.getElementById('sortableList');
+    const previewGrid = document.getElementById('previewGrid');
+    const downloadWrapper = document.getElementById('downloadWrapper');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    const loadingSubtext = document.getElementById('loadingSubtext');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const MAX_FILE_SIZE_MB = 300;
+    const MAX_PAGES = 100;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function showError(msg) {
+        errorMessage.innerHTML = msg;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 4000);
+    }
+
+    function validateFile(file) {
+        errorMessage.style.display = 'none';
+        
+        if (file.type !== 'application/pdf') {
+            showError(`❌ "${file.name}" is not a PDF file. Please upload a valid PDF.`);
+            return false;
+        }
+        
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            showError(`❌ "${file.name}" is too large (${sizeMB.toFixed(2)}MB). Max ${MAX_FILE_SIZE_MB}MB allowed.`);
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Upload handler
+    dropZone.onclick = () => input.click();
+    
+    input.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const isValid = validateFile(file);
+        if (!isValid) {
+            fileDisplay.innerHTML = '';
+            return;
+        }
+        
+        fileDisplay.innerHTML = `📄 ${file.name}`;
+        
+        loadingOverlay.style.display = 'flex';
+        loadingText.textContent = 'Loading PDF...';
+        loadingSubtext.textContent = 'Please wait while we load your document';
+        
+        const reader = new FileReader();
+        reader.onload = async function(event) {
+            currentPDFData = event.target.result.split(',')[1];
+            await loadPDF(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    async function loadPDF(dataUrl) {
+        try {
+            const loadingTask = pdfjsLib.getDocument(dataUrl);
+            pdfDoc = await loadingTask.promise;
+            totalPages = pdfDoc.numPages;
+            
+            // Check page limit
+            if (totalPages > MAX_PAGES) {
+                loadingOverlay.style.display = 'none';
+                showError(`❌ Page limit exceeded: Your PDF has ${totalPages} pages. Maximum allowed is ${MAX_PAGES} pages.`);
+                fileDisplay.innerHTML = '';
+                return;
+            }
+            
+            // Initialize page order
+            pageOrder = [];
+            for (let i = 1; i <= totalPages; i++) {
+                pageOrder.push(i);
+            }
+            
+            loadingText.textContent = 'Generating previews...';
+            loadingSubtext.textContent = `Creating thumbnails for ${totalPages} pages`;
+            
+            await generatePreviews();
+            
+            loadingOverlay.style.display = 'none';
+            dropZone.style.display = 'none';
+            reorganizerContainer.style.display = 'flex';
+            downloadWrapper.style.display = 'flex';
+            
+            renderSortableList();
+            renderPreview();
+            
+        } catch (error) {
+            loadingOverlay.style.display = 'none';
+            showError('Error loading PDF: ' + error.message);
+        }
+    }
+    
+    async function generatePreviews() {
+        pagePreviews = [];
+        
+        for (let i = 1; i <= totalPages; i++) {
+            const page = await pdfDoc.getPage(i);
+            const viewport = page.getViewport({ scale: 0.2 });
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            
+            const ctx = canvas.getContext('2d');
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            
+            pagePreviews.push({
+                pageNum: i,
+                imageData: canvas.toDataURL()
+            });
+        }
+    }
+    
+    function renderSortableList() {
+        sortableList.innerHTML = '';
+        
+        pageOrder.forEach((pageNum, index) => {
+            const item = document.createElement('div');
+            item.className = 'page-item';
+            item.setAttribute('data-index', index);
+            item.setAttribute('data-page', pageNum);
+            item.draggable = true;
+            
+            item.innerHTML = `
+                <div class="page-number">${pageNum}</div>
+                <div class="page-preview">Page ${pageNum}</div>
+                <div class="drag-icon"><i class="fas fa-grip-vertical"></i></div>
+            `;
+            
+            // Drag and drop events
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('drop', handleDrop);
+            item.addEventListener('dragend', handleDragEnd);
+            
+            sortableList.appendChild(item);
+        });
+    }
+    
+    let draggedItem = null;
+    
+    function handleDragStart(e) {
+        draggedItem = this;
+        e.dataTransfer.effectAllowed = 'move';
+        this.classList.add('dragging');
+    }
+    
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }
+    
+    function handleDrop(e) {
+        e.preventDefault();
+        
+        if (draggedItem && draggedItem !== this) {
+            const draggedIndex = parseInt(draggedItem.getAttribute('data-index'));
+            const targetIndex = parseInt(this.getAttribute('data-index'));
+            
+            // Reorder array
+            const draggedPage = pageOrder[draggedIndex];
+            pageOrder.splice(draggedIndex, 1);
+            pageOrder.splice(targetIndex, 0, draggedPage);
+            
+            // Re-render
+            renderSortableList();
+            renderPreview();
+            showStatus('Page order updated');
+        }
+    }
+    
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        draggedItem = null;
+    }
+    
+    function renderPreview() {
+        previewGrid.innerHTML = '';
+        
+        if (pagePreviews.length === 0) {
+            previewGrid.innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">No preview available</div>';
+            return;
+        }
+        
+        pageOrder.forEach((pageNum, index) => {
+            const preview = pagePreviews[pageNum - 1];
+            if (!preview) return;
+            
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+            
+            const img = document.createElement('img');
+            img.src = preview.imageData;
+            img.style.width = '100%';
+            img.style.borderRadius = '4px';
+            
+            const pageLabel = document.createElement('div');
+            pageLabel.className = 'preview-page-num';
+            pageLabel.innerHTML = `<i class="fas fa-arrow-right"></i> Pos ${index + 1} (Page ${pageNum})`;
+            
+            card.appendChild(img);
+            card.appendChild(pageLabel);
+            previewGrid.appendChild(card);
+        });
+    }
+    
+    // Action buttons
+    document.getElementById('reverseBtn').onclick = () => {
+        pageOrder.reverse();
+        renderSortableList();
+        renderPreview();
+        showStatus('Page order reversed');
+    };
+    
+    document.getElementById('resetBtn').onclick = () => {
+        pageOrder = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pageOrder.push(i);
+        }
+        renderSortableList();
+        renderPreview();
+        showStatus('Order reset to original');
+    };
+    
+    // Download reorganized PDF
+    downloadBtn.onclick = async function() {
+        if (!currentPDFData || pageOrder.length === 0) {
+            showError('No PDF loaded');
+            return;
+        }
+        
+        loadingOverlay.style.display = 'flex';
+        loadingText.textContent = 'Reorganizing PDF...';
+        loadingSubtext.textContent = 'Please wait while we process your document';
+        downloadBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/reorganize-pdf/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    pdf_data: currentPDFData,
+                    page_order: pageOrder
+                })
+            });
+            
+            const data = await response.json();
+            loadingOverlay.style.display = 'none';
+            downloadBtn.disabled = false;
+            
+            if (data.status === 'success') {
+                const link = document.createElement('a');
+                link.href = 'data:application/pdf;base64,' + data.pdf_data;
+                link.download = 'easypdf_reorganized.pdf';
+                link.click();
+                showStatus(`PDF saved! ${data.page_count} pages`);
+            } else {
+                showError('Error: ' + data.message);
+            }
+        } catch(e) {
+            loadingOverlay.style.display = 'none';
+            downloadBtn.disabled = false;
+            showError('Failed: ' + e.message);
+        }
+    };
+    
+    function showStatus(msg) {
+        const statusDiv = document.getElementById('statusMsg');
+        document.getElementById('statusText').textContent = msg;
+        statusDiv.style.display = 'block';
+        setTimeout(() => statusDiv.style.display = 'none', 2000);
+    }
+    
+    function getCookie(name) {
+        let value = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    value = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return value;
+    }
+
+    // Reset on page show
+    window.addEventListener('pageshow', function() {
+        if (downloadBtn) downloadBtn.disabled = false;
+        loadingOverlay.style.display = 'none';
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

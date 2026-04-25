@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - EasyPDF | Created by a Student for Students</title>
+    <meta name="description" content="EasyPDF was created by a student developer to help fellow students with PDF and study tools. Free, fast, and secure tools for academic success.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .about-container { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .about-header { text-align: center; margin-bottom: 2rem; }
+        .about-header h1 { font-size: 2.5rem; color: #E34234; margin-bottom: 0.5rem; }
+        .about-header p { color: #666; font-size: 1rem; }
+        .about-content { line-height: 1.8; color: #333; }
+        .about-content h2 { margin-top: 2rem; color: #E34234; font-size: 1.3rem; }
+        .mission-box { background: #f5f7fb; padding: 2rem; border-radius: 16px; margin: 2rem 0; text-align: center; }
+        .mission-box i { font-size: 3rem; color: #E34234; margin-bottom: 1rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }
+        .stat-card { text-align: center; padding: 1rem; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .stat-number { font-size: 1.8rem; font-weight: 800; color: #E34234; }
+        .stat-label { font-size: 0.75rem; color: #666; margin-top: 0.3rem; }
+        .feature-list { list-style: none; padding: 0; }
+        .feature-list li { padding: 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+        .feature-list li i { color: #E34234; width: 1.5rem; }
+        .student-badge { background: linear-gradient(135deg, #E34234 0%, #c53024 100%); color: white; padding: 0.5rem 1rem; border-radius: 40px; display: inline-block; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; }
+        .quote-box { background: #fff5f4; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid #E34234; font-style: italic; color: #555; }
+        @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="about-container">
+    <div class="about-header">
+        <span class="student-badge"><i class="fas fa-user-graduate"></i> Created by a Student Developer</span>
+        <h1>About EasyPDF</h1>
+        <p>PDF & Study Tools Built for Students, By a Student</p>
+    </div>
+    <div class="about-content">
+        
+        <h2>Who Runs EasyPDF?</h2>
+        <p>Hi! I'm a student developer who created EasyPDF. This website is my solo project — designed, built, and maintained entirely by me. As a student myself, I understand the challenges of managing documents, studying for exams, and finding reliable free tools online.</p>
+        
+        <div class="quote-box">
+            <i class="fas fa-quote-left" style="color: #E34234; margin-right: 0.5rem;"></i> 
+            I built EasyPDF because I needed these tools for my own studies. Now I'm sharing them with students everywhere — completely free.
+        </div>
+        
+        <div class="mission-box">
+            <i class="fas fa-graduation-cap"></i>
+            <h2>Why I Created EasyPDF</h2>
+            <p>As a student, I often found myself in urgent situations — needing to merge PDFs before submission, compress images for assignments, or create flashcards for last-minute exam prep. Most online tools were either paid, had watermarks, or required registration. So I decided to build my own free tools to help students like me.</p>
+            <p style="margin-top: 1rem; font-weight: 600;">EasyPDF is here to help students in urgent situations — anytime, anywhere, completely free.</p>
+        </div>
+        
+        <h2>What EasyPDF Helps Students Do</h2>
+        <ul class="feature-list">
+            <li><i class="fas fa-file-pdf"></i> <strong>PDF Tools:</strong> Merge, split, rotate, protect, and edit PDF documents</li>
+            <li><i class="fas fa-image"></i> <strong>Image Tools:</strong> Compress, resize, crop, convert and edit images</li>
+            <li><i class="fas fa-layer-group"></i> <strong>Flashcard Generator:</strong> Create study flashcards from your notes</li>
+            <li><i class="fas fa-hourglass-half"></i> <strong>Study Timer:</strong> Stay focused with Pomodoro technique</li>
+            <li><i class="fas fa-calculator"></i> <strong>Grade Calculator:</strong> Calculate your GPA and exam scores</li>
+            <li><i class="fas fa-key"></i> <strong>Security Tools:</strong> Generate strong passwords and check password strength</li>
+        </ul>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">30+</div>
+                <div class="stat-label">Free Tools</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">300MB</div>
+                <div class="stat-label">Max File Size</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Registration Required</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">5 min</div>
+                <div class="stat-label">Auto Deletion</div>
+            </div>
+        </div>
+        
+        <h2>Security & Privacy Commitment</h2>
+        <ul class="feature-list">
+            <li><i class="fas fa-lock"></i> <strong>Secure HTTPS Connection:</strong> All uploads are encrypted</li>
+            <li><i class="fas fa-trash-alt"></i> <strong>Auto Deletion:</strong> Files are automatically deleted after 5 minutes</li>
+            <li><i class="fas fa-eye-slash"></i> <strong>No Permanent Storage:</strong> We never store your files permanently</li>
+            <li><i class="fas fa-user-secret"></i> <strong>No Tracking:</strong> No cookies, no analytics tracking your data</li>
+            <li><i class="fas fa-shield-alt"></i> <strong>Privacy First:</strong> Your documents stay yours — always</li>
+        </ul>
+        <p>Unlike many other free PDF websites, EasyPDF does not sell your data, show intrusive ads, or require you to create an account. Your privacy matters to me as much as it matters to you.</p>
+        
+        <h2>Why EasyPDF is Completely Free</h2>
+        <p>I believe every student should have access to essential tools without worrying about costs. EasyPDF will always remain free. There are no premium tiers, no hidden fees, and no watermarks. This is my contribution to the student community.</p>
+        
+        <div class="mission-box">
+            <i class="fas fa-envelope" style="font-size: 2rem;"></i>
+            <h2>Contact Me</h2>
+            <p>Have questions, suggestions, or feedback? I'd love to hear from you!</p>
+            <p><strong>📧 Email:</strong> <a href="mailto:easypdf8@gmail.com" style="color: #E34234; text-decoration: none;">easypdf8@gmail.com</a></p>
+            <p style="margin-top: 1rem; font-size: 0.85rem;">I reply to all emails within 24-48 hours.</p>
+        </div>
+        
+        <p style="text-align: center; margin-top: 2rem; font-size: 0.85rem; color: #888;">
+            <i class="fas fa-heart" style="color: #E34234;"></i> Made with dedication for students everywhere
+        </p>
+    </div>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<script nonce="{{ request.csp_nonce }}">
+    // Simple FAQ toggle if any
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        if (question) {
+            question.addEventListener('click', () => {
+                item.classList.toggle('active');
+            });
+        }
+    });
+</script>
+</body>
+</html>

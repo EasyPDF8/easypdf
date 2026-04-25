@@ -1,0 +1,839 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Watermark to PDF - Protect Your Documents | EasyPDF</title>
+    <meta name="description" content="Free online tool to add watermarks to PDF documents. Add custom text watermarks with adjustable position, size, rotation, color, and opacity. Protect your PDF files instantly.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+
+        body { background: #fff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+        }
+
+        /* Limit Info Box */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1fr 0.7fr;
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 2rem auto;
+        }
+
+        @media (max-width: 900px) {
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .preview-container {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f5f7fb;
+        }
+
+        canvas {
+            width: 100%;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--pdf-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+
+        .upload-area p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .option-group {
+            margin-bottom: 1rem;
+        }
+
+        .option-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .option-group input,
+        .option-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .option-group input:focus,
+        .option-group select:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .btn-watermark {
+            background: var(--pdf-red);
+            color: #fff;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            display: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-watermark:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .file-name {
+            color: var(--pdf-red);
+            font-weight: bold;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .color-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-row input[type="color"] {
+            width: 60px;
+            height: 42px;
+            padding: 0.2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .color-row input[type="text"] {
+            flex: 1;
+        }
+
+        .opacity-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .opacity-row input {
+            flex: 1;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 4rem auto 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+            text-align: left;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+
+    <h1 class="page-title">Add Watermark to PDF</h1>
+    <p class="page-subtitle">Protect your documents with custom watermarks</p>
+
+    <!-- Limit Info Box -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Features:</strong> Custom Text Watermark | Adjustable Position | Rotate (0°, 30°, 45°) | Color Picker | Opacity Control | Live Preview
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="two-column-layout">
+
+            <!-- LEFT - Preview -->
+            <div>
+                <h3 style="margin-bottom: 0.5rem;">Preview</h3>
+                <div class="preview-container">
+                    <canvas id="pdfPreview"></canvas>
+                </div>
+                <div id="fileDisplay" class="file-name"></div>
+            </div>
+
+            <!-- RIGHT - Options -->
+            <div>
+
+                <label class="upload-area" id="drop-zone">
+                    <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <h3 style="margin-bottom: 0.25rem;">Select PDF file</h3>
+                    <p style="color: #666; font-size: 0.85rem;">or drag and drop PDF here</p>
+                    <input type="file" name="pdf" id="pdfInput" hidden>
+                </label>
+
+                <div class="option-group">
+                    <label>Text</label>
+                    <input type="text" id="watermarkText" name="watermark_text" value="Confidential">
+                </div>
+
+                <div class="option-group">
+                    <label>Position</label>
+                    <select id="position" name="position">
+                        <option value="center">Center</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-right">Bottom Right</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Font Size</label>
+                    <select id="fontSize" name="font_size">
+                        <option value="30">Small</option>
+                        <option value="50" selected>Medium</option>
+                        <option value="70">Large</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Rotation</label>
+                    <select id="rotation" name="rotation">
+                        <option value="0">0°</option>
+                        <option value="30">30°</option>
+                        <option value="45" selected>45°</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Color</label>
+                    <div class="color-row">
+                        <input type="color" id="color" name="color" value="#E34234">
+                        <input type="text" id="colorHex" value="#E34234" placeholder="#E34234">
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <label>Opacity</label>
+                    <div class="opacity-row">
+                        <input type="range" id="opacity" name="opacity" min="0" max="100" value="30">
+                        <span id="opacityValue" style="min-width: 40px;">30%</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-watermark">
+                    Add Watermark
+                </button>
+
+            </div>
+
+        </div>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Add Watermark to PDF: Protect Your Documents Instantly</h2>
+            <div class="seo-divider"></div>
+
+            <h3>What is a PDF Watermark?</h3>
+            <p>A PDF watermark is a semi-transparent text or image overlay placed on a document to indicate ownership, confidentiality, or document status. Common watermarks include "Confidential," "Draft," "Sample," or company names. Our free online tool lets you add custom watermarks to any PDF document with full control over position, size, rotation, color, and opacity.</p>
+
+            <h3>Why Add Watermarks to PDFs?</h3>
+            <ul>
+                <li><strong>Protect Intellectual Property:</strong> Prevent unauthorized distribution of your documents.</li>
+                <li><strong>Mark Document Status:</strong> Clearly label drafts, confidential files, or final versions.</li>
+                <li><strong>Brand Your Documents:</strong> Add your company logo or name to all pages.</li>
+                <li><strong>Legal Protection:</strong> Watermarks deter copyright infringement.</li>
+                <li><strong>Internal Security:</strong> Track document leaks back to their source.</li>
+            </ul>
+
+            <h3>How to Add a Watermark to a PDF</h3>
+            <ol>
+                <li>Upload your PDF file by clicking the upload area or dragging and dropping.</li>
+                <li>Enter your custom watermark text (e.g., "Confidential" or "Draft").</li>
+                <li>Choose the watermark position: Center, Top Left, Top Right, Bottom Left, or Bottom Right.</li>
+                <li>Adjust font size (Small, Medium, or Large) to fit your document.</li>
+                <li>Set rotation angle (0°, 30°, or 45°) for a diagonal watermark effect.</li>
+                <li>Select a color using the color picker or enter a hex code.</li>
+                <li>Adjust opacity to make the watermark subtle or prominent.</li>
+                <li>Preview the result in real-time on the left side.</li>
+                <li>Click "Add Watermark" to download your watermarked PDF.</li>
+            </ol>
+
+            <h3>Key Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Live Preview</span>
+                <span class="benefit-tag">Custom Text</span>
+                <span class="benefit-tag">Adjustable Position</span>
+                <span class="benefit-tag">Rotate Watermark</span>
+                <span class="benefit-tag">Color Picker</span>
+                <span class="benefit-tag">Opacity Control</span>
+                <span class="benefit-tag">No Registration</span>
+            </div>
+
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About PDF Watermarking</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is my PDF file uploaded to a server?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No! Your PDF is processed entirely in your browser. We use PDF.js to render and add watermarks locally. Your files never leave your computer, ensuring complete privacy and security.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I add a watermark to all pages of a multi-page PDF?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! When you submit your PDF, the watermark is applied to every page of your document. The preview shows the first page, but the final download includes watermarks on all pages.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What file types are supported?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Currently, we support PDF files only. The watermark text can be any custom text you choose. For image watermarks, please check our other tools.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a file size limit?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Since processing happens in your browser, very large PDFs may take longer to process. For optimal performance, we recommend files under 50MB. There is no strict limit imposed by our server.</div>
+                </div>
+            </div>
+
+            <!-- Internal Linking (Compress PDF removed) -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+                <a href="{% url 'split_pdf' %}" class="related-tool-link">Split PDF</a>
+                <a href="{% url 'pdf_to_word' %}" class="related-tool-link">PDF to Word</a>
+                <a href="{% url 'word_counter' %}" class="related-tool-link">Word Counter</a>
+            </div>
+
+            <div class="seo-footer">
+                Protect your documents with EasyPDF's free watermark tool. All processing happens locally in your browser for maximum privacy.
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Adding watermark to PDF...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is my PDF file uploaded to a server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No! Your PDF is processed entirely in your browser. We use PDF.js to render and add watermarks locally. Your files never leave your computer, ensuring complete privacy and security."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I add a watermark to all pages of a multi-page PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! When you submit your PDF, the watermark is applied to every page of your document. The preview shows the first page, but the final download includes watermarks on all pages."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What file types are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Currently, we support PDF files only. The watermark text can be any custom text you choose. For image watermarks, please check our other tools."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a file size limit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Since processing happens in your browser, very large PDFs may take longer to process. For optimal performance, we recommend files under 50MB. There is no strict limit imposed by our server."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+const input = document.getElementById('pdfInput');
+const dropZone = document.getElementById('drop-zone');
+const fileDisplay = document.getElementById('fileDisplay');
+const submitBtn = document.getElementById('submitBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+let pdfDoc = null;
+const canvas = document.getElementById('pdfPreview');
+const ctx = canvas.getContext('2d');
+
+// Drag and drop
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    input.files = e.dataTransfer.files;
+    handleFile(input.files[0]);
+});
+
+// Load PDF
+input.addEventListener('change', function() {
+    handleFile(this.files[0]);
+});
+
+function handleFile(file) {
+    if (!file) return;
+
+    fileDisplay.innerText = file.name;
+    submitBtn.style.display = 'block';
+
+    const reader = new FileReader();
+    reader.onload = function() {
+        const typedarray = new Uint8Array(this.result);
+
+        pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+            pdfDoc = pdf;
+            renderPreview();
+        });
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Render PDF
+function renderPreview() {
+    if (!pdfDoc) return;
+
+    pdfDoc.getPage(1).then(page => {
+        const viewport = page.getViewport({ scale: 1.5 });
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
+            drawWatermark();
+        });
+    });
+}
+
+// Draw watermark
+function drawWatermark() {
+    const text = document.getElementById('watermarkText').value;
+    const rotation = document.getElementById('rotation').value;
+    const fontSize = document.getElementById('fontSize').value;
+    const opacity = document.getElementById('opacity').value / 100;
+    const color = document.getElementById('color').value;
+    const position = document.getElementById('position').value;
+
+    ctx.save();
+
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = color;
+    ctx.font = `${fontSize}px Arial`;
+
+    let x = canvas.width / 2;
+    let y = canvas.height / 2;
+    ctx.textAlign = "center";
+
+    if (position === "top-left") { x = 50; y = 50; ctx.textAlign = "left"; }
+    if (position === "top-right") { x = canvas.width - 50; y = 50; ctx.textAlign = "right"; }
+    if (position === "bottom-left") { x = 50; y = canvas.height - 50; ctx.textAlign = "left"; }
+    if (position === "bottom-right") { x = canvas.width - 50; y = canvas.height - 50; ctx.textAlign = "right"; }
+
+    ctx.translate(x, y);
+    ctx.rotate(rotation * Math.PI / 180);
+
+    ctx.fillText(text, 0, 0);
+
+    ctx.restore();
+}
+
+// Sync color picker
+const colorPicker = document.getElementById('color');
+const colorHex = document.getElementById('colorHex');
+colorPicker.addEventListener('input', function() {
+    colorHex.value = this.value;
+    renderPreview();
+});
+colorHex.addEventListener('input', function() {
+    let value = this.value;
+    if (!value.startsWith('#')) value = '#' + value;
+    if (/^#[0-9A-F]{6}$/i.test(value)) {
+        colorPicker.value = value;
+        renderPreview();
+    }
+});
+
+// Live update
+document.querySelectorAll('#watermarkText, #rotation, #fontSize, #opacity, #position').forEach(el => {
+    el.addEventListener('input', renderPreview);
+});
+
+document.getElementById('opacity').addEventListener('input', function() {
+    document.getElementById('opacityValue').textContent = this.value + '%';
+    renderPreview();
+});
+
+// Clean FAQ Toggle
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        faqItems.forEach(other => {
+            if (other !== item) other.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+// Form submit
+document.querySelector('form').addEventListener('submit', function() {
+    loadingOverlay.style.display = 'flex';
+    submitBtn.disabled = true;
+});
+</script>
+
+</body>
+</html>

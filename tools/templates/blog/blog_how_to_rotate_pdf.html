@@ -1,0 +1,278 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Rotate PDF Pages - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 1rem;
+        }
+        .blog-post h1 {
+            color: #E34234;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .blog-meta {
+            color: #888;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .blog-meta i {
+            margin-right: 0.3rem;
+        }
+        .blog-content {
+            line-height: 1.8;
+            color: #333;
+        }
+        .blog-content h2 {
+            color: #E34234;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        .blog-content h3 {
+            color: #555;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+        .blog-content p {
+            margin-bottom: 1rem;
+        }
+        .blog-content ul, .blog-content ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        .blog-content li {
+            margin: 0.5rem 0;
+        }
+        .tip-box {
+            background: #f0f7ff;
+            padding: 1.2rem;
+            border-left: 4px solid #E34234;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .tip-box strong {
+            color: #E34234;
+        }
+        .warning-box {
+            background: #fff3f0;
+            padding: 1.2rem;
+            border-left: 4px solid #ff9800;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .cta-box {
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .cta-box h3 {
+            margin-top: 0;
+            color: #E34234;
+        }
+        .cta-btn {
+            background: #E34234;
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .cta-btn:hover {
+            background: #c53024;
+            transform: translateY(-2px);
+        }
+        .table-of-contents {
+            background: #f8f9fa;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+        .table-of-contents h3 {
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+        }
+        .table-of-contents ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        .table-of-contents a {
+            color: #E34234;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            text-decoration: underline;
+        }
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .related-tool {
+            background: white;
+            border: 1px solid #eee;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            color: #333;
+            transition: all 0.2s;
+        }
+        .related-tool:hover {
+            background: #E34234;
+            color: white;
+            border-color: #E34234;
+        }
+        @media (max-width: 600px) {
+            .blog-post { padding: 2rem 1rem; }
+            .blog-post h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>How to Rotate PDF Pages</h1>
+    <div class="blog-meta">
+        <i class="fas fa-calendar-alt"></i> April 2026 &nbsp;|&nbsp;
+        <i class="fas fa-clock"></i> 3 min read &nbsp;|&nbsp;
+        <i class="fas fa-tag"></i> PDF Tips
+    </div>
+    
+    <div class="blog-content">
+        <p>Have you ever scanned a document only to find that some pages are sideways or upside down? Or received a PDF from a colleague where the orientation is all wrong? Don't worry — rotating PDF pages is quick and easy with EasyPDF.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#why-rotate">Why You Might Need to Rotate PDFs</a></li>
+                <li><a href="#how-to">Step-by-Step Guide to Rotate PDF</a></li>
+                <li><a href="#supported">Supported Rotation Angles</a></li>
+                <li><a href="#tips">Pro Tips for PDF Rotation</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="why-rotate">Why You Might Need to Rotate PDFs</h2>
+        <p>There are several common scenarios where rotating PDF pages becomes necessary:</p>
+        <ul>
+            <li><strong>Scanned Documents:</strong> When scanning books or documents, pages often come out sideways or upside down</li>
+            <li><strong>Mobile Scans:</strong> Photos taken from phones may not align correctly</li>
+            <li><strong>Mixed Orientation:</strong> Some PDFs contain both portrait and landscape pages</li>
+            <li><strong>Printing Preparation:</strong> Ensure correct orientation before printing</li>
+            <li><strong>Presentation Ready:</strong> Fix page orientation for professional presentations</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> Always check your PDF orientation before printing. Rotating pages can save paper and ensure your document looks professional!
+        </div>
+        
+        <h2 id="how-to">Step-by-Step Guide to Rotate PDF</h2>
+        <p>Follow these simple steps to rotate your PDF pages using EasyPDF:</p>
+        
+        <h3>Step 1: Access the Rotate PDF Tool</h3>
+        <p>Go to our <a href="{% url 'rotate_pdf' %}">Rotate PDF tool</a> — no registration required, completely free!</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Click the upload button and select the PDF file you want to rotate. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Choose Rotation Angle</h3>
+        <p>Select your desired rotation:</p>
+        <ul>
+            <li><strong>90° Clockwise</strong> — Rotates pages to the right</li>
+            <li><strong>180°</strong> — Flips pages upside down</li>
+            <li><strong>270° Clockwise</strong> — Rotates pages to the left</li>
+        </ul>
+        
+        <h3>Step 4: Download Your Rotated PDF</h3>
+        <p>Click "Rotate PDF" and your file will be processed instantly. Download the rotated PDF — it's that simple!</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Note:</strong> Your file is automatically deleted from our servers after 5 minutes. Your privacy is always protected.
+        </div>
+        
+        <h2 id="supported">Supported Rotation Angles</h2>
+        <p>EasyPDF supports all standard rotation angles:</p>
+        
+        <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+            <tr style="background: #f5f5f5;">
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Angle</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Effect</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Use Case</th>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">90°</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Rotates page to the right</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Fix landscape images scanned as portrait</td>
+            </tr>
+            <tr style="background: #fafafa;">
+                <td style="padding: 10px; border: 1px solid #ddd;">180°</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Flips page upside down</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Fix completely inverted pages</td>
+            </tr>
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">270°</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Rotates page to the left</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">Alternative for fixing orientation issues</td>
+            </tr>
+        </table>
+        
+        <h2 id="tips">Pro Tips for PDF Rotation</h2>
+        <ul>
+            <li><strong>Rotate All Pages at Once:</strong> Our tool rotates every page in your PDF with one click — no need to do it page by page</li>
+            <li><strong>Check Before Downloading:</strong> Use the preview feature to confirm the rotation is correct</li>
+            <li><strong>Combine with Other Tools:</strong> After rotating, you can also merge, split, or compress your PDF</li>
+            <li><strong>Save a Copy:</strong> Keep the original file in case you need it later</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>Can I rotate only specific pages?</h3>
+        <p>Currently, our tool rotates all pages in the PDF. If you need to rotate specific pages, you can use our <a href="{% url 'split_pdf' %}">Split PDF tool</a> first to extract pages, rotate them separately, then <a href="{% url 'merge_pdf' %}">merge them back</a>.</p>
+        
+        <h3>Does rotating affect PDF quality?</h3>
+        <p>No! Rotating pages does not reduce quality or resolution. Your PDF remains exactly the same quality, just with corrected orientation.</p>
+        
+        <h3>Is this really free?</h3>
+        <p>Yes! EasyPDF is 100% free for all users. No registration, no premium tiers, no hidden costs. Just upload, rotate, and download.</p>
+        
+        <h3>Are my files secure?</h3>
+        <p>Absolutely. All uploaded files are automatically deleted from our servers within 5 minutes. We never store or access your files permanently.</p>
+        
+        <div class="cta-box">
+            <h3>Ready to Rotate Your PDF?</h3>
+            <p>Try our free Rotate PDF tool now — instant processing, no registration required</p>
+            <a href="{% url 'rotate_pdf' %}" class="cta-btn">
+                <i class="fas fa-sync-alt"></i> Rotate PDF Now
+            </a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
+            <a href="{% url 'split_pdf' %}" class="related-tool">Split PDF</a>
+            <a href="{% url 'protect_pdf' %}" class="related-tool">Protect PDF</a>
+            <a href="{% url 'compress_page' %}" class="related-tool">Compress Images</a>
+        </div>
+    </div>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

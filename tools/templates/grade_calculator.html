@@ -1,0 +1,1131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Calculator - Calculate Your GPA & Final Exam Score | EasyPDF</title>
+    <meta name="description" content="Free online grade calculator. Calculate your weighted grade, GPA (4.0 scale), and what you need on your final exam. Perfect for students tracking academic progress.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+            --correct: #00c851;
+            --wrong: #ff4444;
+        }
+        
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+
+        /* Page Layout */
+        .page-wrapper {
+            text-align: center;
+            padding-top: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title { 
+            font-size: clamp(1.8rem, 4vw, 2.5rem); 
+            font-weight: 800; 
+            color: #1a1a2e; 
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle { 
+            color: #666; 
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+        }
+
+        /* Calculator Container */
+        .calculator-container {
+            max-width: 600px;
+            margin: 1rem auto;
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
+
+        /* Limit Info Box */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Tab Navigation */
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .tab-btn.active {
+            background: var(--pdf-red);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #f0f0f0;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Input Groups */
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .input-row .input-group {
+            flex: 1;
+        }
+
+        /* Assignment Row */
+        .assignment-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .assignment-row input {
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .assignment-name {
+            flex: 2;
+            min-width: 120px;
+        }
+
+        .assignment-score {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .assignment-total {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .assignment-weight {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .remove-assignment {
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .remove-assignment:hover {
+            background: #cc0000;
+        }
+
+        .add-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+
+        .add-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+
+        /* Subject Row for GPA */
+        .subject-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .subject-name {
+            flex: 2;
+            min-width: 120px;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .subject-grade {
+            flex: 1;
+            min-width: 100px;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .subject-credits {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .remove-subject {
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .remove-subject:hover {
+            background: #cc0000;
+        }
+
+        /* Calculate Button */
+        .calculate-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .calculate-btn:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Result Box */
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f5f7fb;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--pdf-red);
+        }
+
+        .result-grade {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .result-message {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .grade-a { color: #00c851; }
+        .grade-b { color: #2e7d32; }
+        .grade-c { color: #ffa500; }
+        .grade-d { color: #ff6600; }
+        .grade-f { color: #ff4444; }
+
+        .info-box {
+            background: #f5f7fb;
+            border-radius: 12px;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            text-align: left;
+        }
+
+        .info-box h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-box li {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box li i {
+            color: var(--pdf-red);
+            width: 18px;
+        }
+
+        .note-text {
+            font-size: 0.7rem;
+            color: #999;
+            margin-top: 0.3rem;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 4rem auto 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+            text-align: left;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .input-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .assignment-row {
+                flex-direction: column;
+            }
+            .assignment-name, .assignment-score, .assignment-total, .assignment-weight {
+                width: 100%;
+            }
+            .subject-row {
+                flex-direction: column;
+            }
+            .subject-name, .subject-grade, .subject-credits {
+                width: 100%;
+            }
+            .seo-card {
+                padding: 1.5rem;
+            }
+            .seo-card h2 {
+                font-size: 1.3rem;
+            }
+            .benefit-tag {
+                padding: 0.4rem 1rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Grade Calculator</h1>
+    <p class="page-subtitle">Calculate your grades, GPA, and what you need on your final exam</p>
+
+    <!-- Limit Info Box -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Features:</strong> Weighted Grade Calculator | GPA Calculator (4.0 Scale) | Final Exam Goal Calculator | Letter Grades A-F
+    </div>
+
+    <div class="calculator-container">
+        <!-- Tab Navigation -->
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="grade">Grade Calculator</button>
+            <button class="tab-btn" data-tab="gpa">GPA Calculator</button>
+            <button class="tab-btn" data-tab="final">Final Exam Calculator</button>
+        </div>
+
+        <!-- ========== GRADE CALCULATOR TAB ========== -->
+        <div class="tab-pane active" id="gradeTab">
+            <p class="note-text" style="text-align:left; margin-bottom:0.5rem;">
+                Weight (%) = How much each assignment contributes to your final grade.
+            </p>
+
+            <div id="assignmentsList"></div>
+
+            <button class="add-btn" id="addAssignmentBtn">
+                <i class="fas fa-plus"></i> Add Assignment
+            </button>
+
+            <button class="calculate-btn" id="calculateGradeBtn">
+                Calculate Grade
+            </button>
+
+            <div class="result-box" id="gradeResult">
+                <div class="result-score" id="gradeScore">0%</div>
+                <div class="result-grade" id="gradeLetter">-</div>
+                <div class="result-message" id="gradeMessage"></div>
+            </div>
+
+            <div class="note-text">
+                Note: Weight percentage should add up to 100% for accurate results.
+            </div>
+        </div>
+
+        <!-- ========== GPA CALCULATOR TAB ========== -->
+        <div class="tab-pane" id="gpaTab">
+            <p class="note-text" style="text-align:left; margin-bottom:0.5rem;">
+                Credits = Importance of each subject (usually 2, 3, or 4).
+            </p>
+
+            <div id="subjectsList"></div>
+
+            <button class="add-btn" id="addSubjectBtn">
+                <i class="fas fa-plus"></i> Add Subject
+            </button>
+
+            <button class="calculate-btn" id="calculateGpaBtn">
+                Calculate GPA
+            </button>
+
+            <div class="result-box" id="gpaResult">
+                <div class="result-score" id="gpaScore">0.00</div>
+                <div class="result-grade" id="gpaLetter">-</div>
+                <div class="result-message" id="gpaMessage"></div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Final Exam Calculator -->
+        <div class="tab-pane" id="finalTab">
+            <div class="input-group">
+                <label>Current Grade (%)</label>
+                <input type="number" id="currentGrade" placeholder="e.g., 82">
+            </div>
+            <div class="input-group">
+                <label>Desired Grade (%)</label>
+                <input type="number" id="desiredGrade" placeholder="e.g., 90">
+            </div>
+            <div class="input-group">
+                <label>Final Exam Weight (%)</label>
+                <input type="number" id="finalWeight" placeholder="e.g., 30">
+            </div>
+            <button class="calculate-btn" id="calculateFinalBtn">Calculate Needed Score</button>
+            
+            <div class="result-box" id="finalResult">
+                <div class="result-score" id="finalScore">0%</div>
+                <div class="result-grade" id="finalNeeded">-</div>
+                <div class="result-message" id="finalMessage"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h4><i class="fas fa-info-circle"></i> Grade Scale:</h4>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> A: 90-100% (Excellent)</li>
+            <li><i class="fas fa-check-circle"></i> B: 80-89% (Good)</li>
+            <li><i class="fas fa-check-circle"></i> C: 70-79% (Average)</li>
+            <li><i class="fas fa-check-circle"></i> D: 60-69% (Below Average)</li>
+            <li><i class="fas fa-check-circle"></i> F: Below 60% (Failing)</li>
+        </ul>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Grade Calculator: Track Your Academic Performance</h2>
+            <div class="seo-divider"></div>
+
+            <h3>What is a Grade Calculator?</h3>
+            <p>A grade calculator helps students calculate their weighted average grade, GPA (Grade Point Average), and determine what score they need on a final exam to achieve their desired course grade. Our free online tool supports three calculation modes: weighted grade calculator, GPA calculator on a 4.0 scale, and final exam goal calculator.</p>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>College Students:</strong> Calculate semester grades and track GPA across multiple courses.</li>
+                <li><strong>High School Students:</strong> Monitor progress in each subject and set grade goals.</li>
+                <li><strong>Teachers & Educators:</strong> Demonstrate how weighted grading systems work.</li>
+                <li><strong>Parents:</strong> Help children understand their academic standing.</li>
+                <li><strong>Self-learners:</strong> Track performance in online courses with weighted assignments.</li>
+            </ul>
+
+            <h3>How to Use the Grade Calculator</h3>
+            <ol>
+                <li>Select your calculation mode: Grade Calculator, GPA Calculator, or Final Exam Calculator.</li>
+                <li>For Grade Calculator: Add assignments with their scores (out of total points) and weight percentages.</li>
+                <li>For GPA Calculator: Add subjects with letter grades and credit hours (usually 2-4 credits).</li>
+                <li>For Final Exam Calculator: Enter your current grade, desired grade, and final exam weight.</li>
+                <li>Click "Calculate" to see your results, letter grade, and personalized feedback.</li>
+                <li>Use the "Add" buttons to include more assignments or subjects as needed.</li>
+            </ol>
+
+            <h3>Key Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">3 Calculation Modes</span>
+                <span class="benefit-tag">Weighted Grading</span>
+                <span class="benefit-tag">4.0 GPA Scale</span>
+                <span class="benefit-tag">Final Exam Goal</span>
+                <span class="benefit-tag">Letter Grades A-F</span>
+                <span class="benefit-tag">Unlimited Assignments</span>
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">No Registration</span>
+            </div>
+
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Grade Calculator</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do weighted grades work?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Weighted grades mean different assignments contribute different percentages to your final grade. For example, if homework is worth 20%, quizzes 30%, and exams 50%, your final grade is calculated by multiplying each category's average by its weight percentage, then adding them together.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is GPA and how is it calculated?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">GPA (Grade Point Average) is calculated by converting letter grades to grade points (A=4.0, B=3.0, etc.), multiplying each by the course credits, summing the results, and dividing by total credits. Our calculator uses the standard 4.0 scale accepted by most US colleges.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How accurate is the final exam calculator?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The final exam calculator is mathematically accurate based on the formula: (Desired Grade - (Current Grade × (1 - Weight/100))) ÷ (Weight/100). It tells you exactly what percentage you need on your final to reach your target grade, assuming your current grade is accurate.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Are my calculations saved or shared?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No! All calculations are performed locally in your browser. We never store or share your grade data. Everything stays private on your device. You can close the page and your data will not be retained.</div>
+                </div>
+            </div>
+
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'flashcard_generator' %}" class="related-tool-link">Flashcard Generator</a>
+                <a href="{% url 'quiz_generator' %}" class="related-tool-link">Quiz Generator</a>
+                <a href="{% url 'study_timer' %}" class="related-tool-link">Study Timer</a>
+                <a href="{% url 'word_counter' %}" class="related-tool-link">Word Counter</a>
+            </div>
+
+            <div class="seo-footer">
+                Track your academic progress with EasyPDF's free grade calculator. Perfect for students at any level.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do weighted grades work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Weighted grades mean different assignments contribute different percentages to your final grade. For example, if homework is worth 20%, quizzes 30%, and exams 50%, your final grade is calculated by multiplying each category's average by its weight percentage, then adding them together."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is GPA and how is it calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "GPA (Grade Point Average) is calculated by converting letter grades to grade points (A=4.0, B=3.0, etc.), multiplying each by the course credits, summing the results, and dividing by total credits. Our calculator uses the standard 4.0 scale accepted by most US colleges."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is the final exam calculator?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The final exam calculator is mathematically accurate based on the formula: (Desired Grade - (Current Grade × (1 - Weight/100))) ÷ (Weight/100). It tells you exactly what percentage you need on your final to reach your target grade, assuming your current grade is accurate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my calculations saved or shared?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No! All calculations are performed locally in your browser. We never store or share your grade data. Everything stays private on your device. You can close the page and your data will not be retained."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            document.getElementById(`${tabId}Tab`).classList.add('active');
+        });
+    });
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    // ========== GRADE CALCULATOR ==========
+    let assignments = [];
+
+    function updateAssignmentsList() {
+        const container = document.getElementById('assignmentsList');
+        if (assignments.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; padding:1rem;">No assignments added. Click "Add Assignment" to start.</p>';
+            return;
+        }
+        
+        let html = '<h4 style="margin-bottom:0.5rem;">Assignments:</h4>';
+        assignments.forEach((item, index) => {
+            html += `
+                <div class="assignment-row">
+                    <input type="text" class="assignment-name" placeholder="Assignment Name" value="${item.name}" onchange="updateAssignment(${index}, 'name', this.value)">
+                    <input type="number" class="assignment-score" placeholder="Score" value="${item.score}" onchange="updateAssignment(${index}, 'score', parseFloat(this.value))">
+                    <input type="number" class="assignment-total" placeholder="Total" value="${item.total}" onchange="updateAssignment(${index}, 'total', parseFloat(this.value))">
+                    <input type="number" class="assignment-weight" placeholder="Weight %" value="${item.weight}" onchange="updateAssignment(${index}, 'weight', parseFloat(this.value))">
+                    <button class="remove-assignment" onclick="removeAssignment(${index})">✕</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+
+    window.updateAssignment = (index, field, value) => {
+        assignments[index][field] = value;
+    };
+
+    window.removeAssignment = (index) => {
+        assignments.splice(index, 1);
+        updateAssignmentsList();
+    };
+
+    document.getElementById('addAssignmentBtn').addEventListener('click', () => {
+        assignments.push({ name: `Assignment ${assignments.length + 1}`, score: '', total: '', weight: '' });
+        updateAssignmentsList();
+    });
+
+    document.getElementById('calculateGradeBtn').addEventListener('click', () => {
+        if (assignments.length === 0) {
+            alert('Please add at least one assignment');
+            return;
+        }
+        
+        let totalWeight = 0;
+        let weightedScore = 0;
+        
+        for (const item of assignments) {
+            if (item.score && item.total && item.weight) {
+                const percentage = (item.score / item.total) * 100;
+                weightedScore += percentage * (item.weight / 100);
+                totalWeight += item.weight;
+            }
+        }
+        
+        if (totalWeight === 0) {
+            alert('Please enter valid scores, totals, and weights');
+            return;
+        }
+        
+        const finalPercentage = weightedScore;
+        
+        let gradeLetter = '';
+        let gradeClass = '';
+        let message = '';
+        
+        if (finalPercentage >= 90) {
+            gradeLetter = 'A';
+            gradeClass = 'grade-a';
+            message = 'Excellent! Outstanding performance!';
+        } else if (finalPercentage >= 80) {
+            gradeLetter = 'B';
+            gradeClass = 'grade-b';
+            message = 'Good job! Keep it up!';
+        } else if (finalPercentage >= 70) {
+            gradeLetter = 'C';
+            gradeClass = 'grade-c';
+            message = 'Average performance. Room for improvement.';
+        } else if (finalPercentage >= 60) {
+            gradeLetter = 'D';
+            gradeClass = 'grade-d';
+            message = 'Below average. Need more effort.';
+        } else {
+            gradeLetter = 'F';
+            gradeClass = 'grade-f';
+            message = 'Failing. Seek help and study more.';
+        }
+        
+        const resultBox = document.getElementById('gradeResult');
+        document.getElementById('gradeScore').textContent = finalPercentage.toFixed(2) + '%';
+        document.getElementById('gradeLetter').innerHTML = `Grade: <span class="${gradeClass}">${gradeLetter}</span>`;
+        document.getElementById('gradeMessage').textContent = message;
+        resultBox.style.display = 'block';
+    });
+
+    // Initialize with one empty assignment
+    assignments.push({ name: 'Assignment 1', score: '', total: '', weight: '' });
+    updateAssignmentsList();
+
+    // ========== GPA CALCULATOR ==========
+    let subjects = [];
+
+    const gradePoints = {
+        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+        'D+': 1.3, 'D': 1.0, 'F': 0.0
+    };
+    
+    function updateSubjectsList() {
+        const container = document.getElementById('subjectsList');
+        if (subjects.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; padding:1rem;">No subjects added. Click "Add Subject" to start.</p>';
+            return;
+        }
+        
+        let html = '<h4 style="margin-bottom:0.5rem;">Subjects:</h4>';
+        subjects.forEach((subject, index) => {
+            html += `
+                <div class="subject-row">
+                    <input type="text" class="subject-name" placeholder="Subject Name" value="${subject.name}" onchange="updateSubject(${index}, 'name', this.value)">
+                    <select class="subject-grade" onchange="updateSubject(${index}, 'grade', this.value)">
+                        <option value="">Select Grade</option>
+                        <option value="A+" ${subject.grade === 'A+' ? 'selected' : ''}>A+ (4.0)</option>
+                        <option value="A" ${subject.grade === 'A' ? 'selected' : ''}>A (4.0)</option>
+                        <option value="A-" ${subject.grade === 'A-' ? 'selected' : ''}>A- (3.7)</option>
+                        <option value="B+" ${subject.grade === 'B+' ? 'selected' : ''}>B+ (3.3)</option>
+                        <option value="B" ${subject.grade === 'B' ? 'selected' : ''}>B (3.0)</option>
+                        <option value="B-" ${subject.grade === 'B-' ? 'selected' : ''}>B- (2.7)</option>
+                        <option value="C+" ${subject.grade === 'C+' ? 'selected' : ''}>C+ (2.3)</option>
+                        <option value="C" ${subject.grade === 'C' ? 'selected' : ''}>C (2.0)</option>
+                        <option value="C-" ${subject.grade === 'C-' ? 'selected' : ''}>C- (1.7)</option>
+                        <option value="D+" ${subject.grade === 'D+' ? 'selected' : ''}>D+ (1.3)</option>
+                        <option value="D" ${subject.grade === 'D' ? 'selected' : ''}>D (1.0)</option>
+                        <option value="F" ${subject.grade === 'F' ? 'selected' : ''}>F (0.0)</option>
+                    </select>
+                    <input type="number" class="subject-credits" placeholder="Credits" value="${subject.credits}" step="0.5" min="0.5" onchange="updateSubject(${index}, 'credits', parseFloat(this.value))">
+                    <button class="remove-subject" onclick="removeSubject(${index})">✕</button>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    }
+    
+    window.updateSubject = (index, field, value) => {
+        subjects[index][field] = value;
+    };
+    
+    window.removeSubject = (index) => {
+        subjects.splice(index, 1);
+        updateSubjectsList();
+    };
+    
+    document.getElementById('addSubjectBtn').addEventListener('click', () => {
+        subjects.push({ name: `Subject ${subjects.length + 1}`, grade: '', credits: 3 });
+        updateSubjectsList();
+    });
+    
+    document.getElementById('calculateGpaBtn').addEventListener('click', () => {
+        let totalPoints = 0;
+        let totalCredits = 0;
+        
+        for (const subject of subjects) {
+            if (subject.grade && gradePoints[subject.grade] !== undefined && subject.credits && subject.credits > 0) {
+                totalPoints += gradePoints[subject.grade] * subject.credits;
+                totalCredits += subject.credits;
+            }
+        }
+        
+        if (totalCredits === 0) {
+            alert('Please add subjects with valid grades and credits');
+            return;
+        }
+        
+        const gpa = totalPoints / totalCredits;
+        
+        let gpaLetter = '';
+        let gpaClass = '';
+        let message = '';
+        
+        if (gpa >= 3.5) {
+            gpaLetter = 'Excellent';
+            gpaClass = 'grade-a';
+            message = 'Outstanding academic performance!';
+        } else if (gpa >= 3.0) {
+            gpaLetter = 'Good';
+            gpaClass = 'grade-b';
+            message = 'Good performance! Keep it up!';
+        } else if (gpa >= 2.5) {
+            gpaLetter = 'Satisfactory';
+            gpaClass = 'grade-c';
+            message = 'Satisfactory. Room for improvement.';
+        } else if (gpa >= 2.0) {
+            gpaLetter = 'Passing';
+            gpaClass = 'grade-d';
+            message = 'Passing but need more effort.';
+        } else {
+            gpaLetter = 'Needs Improvement';
+            gpaClass = 'grade-f';
+            message = 'Seek help and improve your grades.';
+        }
+        
+        const resultBox = document.getElementById('gpaResult');
+        document.getElementById('gpaScore').textContent = gpa.toFixed(2);
+        document.getElementById('gpaLetter').innerHTML = `Status: <span class="${gpaClass}">${gpaLetter}</span>`;
+        document.getElementById('gpaMessage').textContent = message;
+        resultBox.style.display = 'block';
+    });
+    
+    // Initialize with one empty subject
+    subjects.push({ name: 'Subject 1', grade: '', credits: 3 });
+    updateSubjectsList();
+
+    // ========== FINAL EXAM CALCULATOR ==========
+    document.getElementById('calculateFinalBtn').addEventListener('click', () => {
+        const current = parseFloat(document.getElementById('currentGrade').value);
+        const desired = parseFloat(document.getElementById('desiredGrade').value);
+        const weight = parseFloat(document.getElementById('finalWeight').value);
+        
+        if (isNaN(current) || isNaN(desired) || isNaN(weight)) {
+            alert('Please fill all fields');
+            return;
+        }
+        
+        if (current < 0 || current > 100) {
+            alert('Current grade must be between 0 and 100');
+            return;
+        }
+        if (desired < 0 || desired > 100) {
+            alert('Desired grade must be between 0 and 100');
+            return;
+        }
+        if (weight <= 0 || weight >= 100) {
+            alert('Final exam weight must be between 1 and 99');
+            return;
+        }
+        
+        const needed = ((desired - (current * (1 - weight / 100))) / (weight / 100));
+        
+        let message = '';
+        let colorClass = '';
+        
+        if (needed > 100) {
+            message = `You need ${needed.toFixed(1)}% on your final, but that's impossible. Consider lowering your desired grade.`;
+            colorClass = 'grade-f';
+        } else if (needed < 0) {
+            message = `You've already achieved your desired grade! You don't need to worry about the final exam.`;
+            colorClass = 'grade-a';
+        } else if (needed <= 60) {
+            message = `You need ${needed.toFixed(1)}% on your final. Very achievable! Keep studying!`;
+            colorClass = 'grade-a';
+        } else if (needed <= 75) {
+            message = `You need ${needed.toFixed(1)}% on your final. Doable with good preparation.`;
+            colorClass = 'grade-b';
+        } else if (needed <= 90) {
+            message = `You need ${needed.toFixed(1)}% on your final. Challenge accepted? Study hard!`;
+            colorClass = 'grade-c';
+        } else {
+            message = `You need ${needed.toFixed(1)}% on your final. It's possible but requires excellent performance!`;
+            colorClass = 'grade-d';
+        }
+        
+        const resultBox = document.getElementById('finalResult');
+        document.getElementById('finalScore').textContent = needed.toFixed(1) + '%';
+        document.getElementById('finalNeeded').innerHTML = `<span class="${colorClass}">${needed > 100 ? 'Not Possible' : needed < 0 ? 'Already Achieved' : needed.toFixed(1) + '% Needed'}</span>`;
+        document.getElementById('finalMessage').textContent = message;
+        resultBox.style.display = 'block';
+    });
+</script>
+
+
+</body>
+</html>

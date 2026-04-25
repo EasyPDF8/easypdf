@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="Free online PDF tools, image tools, converters and study tools. Merge PDF, split PDF, compress images, JPG to PDF and more. Secure files auto-deleted after 5 minutes.">
+    <title>EasyPDF – Free PDF Tools, Image Tools, JPG to PDF, Merge PDF Online</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* Fix dropdown layering */
+        .navbar { position: relative; z-index: 1000; }
+
+        /* Mobile dropdown active */
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Remove underline + black text */
+        .nav-btn {
+            text-decoration: none;
+            color: black;
+            font-weight: 500;
+        }
+
+        /* Right side nav links */
+        .nav-right {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        /* Body Background */
+        body {
+            background-color: #f5f7fb;
+        }
+
+        /* Category Section Styling */
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+            color: #1a1a2e;
+        }
+
+        /* Category Navigation (Tabs) */
+        .category-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 70px;
+            background: #f5f7fb;
+            padding: 0.8rem;
+            border-radius: 50px;
+            z-index: 99;
+        }
+
+        .category-nav a {
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            background: white;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+        }
+
+        .category-nav a:hover {
+            border-color: #E34234;
+            color: #E34234;
+        }
+
+        /* Tool Grid - Responsive */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Tool Card */
+        .tool-card {
+            background: #ffffff;
+            border: none;
+            padding: 1.5rem 1rem;
+            border-radius: 16px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: block;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Icon Container */
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .tool-icon {
+            background: #E34234;
+            transform: scale(1.05);
+        }
+
+        .tool-icon i {
+            font-size: 1.8rem;
+            color: #E34234;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .tool-icon i {
+            color: white;
+        }
+
+        .tool-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .tool-card p {
+            font-size: 0.75rem;
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .tool-stats {
+            margin-top: 0.5rem;
+            font-size: 0.65rem;
+            color: #999;
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .tool-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tool-stats i {
+            font-size: 0.6rem;
+            color: #E34234;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(135deg, #f5f7fb 0%, #ffffff 100%);
+            border-radius: 24px;
+            margin-bottom: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+
+        .hero-section p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Free Plan Banner */
+        .free-plan-banner {
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            margin: 0 auto 2rem;
+            max-width: 800px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .free-plan-banner strong {
+            color: #E34234;
+        }
+
+        .free-plan-banner i {
+            margin-right: 0.5rem;
+            color: #E34234;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        .faq-question {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #E34234;
+            margin-bottom: 0.5rem;
+        }
+        .faq-answer {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Free Tools Banner */
+        .free-tools-banner {
+            max-width: 1280px;
+            margin: 3rem auto 2rem;
+            padding: 0 2rem;
+        }
+        .free-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            background: linear-gradient(145deg, #ffffff 0%, #fef7f6 100%);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(227, 66, 52, 0.2);
+        }
+        .free-card-left {
+            padding: 2.5rem;
+            background: white;
+        }
+        .free-card-left .badge {
+            background: #E34234;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+        .free-card-left h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: #1a1a2e;
+        }
+        .free-card-left .price-tag {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1rem 0 0.5rem;
+        }
+        .free-card-left .price-tag small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #666;
+        }
+        .free-features {
+            list-style: none;
+            margin: 1.5rem 0;
+            padding: 0;
+        }
+        .free-features li {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .free-features li i {
+            color: #E34234;
+            width: 1.4rem;
+            font-size: 1rem;
+        }
+        .free-btn-main {
+            background: #E34234;
+            color: white;
+            padding: 0.9rem 2rem;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-block;
+            transition: 0.25s;
+            border: none;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+            box-shadow: 0 6px 14px rgba(227,66,52,0.3);
+            cursor: pointer;
+        }
+        .free-btn-main:hover {
+            background: #c53024;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(227,66,52,0.4);
+        }
+        .free-card-right {
+            background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%);
+            padding: 2.5rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .free-card-right h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .free-card-right p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+        .free-list-right {
+            list-style: none;
+            padding: 0;
+        }
+        .free-list-right li {
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+        }
+        .free-list-right li i {
+            font-size: 1rem;
+            width: 1.4rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .free-grid {
+                grid-template-columns: 1fr;
+            }
+            .free-card-right {
+                text-align: center;
+            }
+            .free-list-right {
+                text-align: left;
+            }
+            .tool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            .tool-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 480px) {
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<!-- HERO SECTION -->
+<header class="container hero-section">
+    <h1 class="hero-title">Make PDF Easy.</h1>
+    <p>All the tools you need in one place. Fast, simple and free.</p>
+</header>
+
+
+<!-- CATEGORY NAVIGATION TABS -->
+<div class="container">
+    <div class="category-nav">
+        <a href="#pdf-tools">PDF Tools</a>
+        <a href="#image-tools">Image Tools</a>
+        <a href="#conversion-tools">Conversion Tools</a>
+        <a href="#productivity-tools">Productivity Tools</a>
+        <a href="#exam-study-tools">Exam and Study</a>
+        <a href="#security-tools">Security and Utility</a>
+    </div>
+</div>
+
+<!-- TOOLS CATEGORIES -->
+<main class="container">
+
+    <!-- PDF TOOLS -->
+    <div id="pdf-tools" class="category-section">
+        <h2 class="category-title">PDF Tools</h2>
+        <div class="tool-grid">
+            <a href="{% url 'merge_pdf' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-object-group"></i></div>
+                <h3>Merge PDF</h3>
+                <p>Combine multiple PDF files into one document</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> Up to 100 files</span></div>
+            </a>
+            <a href="{% url 'split_pdf' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-cut"></i></div>
+                <h3>Split PDF</h3>
+                <p>Extract specific pages from your PDF</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> Custom ranges</span></div>
+            </a>
+            <a href="{% url 'rotate_pdf' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-undo-alt"></i></div>
+                <h3>Rotate PDF</h3>
+                <p>Fix page orientation permanently</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> 90°, 180°, 270°</span></div>
+            </a>
+            <a href="{% url 'convert_to_jpg' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-file-image"></i></div>
+                <h3>PDF to JPG</h3>
+                <p>Convert each PDF page to JPG image</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> High quality</span></div>
+            </a>
+            <a href="{% url 'jpg_to_pdf' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-images"></i></div>
+                <h3>JPG to PDF</h3>
+                <p>Convert multiple images to PDF</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> Up to 200 images</span></div>
+            </a>
+            <a href="{% url 'protect_pdf' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-lock"></i></div>
+                <h3>Protect PDF</h3>
+                <p>Add password protection to PDF</p>
+                <div class="tool-stats"><span><i class="fas fa-shield-alt"></i> AES encryption</span></div>
+            </a>
+            <a href="{% url 'remove_pages' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-trash-alt"></i></div>
+                <h3>Remove Pages</h3>
+                <p>Delete specific pages from your PDF</p>
+                <div class="tool-stats"><span><i class="fas fa-list"></i> Custom page ranges</span></div>
+            </a>
+            <a href="{% url 'add_page_numbers' %}" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-sort-numeric-up"></i></div>
+                <h3>Add Page Numbers</h3>
+                <p>Add page numbers to your PDF</p>
+                <div class="tool-stats"><span><i class="fas fa-bolt"></i> Custom start number</span></div>
+            </a>
+        </div>
+    </div>
+
+    <!-- IMAGE TOOLS -->
+    <div id="image-tools" class="category-section">
+        <h2 class="category-title">Image Tools</h2>
+        <div class="tool-grid">
+            <a href="{% url 'compress_page' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-compress"></i></div><h3>Compress Images</h3><p>Reduce image file size</p><div class="tool-stats"><span><i class="fas fa-chart-line"></i> Up to 90% smaller</span></div></a>
+            <a href="{% url 'convert_image_format' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-exchange-alt"></i></div><h3>Convert Format</h3><p>PNG, JPG, WebP, BMP</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Multiple formats</span></div></a>
+            <a href="{% url 'resize_images' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-expand-alt"></i></div><h3>Resize Images</h3><p>Change image dimensions</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Custom dimensions</span></div></a>
+            <a href="{% url 'crop_images' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-crop-alt"></i></div><h3>Crop Images</h3><p>Trim unwanted areas</p><div class="tool-stats"><span><i class="fas fa-mouse-pointer"></i> Precise cropping</span></div></a>
+            <a href="{% url 'rotate_images' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-sync-alt"></i></div><h3>Rotate Images</h3><p>Rotate by 90, 180, 270°</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Quick rotation</span></div></a>
+            <a href="{% url 'flip_images' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-arrows-alt-h"></i></div><h3>Flip Images</h3><p>Horizontal or vertical flip</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Mirror effect</span></div></a>
+            <a href="{% url 'add_border' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-border-all"></i></div><h3>Add Border</h3><p>Add custom border</p><div class="tool-stats"><span><i class="fas fa-sliders-h"></i> Adjustable size</span></div></a>
+            <a href="{% url 'image_to_grayscale' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-adjust"></i></div><h3>Image to Grayscale</h3><p>Convert to black and white</p><div class="tool-stats"><span><i class="fas fa-palette"></i> B&W conversion</span></div></a>
+        </div>
+    </div>
+
+    <!-- CONVERSION TOOLS -->
+    <div id="conversion-tools" class="category-section">
+        <h2 class="category-title">Conversion Tools</h2>
+        <div class="tool-grid">
+            <a href="{% url 'word_to_pdf' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-file-word"></i></div><h3>Word to PDF</h3><p>Convert DOCX to PDF</p><div class="tool-stats"><span><i class="fas fa-file-pdf"></i> High quality</span></div></a>
+            <a href="{% url 'pdf_to_word' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-file-word"></i></i></div><h3>PDF to Word</h3><p>Convert PDF to Word</p><div class="tool-stats"><span><i class="fas fa-edit"></i> Editable output</span></div></a>
+            <a href="{% url 'pdf_to_text' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-file-alt"></i></div><h3>PDF to Text</h3><p>Extract text from PDF</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Fast extraction</span></div></a>
+            <a href="{% url 'excel_to_pdf' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-file-excel"></i></div><h3>Excel to PDF</h3><p>Convert spreadsheets</p><div class="tool-stats"><span><i class="fas fa-table"></i> Preserve layout</span></div></a>
+            <a href="{% url 'text_to_pdf' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-file-alt"></i></div><h3>Text to PDF</h3><p>Convert TXT to PDF</p><div class="tool-stats"><span><i class="fas fa-bolt"></i> Auto formatting</span></div></a>
+            <a href="{% url 'bulk_image_to_pdf' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-images"></i></div><h3>Bulk Image to PDF</h3><p>Multiple images to PDF</p><div class="tool-stats"><span><i class="fas fa-layer-group"></i> Batch process</span></div></a>
+            <a href="{% url 'qr_code_generator' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-qrcode"></i></div><h3>QR Code Generator</h3><p>Generate QR codes</p><div class="tool-stats"><span><i class="fas fa-download"></i> PNG download</span></div></a>
+            <a href="{% url 'pdf_metadata' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-info-circle"></i></div><h3>PDF Metadata</h3><p>View PDF info</p><div class="tool-stats"><span><i class="fas fa-tag"></i> Title/Author</span></div></a>
+        </div>
+    </div>
+
+    <!-- PRODUCTIVITY TOOLS -->
+    <div id="productivity-tools" class="category-section">
+        <h2 class="category-title">Productivity Tools</h2>
+        <div class="tool-grid">
+            <a href="{% url 'pdf_reorganizer' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-arrows-alt"></i></div><h3>PDF Page Reorganizer</h3><p>Reorder PDF pages</p><div class="tool-stats"><span><i class="fas fa-grip-vertical"></i> Drag to reorder</span></div></a>
+            <a href="{% url 'study_timetable' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-calendar-week"></i></div><h3>Study Timetable</h3><p>Generate study plan</p><div class="tool-stats"><span><i class="fas fa-sun"></i> Morning/Evening/Night</span></div></a>
+            <a href="{% url 'todo_list' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-check-square"></i></div><h3>To-Do List</h3><p>Manage tasks</p><div class="tool-stats"><span><i class="fas fa-tasks"></i> Task manager</span></div></a>
+            <a href="{% url 'word_counter' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-calculator"></i></div><h3>Word Counter</h3><p>Count words and characters</p><div class="tool-stats"><span><i class="fas fa-file-alt"></i> TXT/PDF support</span></div></a>
+        </div>
+    </div>
+
+    <!-- EXAM AND STUDY TOOLS -->
+    <div id="exam-study-tools" class="category-section">
+        <h2 class="category-title">Exam and Study Tools</h2>
+        <div class="tool-grid">
+            <a href="{% url 'quiz_generator' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-question-circle"></i></div><h3>Quiz Generator</h3><p>Practice quizzes</p><div class="tool-stats"><span><i class="fas fa-file-alt"></i> From notes</span></div></a>
+            <a href="{% url 'flashcard_generator' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-layer-group"></i></div><h3>Flashcard Generator</h3><p>Study flashcards</p><div class="tool-stats"><span><i class="fas fa-click"></i> Click to flip</span></div></a>
+            <a href="{% url 'study_timer' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-hourglass-half"></i></div><h3>Study Timer</h3><p>Pomodoro timer</p><div class="tool-stats"><span><i class="fas fa-clock"></i> 25 min sessions</span></div></a>
+            <a href="{% url 'grade_calculator' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-calculator"></i></div><h3>Grade Calculator</h3><p>Calculate grades</p><div class="tool-stats"><span><i class="fas fa-percent"></i> Percentage calc</span></div></a>
+        </div>
+    </div>
+
+    <!-- SECURITY AND UTILITY -->
+    <div id="security-tools" class="category-section">
+        <h2 class="category-title">Security and Utility</h2>
+        <div class="tool-grid">
+            <a href="{% url 'add_watermark' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-tint"></i></div><h3>Add Watermark</h3><p>Protect documents</p><div class="tool-stats"><span><i class="fas fa-copyright"></i> Copyright protection</span></div></a>
+            <a href="{% url 'remove_password' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-unlock-alt"></i></div><h3>Remove Password</h3><p>Unlock PDFs</p><div class="tool-stats"><span><i class="fas fa-key"></i> Password removal</span></div></a>
+            <a href="{% url 'password_strength_checker' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-shield-alt"></i></div><h3>Password Strength Checker</h3><p>Check password strength</p><div class="tool-stats"><span><i class="fas fa-chart-line"></i> Strength meter</span></div></a>
+            <a href="{% url 'password_generator' %}" class="tool-card"><div class="tool-icon"><i class="fas fa-key"></i></div><h3>Password Generator</h3><p>Generate secure passwords</p><div class="tool-stats"><span><i class="fas fa-sliders-h"></i> Custom length</span></div></a>
+        </div>
+    </div>
+
+    <!-- FAQ SECTION -->
+    <div id="faq" class="faq-section">
+        <h2 class="category-title">Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">Is EasyPDF really free?</div>
+            <div class="faq-answer">Yes! EasyPDF offers a generous free plan for all users. No credit card required to get started.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Are my files secure?</div>
+            <div class="faq-answer">Absolutely. All files are automatically deleted after 5 minutes. We never store or access your files permanently.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Do I need to create an account?</div>
+            <div class="faq-answer">No, you can use all tools without an account. Just upload and process your files instantly.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">What file formats are supported?</div>
+            <div class="faq-answer">We support PDF, JPG, PNG, WebP, BMP, DOCX, XLSX, TXT, and more depending on the tool.</div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Are there any limits?</div>
+            <div class="faq-answer">We offer generous limits with 200MB per file and 100 files per day to ensure everyone can use the tools effectively.</div>
+        </div>
+    </div>
+
+    <!-- FREE TOOLS BANNER -->
+    <div class="free-tools-banner">
+        <div class="free-grid">
+            <div class="free-card-left">
+                <div class="badge">FREE TOOLS</div>
+                <h2>All Features. No Cost.</h2>
+                <div class="price-tag">$0 <small>/ forever</small></div>
+                <ul class="free-features">
+                    <li><i class="fas fa-check-circle"></i> 200MB max file size</li>
+                    <li><i class="fas fa-check-circle"></i> 100 files per day</li>
+                    <li><i class="fas fa-check-circle"></i> All PDF, Image & Conversion tools</li>
+                    <li><i class="fas fa-check-circle"></i> No registration required</li>
+                    <li><i class="fas fa-trash-alt"></i> Auto-delete after 5 minutes</li>
+                </ul>
+                <a href="#pdf-tools" class="free-btn-main">Start Using Tools →</a>
+            </div>
+            <div class="free-card-right">
+                <h3>Why Choose EasyPDF?</h3>
+                <p>Powerful document tools designed for students, professionals, and anyone who needs to work with PDFs and images.</p>
+                <ul class="free-list-right">
+                    <li><i class="fas fa-tachometer-alt"></i> Fast processing speed</li>
+                    <li><i class="fas fa-shield-alt"></i> Secure & private by design</li>
+                    <li><i class="fas fa-heart"></i> Made for students & educators</li>
+                    <li><i class="fas fa-sync-alt"></i> Automatic file deletion</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- FOOTER -->
+{% include 'includes/footer.html' %}
+
+<script nonce="{{ request.csp_nonce }}">
+    // Dropdown handling
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(drop => {
+        const toggle = drop.querySelector('.dropdown-toggle');
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdowns.forEach(d => { if (d !== drop) d.classList.remove('active'); });
+                drop.classList.toggle('active');
+            });
+        }
+    });
+    document.addEventListener('click', () => {
+        dropdowns.forEach(d => d.classList.remove('active'));
+    });
+
+    // Smooth scroll for category navigation
+    document.querySelectorAll('.category-nav a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId && targetId !== '#') {
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

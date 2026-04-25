@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Password Protect a PDF - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
+        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .blog-meta i { margin-right: 0.3rem; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
+        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
+        .blog-content li { margin: 0.5rem 0; }
+        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .tip-box strong { color: #E34234; }
+        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
+        .table-of-contents li { margin: 0.5rem 0; }
+        /* Sindhoor Red Color for Table of Contents Links */
+        .table-of-contents a {
+            color: #E34234 !important;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            color: #c53024 !important;
+            text-decoration: underline;
+        }
+        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
+        .cta-box h3 { margin-top: 0; color: #E34234; }
+        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
+        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>How to Password Protect a PDF File</h1>
+    <div class="blog-meta">
+        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+        <span><i class="fas fa-clock"></i> 3 min read</span>
+        <span><i class="fas fa-tag"></i> Security</span>
+    </div>
+    
+    <div class="blog-content">
+        <p>Protecting sensitive PDF documents with a password is essential for privacy and security. Here's how to encrypt your PDF files easily.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#why">Why Protect Your PDFs</a></li>
+                <li><a href="#how">Step-by-Step Guide</a></li>
+                <li><a href="#tips">Tips for Strong Passwords</a></li>
+                <li><a href="#faq">Frequently Asked Questions</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="why">Why Protect Your PDFs</h2>
+        <ul>
+            <li><strong>Confidential Documents:</strong> Protect financial or legal papers</li>
+            <li><strong>Personal Information:</strong> Secure resumes, IDs, or medical records</li>
+            <li><strong>Business Data:</strong> Prevent unauthorized access to company files</li>
+            <li><strong>Client Privacy:</strong> Share sensitive information securely</li>
+            <li><strong>Compliance:</strong> Meet data protection requirements</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> Always use different passwords for different documents. Never use "password" or "123456"!
+        </div>
+        
+        <h2 id="how">Step-by-Step Guide</h2>
+        
+        <h3>Step 1: Access the Protect PDF Tool</h3>
+        <p>Go to our <a href="{% url 'protect_pdf' %}">Protect PDF tool</a> — no registration required, completely free!</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Select the PDF file you want to password protect. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Enter a Strong Password</h3>
+        <p>Create a secure password (see tips below). Remember it — you'll need it to open the file!</p>
+        
+        <h3>Step 4: Download Your Protected PDF</h3>
+        <p>Click "Protect PDF" and download your encrypted file. Anyone trying to open it will need the password.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong> EasyPDF cannot recover lost passwords. If you forget your password, the file cannot be opened. Save your password safely!
+        </div>
+        
+        <h2 id="tips">Tips for Strong Passwords</h2>
+        <ul>
+            <li>Use at least 12 characters</li>
+            <li>Mix uppercase and lowercase letters</li>
+            <li>Include numbers and special symbols (!@#$%)</li>
+            <li>Avoid common words or personal information</li>
+            <li>Use a password manager to store your passwords</li>
+            <li>Never share passwords via email or text</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong>🔒 Example Strong Password:</strong> S7r0nG!pAs5w0rD$2024
+        </div>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>Can I remove password protection later?</h3>
+        <p>Yes! Use our <a href="{% url 'remove_password' %}">Remove Password tool</a> to unlock protected PDFs (you'll need the password).</p>
+        
+        <h3>Is encryption secure?</h3>
+        <p>Yes! We use AES encryption, the industry standard for PDF security.</p>
+        
+        <h3>What happens if I lose my password?</h3>
+        <p>Unfortunately, encrypted PDFs cannot be opened without the password. We cannot recover it for you.</p>
+        
+        <h3>Is this really free?</h3>
+        <p>Yes! EasyPDF is 100% free. No registration, no premium tiers.</p>
+        
+        <div class="cta-box">
+            <h3>Protect Your Sensitive PDFs</h3>
+            <p>Add password protection to your PDF files instantly — free, secure, and no registration required</p>
+            <a href="{% url 'protect_pdf' %}" class="cta-btn"><i class="fas fa-lock"></i> Protect PDF Now</a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'remove_password' %}" class="related-tool">Remove Password</a>
+            <a href="{% url 'add_watermark' %}" class="related-tool">Add Watermark</a>
+            <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
+            <a href="{% url 'split_pdf' %}" class="related-tool">Split PDF</a>
+        </div>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

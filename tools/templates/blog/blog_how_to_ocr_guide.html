@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What is OCR? Complete Guide - EasyPDF Blog</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .blog-post { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .blog-post h1 { color: #E34234; font-size: 2rem; margin-bottom: 1rem; }
+        .blog-meta { color: #888; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .blog-meta i { margin-right: 0.3rem; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.4rem; }
+        .blog-content h3 { color: #555; margin-top: 1.5rem; margin-bottom: 0.8rem; font-size: 1.2rem; }
+        .blog-content ul, .blog-content ol { margin: 1rem 0; padding-left: 2rem; }
+        .blog-content li { margin: 0.5rem 0; }
+        .tip-box { background: #f0f7ff; padding: 1.2rem; border-left: 4px solid #E34234; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .tip-box strong { color: #E34234; }
+        .warning-box { background: #fff3f0; padding: 1.2rem; border-left: 4px solid #ff9800; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        .table-of-contents { background: #f8f9fa; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { margin-top: 0; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.5rem; }
+        .table-of-contents li { margin: 0.5rem 0; }
+        /* Sindhoor Red Color for Table of Contents Links */
+        .table-of-contents a {
+            color: #E34234 !important;
+            text-decoration: none;
+        }
+        .table-of-contents a:hover {
+            color: #c53024 !important;
+            text-decoration: underline;
+        }
+        .cta-box { background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%); padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0; }
+        .cta-box h3 { margin-top: 0; color: #E34234; }
+        .cta-btn { background: #E34234; color: white; padding: 0.8rem 2rem; border-radius: 30px; text-decoration: none; display: inline-block; margin-top: 1rem; font-weight: 600; transition: all 0.2s; }
+        .cta-btn:hover { background: #c53024; transform: translateY(-2px); }
+        .related-tools { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+        .related-tool { background: #f5f7fb; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.8rem; text-decoration: none; color: #333; transition: all 0.2s; }
+        .related-tool:hover { background: #E34234; color: white; }
+        .back-link { display: inline-block; margin-top: 2rem; color: #E34234; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background: #f5f5f5; }
+        @media (max-width: 600px) { .blog-post { padding: 2rem 1rem; } .blog-post h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-post">
+    <h1>What is OCR? A Complete Guide to Text Recognition</h1>
+    <div class="blog-meta">
+        <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+        <span><i class="fas fa-clock"></i> 4 min read</span>
+        <span><i class="fas fa-tag"></i> AI Tools</span>
+    </div>
+    
+    <div class="blog-content">
+        <p>OCR (Optical Character Recognition) technology converts scanned documents and images into editable, searchable text. Here's everything you need to know.</p>
+        
+        <div class="table-of-contents">
+            <h3>📖 What You'll Learn</h3>
+            <ul>
+                <li><a href="#what">What is OCR?</a></li>
+                <li><a href="#how">How OCR Works</a></li>
+                <li><a href="#uses">Common Uses</a></li>
+                <li><a href="#tips">Tips for Best Results</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+        </div>
+        
+        <h2 id="what">What is OCR?</h2>
+        <p>OCR (Optical Character Recognition) is a technology that recognizes text inside images and scanned documents. It converts printed or handwritten text into machine-readable text that you can edit, search, and copy.</p>
+        
+        <h2 id="how">How OCR Works</h2>
+        <ol>
+            <li><strong>Image Scanning:</strong> The document is scanned into a digital image</li>
+            <li><strong>Pre-processing:</strong> The image is cleaned and enhanced</li>
+            <li><strong>Text Detection:</strong> The system identifies text areas</li>
+            <li><strong>Character Recognition:</strong> Each character is identified</li>
+            <li><strong>Output Generation:</strong> Text is converted to editable format</li>
+        </ol>
+        
+        <div class="tip-box">
+            <strong>💡 Pro Tip:</strong> For best OCR results, use high-resolution scans with clear, dark text on light backgrounds!
+        </div>
+        
+        <h2 id="uses">Common Uses of OCR</h2>
+        <ul>
+            <li><strong>Digitizing Books:</strong> Converting physical books to digital</li>
+            <li><strong>Data Entry:</strong> Extracting information from forms and invoices</li>
+            <li><strong>Searchable PDFs:</strong> Making scanned documents searchable</li>
+            <li><strong>License Plates:</strong> Automatic number plate recognition</li>
+            <li><strong>Accessibility:</strong> Converting text for screen readers</li>
+        </ul>
+        
+        <h2 id="tips">Tips for Best OCR Results</h2>
+        <ul>
+            <li>Use high-resolution scans (300 DPI or higher)</li>
+            <li>Ensure good lighting and contrast</li>
+            <li>Keep documents straight and flat</li>
+            <li>Use clear, standard fonts when possible</li>
+            <li>Clean up any smudges or marks on the original</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <h3>Is OCR 100% accurate?</h3>
+        <p>Accuracy depends on document quality. Clean, printed text can achieve 99%+ accuracy, while handwriting may be lower.</p>
+        
+        <h3>Can OCR read handwriting?</h3>
+        <p>Advanced OCR can read handwriting, but accuracy varies. Printed text works best.</p>
+        
+        <h3>Do you offer OCR tools?</h3>
+        <p>We're working on adding OCR features! In the meantime, use our PDF tools for document processing.</p>
+        
+        <div class="cta-box">
+            <h3>Ready to Process Your PDFs?</h3>
+            <p>Try our free PDF tools while you wait for OCR features</p>
+            <a href="{% url 'home' %}" class="cta-btn">Explore PDF Tools →</a>
+        </div>
+        
+        <div class="related-tools">
+            <strong>Related Tools:</strong>
+            <a href="{% url 'pdf_to_text' %}" class="related-tool">PDF to Text</a>
+            <a href="{% url 'pdf_to_word' %}" class="related-tool">PDF to Word</a>
+            <a href="{% url 'merge_pdf' %}" class="related-tool">Merge PDF</a>
+            <a href="{% url 'split_pdf' %}" class="related-tool">Split PDF</a>
+        </div>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-link">← Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

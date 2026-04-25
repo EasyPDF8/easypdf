@@ -1,0 +1,1042 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize Images - Change Image Dimensions Online Free | EasyPDF</title>
+    <meta name="description" content="Free online image resizer. Change image dimensions to any custom size. Resize multiple images at once. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .container {
+            text-align: center;
+            padding-top: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px solid #e2e8f0;
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 520px;
+            margin: 1.2rem auto;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fefaf9;
+            box-shadow: 0 8px 20px rgba(227, 66, 52, 0.08);
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff5f3;
+            transform: scale(1.01);
+        }
+
+        .upload-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f1f2b;
+            margin-bottom: 0.4rem;
+        }
+        .upload-sub {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.75rem;
+        }
+        .file-limit-note {
+            font-size: 0.7rem;
+            color: #9ca3af;
+            margin-top: 0.8rem;
+        }
+
+        .file-list {
+            margin-top: 1.5rem;
+            max-width: 520px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: #f9fafb;
+            padding: 0.6rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #edf2f7;
+        }
+
+        .file-item i {
+            color: var(--pdf-red);
+            margin-right: 0.5rem;
+        }
+
+        .remove-file {
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .remove-file:hover {
+            color: #cc0000;
+            background: #fee2e2;
+        }
+
+        .resize-image-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            margin-right: 0.6rem;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .resize-image-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+
+        .resize-panel {
+            max-width: 420px;
+            margin: 1.5rem auto;
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+        }
+
+        .resize-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #1f2937;
+            text-align: center;
+        }
+
+        .size-info {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .original-size {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-bottom: 0.3rem;
+        }
+
+        .dimension-container {
+            max-width: 360px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .dimension-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #1e293b;
+            font-size: 0.8rem;
+        }
+
+        .dimension-container input {
+            width: 100%;
+            padding: 0.7rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .dimension-container input:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .dimension-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .dimension-row div {
+            flex: 1;
+        }
+
+        .note {
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 0.6rem;
+            text-align: center;
+        }
+
+        .btn-save-resize {
+            background-color: var(--pdf-red);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 0.8rem;
+            width: 100%;
+        }
+
+        .btn-save-resize:hover {
+            background-color: var(--pdf-red-hover);
+        }
+
+        .btn-resize-submit {
+            background-color: var(--pdf-red);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+            box-shadow: 0 2px 8px rgba(227, 66, 52, 0.25);
+            display: none;
+        }
+
+        .btn-resize-submit:hover {
+            background-color: var(--pdf-red-hover);
+            transform: translateY(-1px);
+        }
+
+        .clear-btn {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: none;
+            font-weight: 600;
+        }
+
+        .clear-btn:hover {
+            background-color: #475569;
+        }
+
+        .file-count {
+            margin-top: 0.75rem;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .seo-section {
+            max-width: 1000px;
+            margin: 6rem auto 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .upload-area { padding: 1.8rem 1rem; }
+            .btn-resize-submit { width: 100%; max-width: 220px; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .clear-btn { margin-left: 0; margin-top: 0.5rem; width: 100%; max-width: 220px; }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+            .dimension-row { flex-direction: column; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div>
+        <h1>Resize Images</h1>
+        <p class="subtitle">Change image dimensions to your desired size. Resize multiple images at once.</p>
+    </div>
+
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Max dimension 4000px
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form action="{% url 'resize_images' %}" method="POST" enctype="multipart/form-data" id="resizeForm">
+        {% csrf_token %}
+        
+        <div id="drop-zone" class="upload-area">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                <i class="fas fa-expand-alt"></i>
+            </div>
+            <div class="upload-title">Select Images</div>
+            <div class="upload-sub">or drag & drop images here</div>
+            <div class="file-limit-note">JPG, PNG, WebP, BMP — up to 20 images · 4000px max</div>
+            <input type="file" name="images" id="imageInput" multiple accept="image/*" hidden>
+        </div>
+
+        <div id="file-list" class="file-list"></div>
+        <div id="file-count" class="file-count"></div>
+
+        <!-- Resize Panel -->
+        <div id="resizePanel" class="resize-panel">
+            <div class="resize-title"><i class="fas fa-arrows-alt"></i> Resize Settings</div>
+            <div class="size-info">
+                <div class="original-size" id="originalSizeInfo"></div>
+            </div>
+            <div class="dimension-container">
+                <div class="dimension-row">
+                    <div>
+                        <label>Width (px)</label>
+                        <input type="number" id="resizeWidth" placeholder="Width" min="1" max="4000" step="1">
+                    </div>
+                    <div>
+                        <label>Height (px)</label>
+                        <input type="number" id="resizeHeight" placeholder="Height" min="1" max="4000" step="1">
+                    </div>
+                </div>
+                <p class="note">Leave one empty to maintain aspect ratio. Max 4000px per side.</p>
+                <button type="button" class="btn-save-resize" id="saveResizeBtn">Apply to Current Image</button>
+            </div>
+        </div>
+
+        <input type="hidden" name="resize_data" id="resizeData">
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-resize-submit" id="submitBtn">Save All Resized Images</button>
+            <button type="button" class="clear-btn" id="clearBtn">Clear All</button>
+        </div>
+    </form>
+
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Image Resizer Tool: Change Dimensions Online</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Image Resizing?</h3>
+            <p>Image resizing allows you to change the dimensions of your images while maintaining aspect ratio. Our free online tool lets you resize multiple images at once. Perfect for social media, websites, email attachments, or printing.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Social Media:</strong> Resize images for profile pictures, posts, and covers</li>
+                <li><strong>Website Owners:</strong> Optimize image dimensions for faster loading</li>
+                <li><strong>Students:</strong> Resize images for assignments and presentations</li>
+                <li><strong>Email:</strong> Reduce image dimensions for smaller attachments</li>
+            </ul>
+            
+            <h3>How to Resize Images</h3>
+            <ol>
+                <li>Upload your images using the button above (up to 20 images)</li>
+                <li>Click "Resize" on any image to open the settings panel</li>
+                <li>Enter desired width or height (leave one empty to maintain aspect ratio)</li>
+                <li>Click "Apply to Current Image" to save your changes</li>
+                <li>Repeat for all images, then click "Save All Resized Images"</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Batch Processing</span>
+                <span class="benefit-tag">Maintain Aspect Ratio</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">20 Images Max</span>
+                <span class="benefit-tag">4000px Limit</span>
+            </div>
+            
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Image Resizing</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Will resizing affect image quality?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Enlarging images may cause quality loss. Reducing size generally preserves quality. We recommend not enlarging beyond original dimensions.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How does the aspect ratio work?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">When you enter width only, height is automatically calculated to maintain proportions. Enter height only for the same effect.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many images can I resize at once?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can resize up to 20 images in a single session. The total file size cannot exceed 300MB.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded images?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your images are automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently.</div>
+                </div>
+            </div>
+            
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'compress_page' %}" class="related-tool-link">Compress Images</a>
+                <a href="{% url 'convert_image_format' %}" class="related-tool-link">Convert Format</a>
+                <a href="{% url 'crop_images' %}" class="related-tool-link">Crop Images</a>
+                <a href="{% url 'rotate_images' %}" class="related-tool-link">Rotate Images</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online image tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Resizing images...</div>
+</div>
+
+<script nonce="{{ request.csp_nonce }}">
+let selectedFiles = [];
+let resizeDataList = [];
+let currentImageIndex = -1;
+let currentImageObj = null;
+let currentImageUrl = null;
+
+const fileInput = document.getElementById('imageInput');
+const dropZone = document.getElementById('drop-zone');
+const fileListDiv = document.getElementById('file-list');
+const fileCountSpan = document.getElementById('file-count');
+const resizePanel = document.getElementById('resizePanel');
+const resizeWidth = document.getElementById('resizeWidth');
+const resizeHeight = document.getElementById('resizeHeight');
+const originalSizeInfo = document.getElementById('originalSizeInfo');
+const saveResizeBtn = document.getElementById('saveResizeBtn');
+const resizeForm = document.getElementById('resizeForm');
+const resizeDataInput = document.getElementById('resizeData');
+const submitBtn = document.getElementById('submitBtn');
+const clearBtn = document.getElementById('clearBtn');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const errorMessageDiv = document.getElementById('errorMessage');
+
+function showError(msg) {
+    errorMessageDiv.style.display = 'block';
+    errorMessageDiv.innerText = msg;
+    setTimeout(() => {
+        errorMessageDiv.style.display = 'none';
+    }, 3000);
+}
+
+function updateFileList() {
+    if (selectedFiles.length === 0) {
+        fileListDiv.innerHTML = '';
+        fileCountSpan.innerHTML = '';
+        submitBtn.style.display = 'none';
+        clearBtn.style.display = 'none';
+        resizePanel.style.display = 'none';
+        return;
+    }
+
+    fileListDiv.innerHTML = `
+        <div style="font-weight:600;margin-bottom:0.75rem;font-size:0.85rem;color:#334155;">
+            <i class="fas fa-images"></i> Your images
+        </div>
+    `;
+
+    selectedFiles.forEach((file, idx) => {
+        const div = document.createElement('div');
+        div.className = 'file-item';
+        
+        div.innerHTML = `
+            <span>
+                <i class="fas fa-file-image"></i>
+                ${file.name.length > 40 ? file.name.slice(0, 35) + '...' : file.name}
+            </span>
+            <div>
+                <button type="button" class="resize-image-btn" data-index="${idx}">
+                    <i class="fas fa-edit"></i> Resize
+                </button>
+                <span class="remove-file" data-index="${idx}">
+                    <i class="fas fa-trash-alt"></i> Remove
+                </span>
+            </div>
+        `;
+        
+        fileListDiv.appendChild(div);
+    });
+
+    fileCountSpan.innerHTML = `${selectedFiles.length} images selected`;
+    submitBtn.style.display = 'inline-block';
+    clearBtn.style.display = 'inline-block';
+
+    document.querySelectorAll('.resize-image-btn').forEach(btn => {
+        btn.onclick = () => {
+            loadImageInfo(parseInt(btn.dataset.index));
+        };
+    });
+
+    document.querySelectorAll('.remove-file').forEach(btn => {
+        btn.onclick = () => {
+            removeFile(parseInt(btn.dataset.index));
+        };
+    });
+}
+
+function loadImageInfo(index) {
+    if (index < 0 || index >= selectedFiles.length) return;
+    
+    currentImageIndex = index;
+    const file = selectedFiles[index];
+    if (!file) return;
+
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        currentImageUrl = e.target.result;
+
+        const img = new Image();
+
+        img.onload = function () {
+            currentImageObj = img;
+            originalSizeInfo.innerText = `Original: ${img.width} x ${img.height} px`;
+            
+            if (resizeDataList[index] && (resizeDataList[index].width || resizeDataList[index].height)) {
+                resizeWidth.value = resizeDataList[index].width || '';
+                resizeHeight.value = resizeDataList[index].height || '';
+            } else {
+                resizeWidth.value = '';
+                resizeHeight.value = '';
+            }
+            
+            resizePanel.style.display = 'block';
+        };
+
+        img.onerror = function() {
+            showError("Failed to load image info");
+        };
+
+        img.src = currentImageUrl;
+    };
+
+    reader.onerror = function() {
+        showError("Failed to read file");
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function calculateAspectRatio() {
+    if (!currentImageObj) return;
+    
+    let width = parseInt(resizeWidth.value);
+    let height = parseInt(resizeHeight.value);
+    
+    if (width && !height && currentImageObj) {
+        const aspectRatio = currentImageObj.height / currentImageObj.width;
+        const newHeight = Math.round(width * aspectRatio);
+        resizeHeight.value = newHeight;
+    } else if (height && !width && currentImageObj) {
+        const aspectRatio = currentImageObj.width / currentImageObj.height;
+        const newWidth = Math.round(height * aspectRatio);
+        resizeWidth.value = newWidth;
+    }
+}
+
+resizeWidth.addEventListener('input', calculateAspectRatio);
+resizeHeight.addEventListener('input', calculateAspectRatio);
+
+saveResizeBtn.addEventListener('click', () => {
+    if (currentImageIndex === -1) {
+        showError("Click Resize on an image first");
+        return;
+    }
+
+    let w = parseInt(resizeWidth.value);
+    let h = parseInt(resizeHeight.value);
+
+    if ((!w || isNaN(w)) && (!h || isNaN(h))) {
+        showError("Enter width or height");
+        return;
+    }
+
+    if (w > 4000 || h > 4000) {
+        showError("Max dimension is 4000px");
+        return;
+    }
+
+    resizeDataList[currentImageIndex] = {
+        width: (w && !isNaN(w)) ? w : null,
+        height: (h && !isNaN(h)) ? h : null
+    };
+
+    const originalText = saveResizeBtn.innerText;
+    saveResizeBtn.innerText = "✓ Saved";
+    saveResizeBtn.style.background = "#28a745";
+
+    setTimeout(() => {
+        saveResizeBtn.innerText = originalText;
+        saveResizeBtn.style.background = "var(--pdf-red)";
+    }, 1000);
+});
+
+function removeFile(index) {
+    if (index < 0 || index >= selectedFiles.length) return;
+
+    selectedFiles.splice(index, 1);
+    resizeDataList.splice(index, 1);
+
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    if (selectedFiles.length === 0) {
+        currentImageIndex = -1;
+        resizePanel.style.display = 'none';
+    } else if (currentImageIndex === index) {
+        currentImageIndex = -1;
+        resizePanel.style.display = 'none';
+    } else if (currentImageIndex > index) {
+        currentImageIndex--;
+    }
+
+    updateFileList();
+}
+
+clearBtn.addEventListener('click', () => {
+    selectedFiles = [];
+    resizeDataList = [];
+    fileInput.value = '';
+
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    currentImageIndex = -1;
+    resizePanel.style.display = 'none';
+    updateFileList();
+});
+
+fileInput.addEventListener('change', function () {
+    let files = Array.from(this.files);
+
+    if (files.length > 20) {
+        showError("Max 20 images allowed");
+        files = files.slice(0, 20);
+    }
+
+    selectedFiles = files;
+    resizeDataList = files.map(() => ({ width: null, height: null }));
+
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    currentImageIndex = -1;
+    resizePanel.style.display = 'none';
+    updateFileList();
+});
+
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev =>
+    dropZone.addEventListener(ev, e => e.preventDefault())
+);
+
+['dragenter', 'dragover'].forEach(ev =>
+    dropZone.addEventListener(ev, () => dropZone.classList.add('drag-over'))
+);
+
+['dragleave', 'drop'].forEach(ev =>
+    dropZone.addEventListener(ev, () => dropZone.classList.remove('drag-over'))
+);
+
+dropZone.addEventListener('drop', (e) => {
+    let files = Array.from(e.dataTransfer.files)
+        .filter(f => f.type.startsWith('image/'));
+
+    if (files.length > 20) {
+        showError("Max 20 images allowed");
+        files = files.slice(0, 20);
+    }
+
+    if (files.length === 0) {
+        showError("Please drop valid image files");
+        return;
+    }
+
+    selectedFiles = files;
+    resizeDataList = files.map(() => ({ width: null, height: null }));
+
+    const dt = new DataTransfer();
+    files.forEach(f => dt.items.add(f));
+    fileInput.files = dt.files;
+
+    if (currentImageUrl) {
+        URL.revokeObjectURL(currentImageUrl);
+        currentImageUrl = null;
+    }
+
+    currentImageIndex = -1;
+    resizePanel.style.display = 'none';
+    updateFileList();
+});
+
+dropZone.addEventListener('click', () => {
+    fileInput.click();
+});
+
+submitBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    if (!selectedFiles.length) {
+        showError("Please upload images first");
+        return;
+    }
+
+    resizeDataInput.value = JSON.stringify(resizeDataList);
+    loadingOverlay.style.display = "flex";
+
+    setTimeout(() => {
+        resizeForm.submit();
+    }, 200);
+});
+
+document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => {
+        item.classList.toggle('active');
+    });
+});
+</script>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

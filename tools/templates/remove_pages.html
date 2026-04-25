@@ -1,0 +1,975 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Pages from PDF - Delete PDF Pages Online Free | EasyPDF</title>
+    <meta name="description" content="Free online PDF page remover. Delete unwanted pages from your PDF documents. Select multiple pages to remove instantly. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(2rem, 5vh, 3rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-name {
+            text-align: center;
+            margin: 0.5rem auto;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        /* Page Selection Controls */
+        .selection-controls {
+            max-width: 600px;
+            margin: 1rem auto;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .selection-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .selection-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* Pages Grid */
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .page-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: white;
+            position: relative;
+        }
+
+        .page-card:hover {
+            border-color: var(--pdf-red);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(227, 66, 52, 0.15);
+        }
+
+        .page-card.selected {
+            border: 3px solid var(--pdf-red);
+            background: #fff5f4;
+            box-shadow: 0 4px 12px rgba(227, 66, 52, 0.2);
+        }
+
+        .page-card canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .page-number {
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            color: #555;
+        }
+
+        .page-card.selected .page-number {
+            color: var(--pdf-red);
+        }
+
+        .checkbox-mark {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            background: var(--pdf-red);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .page-card.selected .checkbox-mark {
+            display: flex;
+        }
+
+        .range-input {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            margin: 1rem auto;
+            flex-wrap: wrap;
+        }
+
+        .range-input input {
+            width: 100px;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .range-input button {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-remove {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+            display: none;
+            margin: 1.5rem auto;
+            width: 250px;
+        }
+
+        .btn-remove:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-remove:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .selected-count {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--pdf-red);
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .pages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+
+        @media (max-width: 480px) {
+            .pages-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            .seo-card { padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Remove Pages</h1>
+    <p class="page-subtitle">Select unwanted pages to remove from your PDF document. Keep only what you need.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 100 pages per PDF | 300MB max file size
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="uploadForm" action="{% url 'remove_pages' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="pdfInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3 style="margin-bottom: 0.25rem;">Select PDF file</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop PDF here</p>
+            <input type="file" name="pdf" id="pdfInput" accept=".pdf" hidden>
+        </label>
+        
+        <div id="fileDisplay" class="file-name"></div>
+
+        <div id="pagesContainer" style="display: none;">
+            <div class="selection-controls">
+                <button type="button" class="selection-btn" id="selectAllBtn">Select All</button>
+                <button type="button" class="selection-btn" id="deselectAllBtn">Deselect All</button>
+                <button type="button" class="selection-btn" id="invertSelectBtn">Invert Selection</button>
+            </div>
+
+            <div class="range-input">
+                <span>Select range:</span>
+                <input type="number" id="rangeStart" placeholder="Start" min="1">
+                <span>to</span>
+                <input type="number" id="rangeEnd" placeholder="End" min="1">
+                <button type="button" id="selectRangeBtn">Select Range</button>
+            </div>
+
+            <div id="pagesGrid" class="pages-grid"></div>
+            <div id="selectedCount" class="selected-count"></div>
+        </div>
+
+        <input type="hidden" name="pages_to_remove" id="pagesToRemove">
+        
+        <button type="submit" class="btn-remove" id="submitBtn">Remove Selected Pages</button>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>PDF Page Remover: Delete Unwanted Pages</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a PDF Page Remover?</h3>
+            <p>A PDF page remover lets you delete specific pages from a PDF document. Our free online tool allows you to select unwanted pages visually and remove them instantly. Perfect for cleaning up scanned documents, removing blank pages, or extracting only the content you need.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Remove irrelevant pages from study materials and notes</li>
+                <li><strong>Business:</strong> Delete confidential pages before sharing documents</li>
+                <li><strong>Legal:</strong> Remove sensitive information from case files</li>
+                <li><strong>Publishers:</strong> Delete blank or unnecessary pages from manuscripts</li>
+            </ul>
+            
+            <h3>How to Remove Pages from PDF</h3>
+            <ol>
+                <li>Upload your PDF file using the button above</li>
+                <li>Click on pages to select them for removal</li>
+                <li>Use Select All, Deselect All, or Range Selection for bulk operations</li>
+                <li>Click "Remove Selected Pages" to delete them permanently</li>
+                <li>Download your cleaned PDF instantly</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Visual Page Selection</span>
+                <span class="benefit-tag">Batch Removal</span>
+                <span class="benefit-tag">Secure & Private</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">100 Pages/PDF</span>
+                <span class="benefit-tag">300MB Limit</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Removing PDF Pages</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I remove multiple pages at once?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! You can select multiple pages by clicking on them. Use Select All, Deselect All, or Range Selection to select bulk pages quickly.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Does removing pages affect the original file?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No. We create a new PDF without the selected pages. Your original file is never modified or stored permanently.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded file?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your PDF is automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a page limit for removal?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, the PDF cannot exceed 100 pages. This ensures fast processing and stable performance for all users.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I recover pages after removal?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No, removed pages are permanently deleted. We recommend downloading a backup of your original PDF before removing pages.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'split_pdf' %}" class="related-tool-link">Split PDF</a>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+                <a href="{% url 'rotate_pdf' %}" class="related-tool-link">Rotate PDF</a>
+                <a href="{% url 'add_page_numbers' %}" class="related-tool-link">Add Page Numbers</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online PDF tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Removing selected pages...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I remove multiple pages at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! You can select multiple pages by clicking on them. Use Select All, Deselect All, or Range Selection to select bulk pages quickly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does removing pages affect the original file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. We create a new PDF without the selected pages. Your original file is never modified or stored permanently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your PDF is automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a page limit for removal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the PDF cannot exceed 100 pages. This ensures fast processing and stable performance for all users."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I recover pages after removal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, removed pages are permanently deleted. We recommend downloading a backup of your original PDF before removing pages."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    const input = document.getElementById('pdfInput');
+    const dropZone = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const form = document.getElementById('uploadForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const pagesContainer = document.getElementById('pagesContainer');
+    const pagesGrid = document.getElementById('pagesGrid');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const pagesToRemoveInput = document.getElementById('pagesToRemove');
+    
+    let selectedPages = [];
+    let totalPages = 0;
+    let pdfDoc = null;
+
+    const MAX_FILE_SIZE_MB = 300;
+    const MAX_PAGES = 100;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function validateFile(file) {
+        errorMessage.style.display = 'none';
+        
+        // Check file type
+        if (file.type !== 'application/pdf') {
+            errorMessage.innerHTML = `❌ "${file.name}" is not a PDF file. Please upload a valid PDF.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        // Check file size
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            errorMessage.innerHTML = `❌ "${file.name}" is too large (${sizeMB.toFixed(2)}MB). Max ${MAX_FILE_SIZE_MB}MB allowed.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        return true;
+    }
+
+    function updateSelectedCount() {
+        selectedCountSpan.innerHTML = `${selectedPages.length} page(s) selected for removal`;
+        if (selectedPages.length > 0) {
+            submitBtn.style.display = 'block';
+        } else {
+            submitBtn.style.display = 'none';
+        }
+        pagesToRemoveInput.value = selectedPages.join(',');
+    }
+
+    function renderPages() {
+        pagesGrid.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const card = document.createElement('div');
+            card.className = 'page-card';
+            if (selectedPages.includes(i)) {
+                card.classList.add('selected');
+            }
+            card.innerHTML = `
+                <div class="checkbox-mark"><i class="fas fa-check"></i></div>
+                <canvas id="page-${i}"></canvas>
+                <div class="page-number">Page ${i}</div>
+            `;
+            card.onclick = (function(pageNum) {
+                return function() {
+                    if (selectedPages.includes(pageNum)) {
+                        selectedPages = selectedPages.filter(p => p !== pageNum);
+                    } else {
+                        selectedPages.push(pageNum);
+                    }
+                    selectedPages.sort((a, b) => a - b);
+                    renderPages();
+                    updateSelectedCount();
+                };
+            })(i);
+            pagesGrid.appendChild(card);
+            
+            // Render page preview
+            pdfDoc.getPage(i).then(function(page) {
+                const viewport = page.getViewport({ scale: 0.3 });
+                const canvas = document.getElementById(`page-${i}`);
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                page.render(renderContext);
+            });
+        }
+        updateSelectedCount();
+    }
+
+    input.addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+        
+        const isValid = validateFile(file);
+        if (!isValid) {
+            fileDisplay.innerHTML = '';
+            pagesContainer.style.display = 'none';
+            return;
+        }
+        
+        fileDisplay.innerHTML = '<i class="fas fa-file-pdf"></i> ' + file.name;
+        
+        const url = URL.createObjectURL(file);
+        
+        try {
+            pdfDoc = await pdfjsLib.getDocument(url).promise;
+            totalPages = pdfDoc.numPages;
+            
+            // Check page limit
+            if (totalPages > MAX_PAGES) {
+                errorMessage.innerHTML = `❌ Page limit exceeded: Your PDF has ${totalPages} pages. Maximum allowed is ${MAX_PAGES} pages.`;
+                errorMessage.style.display = 'block';
+                pagesContainer.style.display = 'none';
+                URL.revokeObjectURL(url);
+                return;
+            }
+            
+            selectedPages = [];
+            pagesContainer.style.display = 'block';
+            renderPages();
+            
+        } catch (err) {
+            errorMessage.innerHTML = `❌ Unable to read PDF file. Please try another file.`;
+            errorMessage.style.display = 'block';
+            pagesContainer.style.display = 'none';
+        }
+        
+        URL.revokeObjectURL(url);
+    });
+
+    // Select All
+    document.getElementById('selectAllBtn').addEventListener('click', () => {
+        selectedPages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            selectedPages.push(i);
+        }
+        renderPages();
+    });
+
+    // Deselect All
+    document.getElementById('deselectAllBtn').addEventListener('click', () => {
+        selectedPages = [];
+        renderPages();
+    });
+
+    // Invert Selection
+    document.getElementById('invertSelectBtn').addEventListener('click', () => {
+        const newSelected = [];
+        for (let i = 1; i <= totalPages; i++) {
+            if (!selectedPages.includes(i)) {
+                newSelected.push(i);
+            }
+        }
+        selectedPages = newSelected;
+        renderPages();
+    });
+
+    // Select Range
+    document.getElementById('selectRangeBtn').addEventListener('click', () => {
+        const start = parseInt(document.getElementById('rangeStart').value);
+        const end = parseInt(document.getElementById('rangeEnd').value);
+        
+        if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
+            alert(`Please enter valid range (1-${totalPages})`);
+            return;
+        }
+        
+        for (let i = start; i <= end; i++) {
+            if (!selectedPages.includes(i)) {
+                selectedPages.push(i);
+            }
+        }
+        selectedPages.sort((a, b) => a - b);
+        renderPages();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0]) {
+            input.files = files;
+            const changeEvent = new Event('change');
+            input.dispatchEvent(changeEvent);
+        }
+    });
+
+    form.addEventListener('submit', function() {
+        if (selectedPages.length === 0) {
+            errorMessage.innerHTML = 'Please select at least one page to remove.';
+            errorMessage.style.display = 'block';
+            return false;
+        }
+
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+            input.value = "";
+        }, 100);
+    });
+    
+    window.addEventListener('pageshow', function() {
+        input.value = "";
+        selectedPages = [];
+        pagesGrid.innerHTML = "";
+        pagesContainer.style.display = "none";
+        fileDisplay.innerHTML = "";
+        errorMessage.style.display = "none";
+        submitBtn.disabled = false;
+        loadingOverlay.style.display = "none";
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

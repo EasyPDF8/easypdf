@@ -1,0 +1,855 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter - Count Words, Characters, Sentences Online Free | EasyPDF</title>
+    <meta name="description" content="Free online word counter. Count words, characters, sentences, paragraphs, and reading time. Upload TXT or PDF files. No registration required.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --pdf-red: #E34234; --pdf-red-hover: #C0362C; }
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+        .header-section { text-align: center; margin-bottom: 2rem; }
+        .header-section h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 0.5rem; }
+        .header-section p { color: #666; font-size: clamp(0.9rem, 1.2vw, 1rem); max-width: 600px; margin: 0 auto; }
+        
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        /* Input Area */
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .textarea-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-family: 'Inter', monospace;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+        
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--pdf-red);
+            transform: translateY(-2px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--pdf-red);
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Additional Info */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-card {
+            background: #f0f0f0;
+            border-radius: 10px;
+            padding: 0.8rem;
+        }
+        
+        .info-card h4 {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--pdf-red);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-card p {
+            font-size: 0.8rem;
+            color: #333;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .clear-btn {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .clear-btn:hover {
+            background: #cc0000;
+        }
+        
+        .status-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            font-size: 0.8rem;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div class="header-section">
+        <h1>Word Counter</h1>
+        <p>Count words, characters, sentences, paragraphs, and reading time. Upload TXT or PDF files.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 100,000 characters max | TXT/PDF support | Real-time counting
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="input-section">
+        <div class="textarea-container">
+            <textarea id="textInput" placeholder="Type or paste your text here... (max 100,000 characters)"></textarea>
+        </div>
+        
+        <div class="file-upload-area" id="fileUploadArea">
+            <i class="fas fa-file-alt"></i> Upload TXT or PDF file
+            <input type="file" id="fileInput" accept=".txt,.pdf" hidden>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="wordCount">0</div>
+                <div class="stat-label">Words</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="charCount">0</div>
+                <div class="stat-label">Characters</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="charCountNoSpace">0</div>
+                <div class="stat-label">Characters (no spaces)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sentenceCount">0</div>
+                <div class="stat-label">Sentences</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="paraCount">0</div>
+                <div class="stat-label">Paragraphs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="readingTime">0</div>
+                <div class="stat-label">Reading Time (min)</div>
+            </div>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h4><i class="fas fa-clock"></i> Speaking Time</h4>
+                <p id="speakingTime">0 minutes</p>
+            </div>
+            <div class="info-card">
+                <h4><i class="fas fa-chart-line"></i> Keyword Density</h4>
+                <p id="keywordDensity">Type to see top words</p>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn" onclick="copyText()"><i class="fas fa-copy"></i> Copy Text</button>
+            <button class="action-btn clear-btn" onclick="clearText()"><i class="fas fa-trash"></i> Clear All</button>
+        </div>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Word Counter: Analyze Your Text Online</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a Word Counter?</h3>
+            <p>A word counter helps you analyze text by counting words, characters, sentences, paragraphs, and estimating reading time. Our free online tool supports typing directly, pasting text, or uploading TXT and PDF files. Perfect for students, writers, content creators, and professionals.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Check essay and assignment word counts</li>
+                <li><strong>Writers:</strong> Track article and blog post length</li>
+                <li><strong>Content Creators:</strong> Measure social media caption length</li>
+                <li><strong>Professionals:</strong> Analyze reports and document length</li>
+            </ul>
+            
+            <h3>How to Use the Word Counter</h3>
+            <ol>
+                <li>Type or paste your text directly into the text area (up to 100,000 characters)</li>
+                <li>Upload a TXT or PDF file for automatic text extraction</li>
+                <li>View real-time statistics including words, characters, sentences, and paragraphs</li>
+                <li>Check reading time and speaking time estimates</li>
+                <li>See top keywords to understand content focus</li>
+                <li>Copy text or clear with one click</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Real-time Counting</span>
+                <span class="benefit-tag">TXT & PDF Support</span>
+                <span class="benefit-tag">Reading Time</span>
+                <span class="benefit-tag">Keyword Density</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">100K Characters</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Word Counter</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I upload PDF files?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! You can upload both TXT and PDF files. We extract text from PDFs automatically for accurate counting.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How is reading time calculated?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Reading time is based on average reading speed of 200 words per minute. Speaking time uses 150 words per minute.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What are the character limits?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The text area supports up to 100,000 characters. This is sufficient for most documents, essays, and articles.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is my text stored or shared?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No! Your text is processed locally in your browser. We never store or access your content. Everything stays private.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'pdf_to_text' %}" class="related-tool-link">PDF to Text</a>
+                <a href="{% url 'text_to_pdf' %}" class="related-tool-link">Text to PDF</a>
+                <a href="{% url 'word_to_pdf' %}" class="related-tool-link">Word to PDF</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your text is processed locally in your browser. EasyPDF - Free online writing and analysis tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="status-msg" id="statusMsg">
+    <i class="fas fa-check-circle"></i> <span id="statusText"></span>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I upload PDF files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! You can upload both TXT and PDF files. We extract text from PDFs automatically for accurate counting."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is reading time calculated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reading time is based on average reading speed of 200 words per minute. Speaking time uses 150 words per minute."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the character limits?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The text area supports up to 100,000 characters. This is sufficient for most documents, essays, and articles."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my text stored or shared?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No! Your text is processed locally in your browser. We never store or access your content. Everything stays private."
+      }
+    }
+  ]
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script nonce="{{ request.csp_nonce }}">
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    
+    const textInput = document.getElementById('textInput');
+    const errorMessage = document.getElementById('errorMessage');
+    const MAX_CHARS = 100000;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function showError(msg) {
+        errorMessage.innerHTML = msg;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 4000);
+    }
+
+    function showStatus(msg, type = 'success') {
+        const statusDiv = document.getElementById('statusMsg');
+        document.getElementById('statusText').textContent = msg;
+        
+        if (type === 'error') {
+            statusDiv.style.background = '#ff4444';
+        } else if (type === 'info') {
+            statusDiv.style.background = '#2196f3';
+        } else {
+            statusDiv.style.background = '#28a745';
+        }
+        
+        statusDiv.style.display = 'block';
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+            statusDiv.style.background = '#28a745';
+        }, 2000);
+    }
+    
+    // Update counts on input with character limit
+    textInput.addEventListener('input', function() {
+        let text = this.value;
+        
+        // Enforce character limit
+        if (text.length > MAX_CHARS) {
+            text = text.substring(0, MAX_CHARS);
+            this.value = text;
+            showError(`Text exceeds ${MAX_CHARS.toLocaleString()} character limit. Extra characters have been trimmed.`);
+        }
+        
+        updateCounts(text);
+    });
+    
+    function updateCounts(text) {
+        // Word count
+        const words = text.trim() === '' ? [] : text.trim().split(/\s+/);
+        const wordCount = words.length;
+        
+        // Character count
+        const charCount = text.length;
+        const charCountNoSpace = text.replace(/\s/g, '').length;
+        
+        // Sentence count (split by ., !, ?)
+        const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+        const sentenceCount = sentences.length;
+        
+        // Paragraph count (split by double newlines)
+        const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+        const paraCount = Math.max(1, paragraphs.length);
+        
+        // Reading time (200 words per minute)
+        const readingTime = Math.max(1, Math.ceil(wordCount / 200));
+        
+        // Speaking time (150 words per minute)
+        const speakingTime = Math.max(1, Math.ceil(wordCount / 150));
+        
+        // Update display
+        document.getElementById('wordCount').textContent = wordCount.toLocaleString();
+        document.getElementById('charCount').textContent = charCount.toLocaleString();
+        document.getElementById('charCountNoSpace').textContent = charCountNoSpace.toLocaleString();
+        document.getElementById('sentenceCount').textContent = sentenceCount.toLocaleString();
+        document.getElementById('paraCount').textContent = paraCount.toLocaleString();
+        document.getElementById('readingTime').textContent = readingTime;
+        document.getElementById('speakingTime').textContent = speakingTime + ' minute' + (speakingTime !== 1 ? 's' : '');
+        
+        // Keyword density
+        if (wordCount > 0) {
+            const wordFreq = {};
+            words.forEach(word => {
+                const cleanWord = word.toLowerCase().replace(/[^\w\s]/g, '');
+                if (cleanWord.length > 2) {
+                    wordFreq[cleanWord] = (wordFreq[cleanWord] || 0) + 1;
+                }
+            });
+            
+            const topWords = Object.entries(wordFreq)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([word, count]) => `${word} (${count})`)
+                .join(', ');
+            
+            document.getElementById('keywordDensity').innerHTML = topWords || 'No keywords yet';
+        } else {
+            document.getElementById('keywordDensity').innerHTML = 'Type to see top words';
+        }
+    }
+    
+    // File upload
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    
+    fileUploadArea.onclick = () => fileInput.click();
+    
+    fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                let text = event.target.result;
+                if (text.length > MAX_CHARS) {
+                    text = text.substring(0, MAX_CHARS);
+                    showError(`File exceeds ${MAX_CHARS.toLocaleString()} character limit. Only first ${MAX_CHARS.toLocaleString()} characters loaded.`);
+                }
+                textInput.value = text;
+                updateCounts(text);
+                showStatus('File loaded: ' + file.name);
+            };
+            reader.readAsText(file);
+        } 
+        else if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+            showStatus('Loading PDF...', 'info');
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const pdfData = new Uint8Array(event.target.result);
+                const pdf = await pdfjsLib.getDocument(pdfData).promise;
+                let fullText = '';
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(' ');
+                    fullText += pageText + '\n';
+                    if (fullText.length > MAX_CHARS) {
+                        fullText = fullText.substring(0, MAX_CHARS);
+                        showError(`PDF exceeds ${MAX_CHARS.toLocaleString()} character limit. Only first ${MAX_CHARS.toLocaleString()} characters loaded.`);
+                        break;
+                    }
+                }
+                
+                textInput.value = fullText;
+                updateCounts(fullText);
+                showStatus('PDF loaded: ' + file.name);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        else {
+            showStatus('Please upload TXT or PDF file', 'error');
+        }
+        
+        fileInput.value = '';
+    });
+    
+    function copyText() {
+        const text = textInput.value;
+        if (text === '') {
+            showStatus('Nothing to copy', 'error');
+            return;
+        }
+        
+        navigator.clipboard.writeText(text).then(() => {
+            showStatus('Text copied to clipboard');
+        }).catch(() => {
+            showStatus('Failed to copy', 'error');
+        });
+    }
+    
+    function clearText() {
+        if (textInput.value !== '' && confirm('Clear all text?')) {
+            textInput.value = '';
+            updateCounts('');
+            showStatus('Text cleared');
+        }
+    }
+    
+    // Drag and drop for file upload
+    fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.borderColor = 'var(--pdf-red)';
+        fileUploadArea.style.background = '#fffafa';
+    });
+    
+    fileUploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.borderColor = '#e0e0e0';
+        fileUploadArea.style.background = 'transparent';
+    });
+    
+    fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.style.borderColor = '#e0e0e0';
+        fileUploadArea.style.background = 'transparent';
+        
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            fileInput.files = e.dataTransfer.files;
+            const changeEvent = new Event('change');
+            fileInput.dispatchEvent(changeEvent);
+        }
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="status-msg" style="display: block; margin-top: 1rem; position: relative; bottom: auto; right: auto; margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

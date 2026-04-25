@@ -1,0 +1,240 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>How to Split PDF Files: Extract Pages Easily | EasyPDF</title>
+    
+    <meta name="description" content="Learn how to split PDF files and extract specific pages online for free. Step-by-step guide to separate PDF pages, remove unwanted pages, and organize documents.">
+    
+    <meta name="keywords" content="split PDF, extract PDF pages, separate PDF, PDF page remover, cut PDF, PDF tools for students">
+    
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    
+    <meta property="og:title" content="How to Split PDF Files: Extract Specific Pages Easily">
+    <meta property="og:description" content="Learn how to split PDF files online for free. Extract specific pages or split by range with our easy guide.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="EasyPDF">
+    
+    <meta name="twitter:card" content="summary_large_image">
+   meta name="twitter:title" content="How to Split PDF Files: Extract Pages Easily">
+    <meta name="twitter:description" content="Learn how to split PDF files online for free.">
+    
+    <meta name="author" content="EasyPDF Student Developer">
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2.2rem; color: #1a1a2e; margin-bottom: 1rem; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+        .blog-category:hover { background: #E34234; color: white; }
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #555; text-decoration: none; }
+        .table-of-contents a:hover { color: #E34234; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 2rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin: 1.5rem 0; border-radius: 8px; }
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .cta-box p { margin-bottom: 1rem; opacity: 0.9; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .related-posts { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-posts h3 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background: #f5f7fb; padding: 1rem; border-radius: 12px; text-decoration: none; transition: 0.2s; display: block; }
+        .related-card:hover { transform: translateY(-3px); background: #fff5f4; }
+        .related-card h4 { font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .related-card p { font-size: 0.7rem; color: #666; }
+        .author-box { background: #f5f7fb; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .author-avatar { width: 50px; height: 50px; background: #E34234; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .author-info h4 { margin: 0 0 0.2rem 0; color: #1a1a2e; }
+        .author-info p { margin: 0; font-size: 0.8rem; color: #666; }
+        .share-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; flex-wrap: wrap; }
+        .share-buttons span { font-weight: 600; color: #666; }
+        .share-buttons a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .share-buttons a:hover { color: #E34234; }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        @media (max-width: 768px) { .blog-container { margin: 1rem; padding: 1.5rem; } .blog-header h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Split PDF Files: Extract Specific Pages Easily</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+            <span><i class="fas fa-clock"></i> 5 min read</span>
+            <a href="{% url 'blog_list' %}?category=pdf" class="blog-category">PDF Tools</a>
+        </div>
+    </div>
+    
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-split-pdf">Why Split PDF Files?</a></li>
+            <li><a href="#step-by-step">How to Split PDF Using EasyPDF</a></li>
+            <li><a href="#common-use-cases">Common Use Cases</a></li>
+            <li><a href="#tips">Tips for Splitting PDFs</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
+    </div>
+    
+    <div class="blog-content">
+        <h2 id="why-split-pdf">Why Split PDF Files?</h2>
+        <p>Splitting PDF files means extracting specific pages or ranges from a larger document. This is extremely useful when you only need certain pages from a big PDF file rather than sharing the entire document.</p>
+        
+        <p><strong>Common scenarios where splitting PDFs is essential:</strong></p>
+        <ul>
+            <li><strong>Students:</strong> Extract only the chapters you need from a textbook PDF</li>
+            <li><strong>Professionals:</strong> Separate individual invoices from a monthly statement</li>
+            <li><strong>Job Seekers:</strong> Extract specific documents from a multi-page portfolio</li>
+            <li><strong>Research:</strong> Save specific pages from academic papers</li>
+            <li><strong>Legal:</strong> Separate individual documents from a large case file</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Before splitting, note down the page numbers you want to extract. This makes the process faster and more accurate.
+        </div>
+        
+        <h2 id="step-by-step">How to Split PDF Using EasyPDF</h2>
+        
+        <h3>Step 1: Go to the Split PDF Tool</h3>
+        <p>Visit our <a href="{% url 'split_pdf' %}" style="color: #E34234; font-weight: 600;">Split PDF tool</a> from the PDF Tools menu. It's completely free with no registration required.</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Click the upload area and select the PDF file you want to split. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Choose Pages to Extract</h3>
+        <p>Enter the page numbers or ranges you want to extract. For example: "1-5, 8, 10-15" will extract pages 1-5, page 8 alone, and pages 10-15.</p>
+        
+        <h3>Step 4: Split and Download</h3>
+        <p>Click "Split PDF" to extract your selected pages. Your new PDF with only the pages you need will be ready for download instantly.</p>
+        
+        <div class="warning-box">
+            <strong><i class="fas fa-shield-alt"></i> Privacy Note:</strong> All files are automatically deleted from our servers within 5 minutes. We never store your documents permanently.
+        </div>
+        
+        <h2 id="common-use-cases">Common Use Cases for Splitting PDFs</h2>
+        
+        <h3>Extracting Single Pages</h3>
+        <p>Need just one page from a 50-page document? Simply enter that single page number (e.g., "15") and extract only that page.</p>
+        
+        <h3>Splitting by Page Range</h3>
+        <p>Use ranges like "1-10" to extract the first 10 pages, or "20-30" to get a specific section of your document.</p>
+        
+        <h3>Extracting Multiple Non-Consecutive Pages</h3>
+        <p>Combine ranges and single pages: "1-3, 7, 12-15" extracts pages 1-3, page 7, and pages 12-15.</p>
+        
+        <h2 id="tips">Tips for Better PDF Splitting</h2>
+        <ul>
+            <li><strong>Preview first:</strong> Open your PDF to note exact page numbers before splitting</li>
+            <li><strong>Use ranges wisely:</strong> "1-5" is faster than typing "1,2,3,4,5"</li>
+            <li><strong>Split large files:</strong> For very large PDFs, consider splitting into smaller chunks first</li>
+            <li><strong>Combine after splitting:</strong> Use our <a href="{% url 'merge_pdf' %}" style="color: #E34234;">Merge PDF tool</a> to combine extracted pages from different PDFs</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <p><strong>Can I split a PDF into multiple separate files at once?</strong><br>
+        Our split tool extracts specific pages into one new PDF. For splitting into multiple files, you can repeat the process with different page ranges.</p>
+        
+        <p><strong>What page formats are supported?</strong><br>
+        You can use single pages (5), ranges (10-20), or combinations (1-5, 8, 10-15).</p>
+        
+        <p><strong>Will splitting affect original PDF quality?</strong><br>
+        No. The extracted pages maintain the original quality, resolution, and formatting.</p>
+        
+        <p><strong>Can I split password-protected PDFs?</strong><br>
+        Yes, if you have the password. Remove password protection first using our <a href="{% url 'remove_password' %}" style="color: #E34234;">Remove Password tool</a>.</p>
+        
+        <p><strong>Is there a limit on file size?</strong><br>
+        Each PDF can be up to 300MB. There's no limit on total pages.</p>
+        
+        <p><strong>Is this service really free?</strong><br>
+        Yes! EasyPDF is completely free. No registration, no watermark, no hidden costs.</p>
+        
+        <h2>Ready to Split Your PDF?</h2>
+        <p>Now you know how to split PDF files. Try our free tool today!</p>
+    </div>
+    
+    <div class="cta-box">
+        <h3><i class="fas fa-cut"></i> Ready to split your PDF?</h3>
+        <p>Extract specific pages from your PDF files instantly. Free and easy to use.</p>
+        <a href="{% url 'split_pdf' %}" class="cta-button">Split PDF Now →</a>
+    </div>
+    
+    <div class="author-box">
+        <div class="author-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div class="author-info">
+            <h4>Written by EasyPDF Student Developer</h4>
+            <p>A student developer creating free tools to help fellow students with PDFs and document management.</p>
+        </div>
+    </div>
+    
+    <div class="related-posts">
+        <h3><i class="fas fa-link"></i> You might also like</h3>
+        <div class="related-grid">
+            <a href="{% url 'blog_merge_pdf' %}" class="related-card"><h4>How to Merge PDF Files</h4><p>Combine multiple PDFs into one document.</p></a>
+            <a href="{% url 'blog_rotate_pdf' %}" class="related-card"><h4>How to Rotate PDF Pages</h4><p>Fix page orientation permanently.</p></a>
+            <a href="{% url 'blog_secure_pdf' %}" class="related-card"><h4>How to Password Protect a PDF</h4><p>Keep your documents secure.</p></a>
+        </div>
+    </div>
+    
+    <div class="share-buttons">
+        <span><i class="fas fa-share-alt"></i> Share this guide:</span>
+        <a href="https://twitter.com/intent/tweet?text=How%20to%20Split%20PDF%20Files&url={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title=How%20to%20Split%20PDF%20Files" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:?subject=How%20to%20Split%20PDF%20Files&body={{ request.build_absolute_uri|urlencode }}"><i class="fas fa-envelope"></i> Email</a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Split PDF Files: Extract Specific Pages Easily",
+  "description": "Learn how to split PDF files online for free. Step-by-step guide to extract specific pages from PDF documents.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+</body>
+</html>

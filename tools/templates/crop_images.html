@@ -1,0 +1,1052 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Images - Trim Unwanted Areas Online Free | EasyPDF</title>
+    <meta name="description" content="Free online image cropper. Trim unwanted areas from your images. Crop multiple images at once with visual selection. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .container {
+            text-align: center;
+            padding-top: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 1rem auto;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: #f9f9f9;
+            padding: 0.6rem 1rem;
+            margin: 0.4rem 0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+
+        .file-item i {
+            color: var(--pdf-red);
+            margin-right: 0.5rem;
+        }
+
+        .remove-file {
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .remove-file:hover {
+            color: #cc0000;
+        }
+
+        .crop-image-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.2rem 0.8rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .crop-image-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+
+        .preview-container {
+            max-width: 600px;
+            margin: 1rem auto;
+            display: none;
+            background: #f5f7fb;
+            border-radius: 16px;
+            padding: 1rem;
+        }
+
+        .image-container {
+            background: #1a1a2e;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 300px;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 450px;
+            display: block;
+        }
+
+        .crop-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-apply {
+            background-color: var(--pdf-red);
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-apply:hover {
+            background-color: var(--pdf-red-hover);
+        }
+
+        .btn-reset {
+            background-color: #666;
+            color: white;
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-reset:hover {
+            background-color: #555;
+        }
+
+        .original-size {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .btn-crop {
+            background-color: var(--pdf-red);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(227, 66, 52, 0.3);
+            display: none;
+        }
+
+        .btn-crop:hover {
+            background-color: var(--pdf-red-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-crop:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 1rem;
+            transition: 0.2s;
+            display: none;
+        }
+
+        .clear-btn:hover {
+            background-color: #555;
+        }
+
+        .file-count {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .upload-area { padding: 1.5rem; }
+            .btn-crop { width: 100%; max-width: 200px; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .clear-btn { margin-left: 0; margin-top: 0.5rem; }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div>
+        <h1>Crop Images</h1>
+        <p class="subtitle">Trim unwanted areas from your images. Select the area you want to keep and crop the rest.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Max dimension 4000px
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form action="{% url 'crop_images' %}" method="POST" enctype="multipart/form-data" id="cropForm">
+        {% csrf_token %}
+        
+        <label for="imageInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">
+                <i class="fas fa-crop-alt"></i>
+            </div>
+            <h3 style="margin-bottom: 0.5rem;">Select Images</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop images here</p>
+            <input type="file" name="images" id="imageInput" multiple accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
+        </label>
+
+        <div id="file-list" class="file-list"></div>
+        <div id="file-count" class="file-count"></div>
+
+        <!-- Preview Area with Cropper -->
+        <div id="previewContainer" class="preview-container">
+            <div class="image-container">
+                <img id="previewImage" src="" alt="Preview">
+            </div>
+            <div id="originalSize" class="original-size"></div>
+            <div class="crop-actions">
+                <button type="button" class="btn-apply" id="applyCropBtn">Apply Crop</button>
+                <button type="button" class="btn-reset" id="resetCropBtn">Reset</button>
+            </div>
+        </div>
+
+        <input type="hidden" name="crop_data" id="cropData">
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-crop" id="submitBtn">Save All Cropped Images</button>
+            <button type="button" class="clear-btn" id="clearBtn">Clear All</button>
+        </div>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Image Cropper Tool: Trim Unwanted Areas</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Image Cropping?</h3>
+            <p>Image cropping allows you to remove unwanted outer areas from your images. Our free online tool lets you visually select the area you want to keep and crop multiple images at once. Perfect for removing backgrounds, focusing on subjects, or adjusting composition.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Social Media:</strong> Crop profile pictures and post images to exact dimensions</li>
+                <li><strong>Photography:</strong> Improve composition by removing distracting elements</li>
+                <li><strong>E-commerce:</strong> Standardize product image dimensions</li>
+                <li><strong>Documents:</strong> Remove white space or unwanted areas from scans</li>
+            </ul>
+            
+            <h3>How to Crop Images</h3>
+            <ol>
+                <li>Upload your images using the button above (up to 20 images)</li>
+                <li>Click "Crop" on any image to open the visual cropper</li>
+                <li>Drag and resize the crop box to select the area you want to keep</li>
+                <li>Click "Apply Crop" to save your changes</li>
+                <li>Repeat for all images, then click "Save All Cropped Images"</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Visual Cropper</span>
+                <span class="benefit-tag">Batch Processing</span>
+                <span class="benefit-tag">Freehand Selection</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">20 Images Max</span>
+                <span class="benefit-tag">300MB Total</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Image Cropping</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Does cropping reduce image quality?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No, cropping only removes outer areas. The remaining area maintains its original quality. We do not compress or alter the cropped portion.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I undo or reset the crop?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! Use the "Reset" button to clear the current crop selection and start over before applying.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many images can I crop at once?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can crop up to 20 images in a single session. The total file size cannot exceed 300MB.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded images?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your images are automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'resize_images' %}" class="related-tool-link">Resize Images</a>
+                <a href="{% url 'compress_page' %}" class="related-tool-link">Compress Images</a>
+                <a href="{% url 'convert_image_format' %}" class="related-tool-link">Convert Format</a>
+                <a href="{% url 'rotate_images' %}" class="related-tool-link">Rotate Images</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online image tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Processing cropped images...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does cropping reduce image quality?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, cropping only removes outer areas. The remaining area maintains its original quality. We do not compress or alter the cropped portion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I undo or reset the crop?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Use the Reset button to clear the current crop selection and start over before applying."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many images can I crop at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can crop up to 20 images in a single session. The total file size cannot exceed 300MB."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded images?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your images are automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script nonce="{{ request.csp_nonce }}">
+    const fileInput = document.getElementById('imageInput');
+    const dropZone = document.getElementById('drop-zone');
+    const fileListDiv = document.getElementById('file-list');
+    const fileCountDisplay = document.getElementById('file-count');
+    const submitBtn = document.getElementById('submitBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const cropForm = document.getElementById('cropForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const errorMessage = document.getElementById('errorMessage');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('previewImage');
+    const originalSizeDiv = document.getElementById('originalSize');
+    const applyCropBtn = document.getElementById('applyCropBtn');
+    const resetCropBtn = document.getElementById('resetCropBtn');
+    const cropDataInput = document.getElementById('cropData');
+    
+    let selectedFiles = [];
+    let currentImageIndex = -1;
+    let cropper = null;
+    let cropDataList = [];
+
+    const MAX_FILES = 20;
+    const MAX_TOTAL_SIZE_MB = 300;
+    const MAX_DIMENSION = 4000;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function showError(msg) {
+        errorMessage.innerHTML = msg;
+        errorMessage.style.display = 'block';
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 4000);
+    }
+
+    function validateFiles(files) {
+        errorMessage.style.display = 'none';
+        
+        if (files.length === 0) {
+            showError('Please select at least one image.');
+            return false;
+        }
+        
+        if (files.length > MAX_FILES) {
+            showError(`Too many files: ${files.length} images selected. Maximum ${MAX_FILES} images allowed.`);
+            return false;
+        }
+        
+        let totalSize = 0;
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
+        
+        for (let file of files) {
+            if (!allowedTypes.includes(file.type)) {
+                showError(`${file.name} is not a supported image format. Please upload JPG, PNG, WebP, or BMP.`);
+                return false;
+            }
+            totalSize += file.size / (1024 * 1024);
+        }
+        
+        if (totalSize > MAX_TOTAL_SIZE_MB) {
+            showError(`Total size exceeds ${MAX_TOTAL_SIZE_MB}MB limit (${totalSize.toFixed(2)}MB total).`);
+            return false;
+        }
+        
+        return true;
+    }
+
+    function updateFileList() {
+        if (selectedFiles.length === 0) {
+            fileListDiv.innerHTML = '';
+            fileCountDisplay.innerHTML = '';
+            submitBtn.style.display = 'none';
+            clearBtn.style.display = 'none';
+            previewContainer.style.display = 'none';
+            return;
+        }
+        
+        fileListDiv.innerHTML = '<h4 style="margin-bottom: 0.5rem;">Select an image to crop:</h4>';
+        
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.innerHTML = `
+                <span><i class="fas fa-image"></i> ${file.name}</span>
+                <div>
+                    <button type="button" class="crop-image-btn" data-index="${index}">Crop</button>
+                    <span class="remove-file" data-index="${index}"><i class="fas fa-trash"></i></span>
+                </div>
+            `;
+            fileListDiv.appendChild(fileItem);
+        });
+        
+        const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+        fileCountDisplay.innerHTML = `${selectedFiles.length} file(s) selected (${totalSize.toFixed(2)}MB total)`;
+        submitBtn.style.display = 'inline-block';
+        clearBtn.style.display = 'inline-block';
+        
+        document.querySelectorAll('.remove-file').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const index = parseInt(el.dataset.index);
+                selectedFiles.splice(index, 1);
+                cropDataList.splice(index, 1);
+                if (currentImageIndex === index) {
+                    if (cropper) {
+                        cropper.destroy();
+                        cropper = null;
+                    }
+                    previewContainer.style.display = 'none';
+                    currentImageIndex = -1;
+                } else if (currentImageIndex > index) {
+                    currentImageIndex--;
+                }
+                updateFileList();
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(f => dataTransfer.items.add(f));
+                fileInput.files = dataTransfer.files;
+            });
+        });
+        
+        document.querySelectorAll('.crop-image-btn').forEach(el => {
+            el.addEventListener('click', (e) => {
+                const index = parseInt(el.dataset.index);
+                loadImageForCrop(index);
+            });
+        });
+    }
+
+    function loadImageForCrop(index) {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        
+        currentImageIndex = index;
+        const file = selectedFiles[index];
+        const url = URL.createObjectURL(file);
+        
+        // Check image dimensions before loading cropper
+        const tempImg = new Image();
+        tempImg.onload = function() {
+            if (tempImg.width > MAX_DIMENSION || tempImg.height > MAX_DIMENSION) {
+                showError(`Image dimensions (${tempImg.width}x${tempImg.height}) exceed ${MAX_DIMENSION}px limit.`);
+                return;
+            }
+            previewContainer.style.display = 'block';
+            previewImage.src = url;
+        };
+        tempImg.src = url;
+        
+        previewImage.onload = function() {
+            originalSizeDiv.innerHTML = `Original: ${previewImage.naturalWidth} x ${previewImage.naturalHeight} pixels`;
+            
+            cropper = new Cropper(previewImage, {
+                viewMode: 1,
+                dragMode: 'crop',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                ready: function() {
+                    if (cropDataList[index]) {
+                        const data = cropDataList[index];
+                        this.cropper.setData({
+                            x: data.x,
+                            y: data.y,
+                            width: data.width,
+                            height: data.height
+                        });
+                    }
+                }
+            });
+        };
+        
+        previewImage.onerror = function() {
+            showError('Error loading image. Please try another file.');
+        };
+    }
+
+    applyCropBtn.addEventListener('click', function() {
+        if (!cropper || currentImageIndex === -1) {
+            showError('Please select an image first');
+            return;
+        }
+        
+        const cropData = cropper.getData();
+        const newWidth = Math.round(cropData.width);
+        const newHeight = Math.round(cropData.height);
+        
+        if (newWidth < 10 || newHeight < 10) {
+            showError('Crop area is too small. Please select a larger area.');
+            return;
+        }
+        
+        cropDataList[currentImageIndex] = {
+            x: Math.round(cropData.x),
+            y: Math.round(cropData.y),
+            width: newWidth,
+            height: newHeight
+        };
+        
+        applyCropBtn.textContent = 'Applied!';
+        applyCropBtn.style.backgroundColor = '#28a745';
+        
+        setTimeout(() => {
+            applyCropBtn.textContent = 'Apply Crop';
+            applyCropBtn.style.backgroundColor = 'var(--pdf-red)';
+        }, 1000);
+    });
+
+    resetCropBtn.addEventListener('click', function() {
+        if (cropper) {
+            cropper.reset();
+        }
+    });
+
+    fileInput.addEventListener('change', function() {
+        const files = Array.from(this.files);
+        if (files.length > 0) {
+            if (validateFiles(files)) {
+                selectedFiles = files;
+                cropDataList = new Array(selectedFiles.length).fill(null);
+                updateFileList();
+            } else {
+                this.value = '';
+                selectedFiles = [];
+                cropDataList = [];
+                updateFileList();
+            }
+        } else {
+            selectedFiles = [];
+            cropDataList = [];
+            updateFileList();
+        }
+    });
+
+    clearBtn.addEventListener('click', () => {
+        selectedFiles = [];
+        cropDataList = [];
+        fileInput.value = '';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        currentImageIndex = -1;
+        updateFileList();
+        previewContainer.style.display = 'none';
+        errorMessage.style.display = 'none';
+    });
+
+    submitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    if (selectedFiles.length === 0) {
+        showError("Please upload images first");
+        return;
+    }
+
+    // 🚨 FIX: ensure all crops exist
+    for (let i = 0; i < selectedFiles.length; i++) {
+        if (!cropDataList[i]) {
+            showError(`Please crop "${selectedFiles[i].name}" before saving`);
+            return;
+        }
+    }
+
+    // final validation
+    cropDataInput.value = JSON.stringify(cropDataList);
+
+        if (!cropDataInput.value || cropDataInput.value === "[]") {
+            showError("Crop data missing. Please crop images first.");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.6';
+        loadingOverlay.style.display = 'flex';
+
+        cropForm.submit();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+            if (validateFiles(files)) {
+                fileInput.files = e.dataTransfer.files;
+                selectedFiles = files;
+                cropDataList = new Array(selectedFiles.length).fill(null);
+                updateFileList();
+            }
+        }
+    });
+
+    window.addEventListener('pageshow', function() {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        loadingOverlay.style.display = 'none';
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+</body>
+</html>

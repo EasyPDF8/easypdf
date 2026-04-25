@@ -1,0 +1,811 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert Image Format - PNG, JPG, WebP, BMP Online Free | EasyPDF</title>
+    <meta name="description" content="Free online image converter. Convert images between PNG, JPG, WebP, and BMP formats instantly. No registration, no watermark, privacy focused.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+
+        body { background-color: #ffffff; }
+
+        .container {
+            text-align: center;
+            padding-top: 3rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            margin-top: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+
+        .file-item {
+            background: #f9f9f9;
+            padding: 0.6rem 1rem;
+            margin: 0.4rem 0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+
+        .file-item i {
+            color: var(--pdf-red);
+            margin-right: 0.5rem;
+        }
+
+        .remove-file {
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .file-count {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--pdf-red);
+            text-align: center;
+        }
+
+        .format-container {
+            max-width: 400px;
+            margin: 1.5rem auto;
+            text-align: left;
+        }
+
+        .format-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .format-container select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .format-container select:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .btn-convert {
+            background-color: var(--pdf-red);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(227, 66, 52, 0.3);
+            display: none;
+        }
+
+        .btn-convert:hover {
+            background-color: var(--pdf-red-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-convert:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 1rem;
+            display: none;
+        }
+
+        .clear-btn:hover {
+            background-color: #555;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .upload-area { padding: 1.5rem; }
+            .btn-convert { width: 100%; max-width: 250px; }
+            .action-buttons { flex-direction: column; align-items: center; }
+            .clear-btn { margin-left: 0; margin-top: 0.5rem; }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+
+    <h1>Convert Image Format</h1>
+    <p class="subtitle">Convert images between PNG, JPG, WebP, and BMP formats instantly. No quality loss, no registration.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Supports PNG, JPG, WebP, BMP
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="convertForm" action="{% url 'process_image_conversion' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <label for="imageInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem;">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3>Select Images</h3>
+            <p>or drag and drop images here</p>
+
+            <input type="file" name="images" id="imageInput" multiple accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
+        </label>
+
+        <div id="file-list" class="file-list"></div>
+        <div id="file-count" class="file-count"></div>
+
+        <div class="format-container">
+            <label for="format">Convert to:</label>
+            <select name="format" id="format">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG / JPEG</option>
+                <option value="webp">WebP</option>
+                <option value="bmp">BMP</option>
+            </select>
+        </div>
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-convert" id="submitBtn">Convert Format</button>
+            <button type="button" class="clear-btn" id="clearBtn">Clear All</button>
+        </div>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Image Format Converter: PNG, JPG, WebP, BMP</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Image Format Conversion?</h3>
+            <p>Image format conversion allows you to change your images from one format to another. Our free online tool supports PNG, JPG, WebP, and BMP formats. Perfect for web optimization, compatibility, and reducing file sizes.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Website Owners:</strong> Convert PNG to WebP for faster loading</li>
+                <li><strong>Students:</strong> Convert images for assignments and presentations</li>
+                <li><strong>Designers:</strong> Change formats for different software compatibility</li>
+                <li><strong>Social Media:</strong> Convert to JPG for universal compatibility</li>
+            </ul>
+            
+            <h3>How to Convert Image Format</h3>
+            <ol>
+                <li>Upload your images using the button above (up to 20 images)</li>
+                <li>Select your desired output format (PNG, JPG, WebP, or BMP)</li>
+                <li>Click "Convert Format" to process your images</li>
+                <li>Download your converted images as a ZIP file</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">4 Formats Supported</span>
+                <span class="benefit-tag">Batch Processing</span>
+                <span class="benefit-tag">No Quality Loss</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">20 Images Max</span>
+                <span class="benefit-tag">300MB Total</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Image Conversion</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Does conversion affect image quality?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">When converting between formats, we maintain the original quality. Note that converting PNG to JPG will flatten transparency, and JPG to PNG will not restore lost quality from original compression.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What image formats are supported?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">We support converting between PNG, JPG/JPEG, WebP, and BMP formats. Input images must be one of these supported formats.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many images can I convert at once?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can convert up to 20 images in a single session. The total file size cannot exceed 300MB.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded images?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your images are automatically deleted from our servers within 5 minutes after conversion. We never store or access your files permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'compress_page' %}" class="related-tool-link">Compress Images</a>
+                <a href="{% url 'resize_images' %}" class="related-tool-link">Resize Images</a>
+                <a href="{% url 'crop_images' %}" class="related-tool-link">Crop Images</a>
+                <a href="{% url 'rotate_images' %}" class="related-tool-link">Rotate Images</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online image tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Converting images...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does conversion affect image quality?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When converting between formats, we maintain the original quality. Note that converting PNG to JPG will flatten transparency, and JPG to PNG will not restore lost quality from original compression."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What image formats are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We support converting between PNG, JPG/JPEG, WebP, and BMP formats. Input images must be one of these supported formats."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many images can I convert at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can convert up to 20 images in a single session. The total file size cannot exceed 300MB."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded images?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your images are automatically deleted from our servers within 5 minutes after conversion. We never store or access your files permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+const fileInput = document.getElementById('imageInput');
+const convertForm = document.getElementById('convertForm');
+const submitBtn = document.getElementById('submitBtn');
+const fileList = document.getElementById('file-list');
+const fileCountSpan = document.getElementById('file-count');
+const clearBtn = document.getElementById('clearBtn');
+const errorMessage = document.getElementById('errorMessage');
+const dropZone = document.getElementById('drop-zone');
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+const MAX_FILES = 20;
+const MAX_TOTAL_SIZE_MB = 300;
+
+// Clean FAQ Toggle
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        faqItems.forEach(other => {
+            if (other !== item) other.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+function validateFiles(files) {
+    errorMessage.style.display = 'none';
+    
+    if (files.length === 0) {
+        errorMessage.innerHTML = 'Please select at least one image.';
+        errorMessage.style.display = 'block';
+        return false;
+    }
+    
+    if (files.length > MAX_FILES) {
+        errorMessage.innerHTML = `❌ Too many files: ${files.length} images selected. Maximum ${MAX_FILES} images allowed.`;
+        errorMessage.style.display = 'block';
+        return false;
+    }
+    
+    let totalSize = 0;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
+    
+    for (let file of files) {
+        if (!allowedTypes.includes(file.type)) {
+            errorMessage.innerHTML = `❌ "${file.name}" is not a supported image format. Please upload PNG, JPG, WebP, or BMP.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        const sizeMB = file.size / (1024 * 1024);
+        totalSize += sizeMB;
+    }
+    
+    if (totalSize > MAX_TOTAL_SIZE_MB) {
+        errorMessage.innerHTML = `❌ Total size exceeds ${MAX_TOTAL_SIZE_MB}MB limit (${totalSize.toFixed(2)}MB total). Please upload fewer or smaller images.`;
+        errorMessage.style.display = 'block';
+        return false;
+    }
+    
+    return true;
+}
+
+function updateUI() {
+    fileList.innerHTML = "";
+    const files = Array.from(fileInput.files);
+
+    if (files.length > 0) {
+        const isValid = validateFiles(files);
+        if (!isValid) {
+            fileInput.value = "";
+            submitBtn.style.display = "none";
+            clearBtn.style.display = "none";
+            fileCountSpan.innerText = "";
+            return;
+        }
+        
+        submitBtn.style.display = "inline-block";
+        clearBtn.style.display = "inline-block";
+        
+        const totalSize = files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+        fileCountSpan.innerText = `${files.length} file(s) selected (${totalSize.toFixed(2)}MB total)`;
+    } else {
+        submitBtn.style.display = "none";
+        clearBtn.style.display = "none";
+        fileCountSpan.innerText = "";
+    }
+
+    files.forEach((file, index) => {
+        const div = document.createElement("div");
+        div.className = "file-item";
+        div.innerHTML = `
+            <span><i class="fas fa-image"></i> ${file.name}</span>
+            <span class="remove-file" data-index="${index}"><i class="fas fa-trash"></i> Remove</span>
+        `;
+        fileList.appendChild(div);
+    });
+
+    document.querySelectorAll('.remove-file').forEach(el => {
+        el.addEventListener('click', (e) => {
+            const index = parseInt(el.dataset.index);
+            const dt = new DataTransfer();
+            const remainingFiles = Array.from(fileInput.files).filter((_, i) => i !== index);
+            remainingFiles.forEach(f => dt.items.add(f));
+            fileInput.files = dt.files;
+            updateUI();
+        });
+    });
+}
+
+fileInput.addEventListener("change", updateUI);
+
+// drag & drop
+dropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropZone.classList.add("drag-over");
+});
+
+dropZone.addEventListener("dragleave", () => {
+    dropZone.classList.remove("drag-over");
+});
+
+dropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropZone.classList.remove("drag-over");
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        const isValid = validateFiles(Array.from(files));
+        if (isValid) {
+            fileInput.files = files;
+            updateUI();
+        }
+    }
+});
+
+// clear button
+clearBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    updateUI();
+    errorMessage.style.display = "none";
+});
+
+// FORM SUBMIT
+convertForm.addEventListener("submit", function(e) {
+    if (fileInput.files.length === 0) {
+        e.preventDefault();
+        errorMessage.innerHTML = "Please select images first.";
+        errorMessage.style.display = "block";
+        return;
+    }
+
+    loadingOverlay.style.display = "flex";
+    submitBtn.disabled = true;
+});
+
+// Reset on page show
+window.addEventListener('pageshow', function() {
+    submitBtn.disabled = false;
+    loadingOverlay.style.display = 'none';
+});
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

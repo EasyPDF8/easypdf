@@ -1,0 +1,969 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Quiz Generator - Create Practice Quizzes from Notes | EasyPDF</title>
+    <meta name="description" content="Free online quiz generator. Create practice quizzes from your study notes. Generate multiple-choice questions automatically. Perfect for test preparation and self-assessment.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+            --correct: #00c851;
+            --wrong: #ff4444;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .input-container {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            text-align: left;
+        }
+
+        .input-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .input-container textarea:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .options-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .options-row input {
+            flex: 1;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        .btn-generate {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+            margin: 1rem auto;
+            width: 250px;
+            display: inline-block;
+        }
+
+        .btn-generate:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-generate:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            text-align: left;
+            display: none;
+        }
+
+        .quiz-question {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eee;
+            transition: 0.2s;
+        }
+
+        .quiz-question.correct {
+            border-left: 4px solid var(--correct);
+            background: #f0fff4;
+        }
+
+        .quiz-question.wrong {
+            border-left: 4px solid var(--wrong);
+            background: #fff5f5;
+        }
+
+        .quiz-question h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--pdf-red);
+        }
+
+        .quiz-options {
+            margin-left: 1rem;
+        }
+
+        .quiz-options label {
+            display: block;
+            margin: 0.8rem 0;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+
+        .quiz-options label:hover {
+            background: #fff5f4;
+        }
+
+        .quiz-options input {
+            margin-right: 0.8rem;
+        }
+
+        .quiz-options .correct-answer {
+            background: #e8f5e9;
+            color: var(--correct);
+            font-weight: 600;
+        }
+
+        .quiz-options .wrong-answer {
+            background: #ffebee;
+            color: var(--wrong);
+        }
+
+        .answer-status {
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+        }
+
+        .answer-status .correct-badge {
+            color: var(--correct);
+            font-weight: 600;
+        }
+
+        .answer-status .wrong-badge {
+            color: var(--wrong);
+            font-weight: 600;
+        }
+
+        .submit-btn-wrapper {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--pdf-red) 0%, #b52e20 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            width: auto;
+            min-width: 220px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(227, 66, 52, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit i {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #c73a2c 0%, #9e281c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(227, 66, 52, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 6px rgba(227, 66, 52, 0.3);
+        }
+
+        .btn-retry {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .btn-retry:hover {
+            background: #555;
+        }
+
+        .quiz-result {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            background: #f5f7fb;
+        }
+
+        .result-highlight {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--pdf-red);
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .options-row {
+                flex-direction: column;
+            }
+            .btn-generate {
+                width: 100%;
+                max-width: 250px;
+            }
+            .btn-submit {
+                width: 100%;
+                padding: 0.9rem 1.5rem;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Quiz Generator</h1>
+    <p class="page-subtitle">Generate practice quizzes from your study notes. AI-powered multiple-choice questions to test your knowledge.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 5000 characters max | 20 questions max | 30-day retention
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="input-container">
+        <label>Paste your study notes:</label>
+        <textarea id="notes" placeholder="Paste your study notes here (min 50 characters). The quiz will be generated based on key concepts from your text..." maxlength="5000"></textarea>
+        
+        <div class="options-row">
+            <input type="number" id="numQuestions" placeholder="Number of questions" value="5" min="1" max="20">
+        </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn">Generate Quiz</button>
+
+    <div id="quizContainer" class="quiz-container"></div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Quiz Generator: Create Practice Tests from Notes</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a Quiz Generator?</h3>
+            <p>A quiz generator creates multiple-choice questions automatically from your study notes. Our free online tool extracts key concepts and generates practice quizzes to help you test your knowledge. Perfect for exam preparation, self-assessment, and active recall practice.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Create practice quizzes from lecture notes and textbooks</li>
+                <li><strong>Teachers:</strong> Generate quick assessments from lesson materials</li>
+                <li><strong>Self-learners:</strong> Test understanding of online courses and tutorials</li>
+                <li><strong>Exam Prep:</strong> Create custom practice tests for final exams</li>
+            </ul>
+            
+            <h3>How to Use the Quiz Generator</h3>
+            <ol>
+                <li>Paste your study notes (minimum 50 characters, up to 5000 characters)</li>
+                <li>Select number of questions (1-20)</li>
+                <li>Click "Generate Quiz" to create your practice test</li>
+                <li>Answer the multiple-choice questions</li>
+                <li>Submit to see your score and correct answers</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">AI-Powered</span>
+                <span class="benefit-tag">Instant Generation</span>
+                <span class="benefit-tag">Multiple Choice</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">5000 Characters</span>
+                <span class="benefit-tag">20 Questions Max</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Quiz Generator</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How does the quiz generator work?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Our tool extracts key concepts from your notes using keyword analysis. It then creates multiple-choice questions including fill-in-the-blank, true/false, and definition-based questions.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What types of questions are generated?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The generator creates various question types including fill-in-the-blank, definition matching, true/false statements, and concept association questions.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many questions can I generate?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can generate between 1 and 20 questions per quiz. The number depends on the length and complexity of your notes.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Are my notes stored or shared?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No! Your notes are processed locally in your browser. We never store or access your content. Everything stays private on your device.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'flashcard_generator' %}" class="related-tool-link">Flashcard Generator</a>
+                <a href="{% url 'study_timetable' %}" class="related-tool-link">Study Timetable</a>
+                <a href="{% url 'study_timer' %}" class="related-tool-link">Study Timer</a>
+                <a href="{% url 'grade_calculator' %}" class="related-tool-link">Grade Calculator</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your notes are processed locally in your browser. EasyPDF - Free online study tools for students.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does the quiz generator work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our tool extracts key concepts from your notes using keyword analysis. It then creates multiple-choice questions including fill-in-the-blank, true/false, and definition-based questions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What types of questions are generated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The generator creates various question types including fill-in-the-blank, definition matching, true/false statements, and concept association questions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many questions can I generate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can generate between 1 and 20 questions per quiz. The number depends on the length and complexity of your notes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my notes stored or shared?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No! Your notes are processed locally in your browser. We never store or access your content. Everything stays private on your device."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+const generateBtn = document.getElementById('generateBtn');
+const notesInput = document.getElementById('notes');
+const numQuestionsInput = document.getElementById('numQuestions');
+const quizContainer = document.getElementById('quizContainer');
+const errorMessage = document.getElementById('errorMessage');
+
+const MIN_CHARS = 50;
+const MAX_CHARS = 5000;
+const MAX_QUESTIONS = 20;
+
+// Clean FAQ Toggle
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        faqItems.forEach(other => {
+            if (other !== item) other.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+function showError(msg) {
+    errorMessage.innerHTML = msg;
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+        errorMessage.style.display = 'none';
+    }, 4000);
+}
+
+// Stop words
+const stopWords = [
+    'this','that','these','those','there','their','they','what','which','where','when','why','how',
+    'from','with','without','about','into','through','during','before','after','above','below',
+    'have','has','had','was','were','been','being','would','could','should','will','can','may',
+    'the','and','for','not','are','is','of','to','in','on','at','by','an','a','or','as','so','but'
+];
+
+// Extract keywords
+function extractKeywords(text) {
+    const words = text.toLowerCase().split(/[^a-zA-Z]+/);
+    const freq = {};
+
+    words.forEach(w => {
+        if (w.length > 3 && !stopWords.includes(w)) {
+            freq[w] = (freq[w] || 0) + 1;
+        }
+    });
+
+    return Object.keys(freq).sort((a, b) => freq[b] - freq[a]).slice(0, 30);
+}
+
+// Get random item
+function getRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// Shuffle array
+function shuffle(arr) {
+    return [...arr].sort(() => 0.5 - Math.random());
+}
+
+// Generate quiz
+function generateQuiz(text, count) {
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 20);
+    const keywords = extractKeywords(text);
+
+    if (!sentences.length || !keywords.length) return [];
+
+    const questions = [];
+    let attempts = 0;
+
+    while (questions.length < count && attempts < count * 10) {
+        attempts++;
+
+        const sentence = getRandom(sentences).trim();
+        const keyword = getRandom(keywords);
+
+        const wordsInSentence = sentence.toLowerCase().split(/\W+/);
+        const containsKeyword = wordsInSentence.includes(keyword);
+
+        let questionText = '';
+        let correctAnswer = keyword;
+        let options = [];
+
+        const type = questions.length % 5;
+
+        // Fill in the blank
+        if (type === 0 && containsKeyword) {
+            const blank = sentence.replace(new RegExp(keyword, 'i'), '_____');
+            questionText = "Fill in the blank: " + blank.substring(0, 150);
+        }
+        // Meaning-based
+        else if (type === 1) {
+            questionText = `What does "${keyword.charAt(0).toUpperCase() + keyword.slice(1)}" refer to in the notes?`;
+        }
+        // True / False
+        else if (type === 2) {
+            const isTrue = Math.random() > 0.5;
+            let statement = sentence.substring(0, 100);
+
+            if (!isTrue) {
+                const fakeWord = getRandom(keywords.filter(k => k !== keyword));
+                statement = sentence.replace(new RegExp(keyword, 'i'), fakeWord);
+                correctAnswer = "False";
+            } else {
+                correctAnswer = "True";
+            }
+
+            questionText = "True or False: " + statement;
+            options = ["True", "False"];
+        }
+        // Related concept
+        else if (type === 3) {
+            questionText = `Which term is most related to: "${sentence.substring(0, 80)}..."?`;
+        }
+        // Statement MCQ
+        else {
+            questionText = `Choose the correct term for this statement:\n"${sentence.substring(0, 100)}"`;
+        }
+
+        // If not True/False, generate options
+        if (type !== 2) {
+            const wrongOptions = shuffle(
+                keywords.filter(k => k !== keyword)
+            ).slice(0, 3);
+
+            const correctFormatted = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+
+            options = shuffle([
+                correctFormatted,
+                ...wrongOptions.map(w => w.charAt(0).toUpperCase() + w.slice(1))
+            ]);
+
+            correctAnswer = correctFormatted;
+        }
+
+        questions.push({
+            question: questionText.substring(0, 200),
+            options: options,
+            correct: options.indexOf(correctAnswer),
+            correctAnswer: correctAnswer
+        });
+    }
+
+    return questions.slice(0, count);
+}
+
+// Display results
+function displayResults(questions, userAnswers) {
+    let score = 0;
+    let html = '';
+
+    questions.forEach((q, idx) => {
+        const userAns = userAnswers[idx];
+        const isCorrect = userAns !== undefined && parseInt(userAns) === q.correct;
+
+        if (isCorrect) score++;
+
+        html += `
+        <div class="quiz-question ${isCorrect ? 'correct' : 'wrong'}">
+            <h4>Q${idx + 1}: ${q.question}</h4>
+            <div class="quiz-options">
+                ${q.options.map((opt, i) => {
+                    let cls = '';
+                    if (i === q.correct) cls = 'correct-answer';
+                    if (userAns == i && i !== q.correct) cls = 'wrong-answer';
+
+                    return `
+                    <label class="${cls}">
+                        <input type="radio" disabled ${userAns == i ? 'checked' : ''}>
+                        ${opt}
+                    </label>
+                    `;
+                }).join('')}
+            </div>
+            <div class="answer-status">
+                ${!isCorrect && userAns !== undefined ? `<span class="wrong-badge">Your answer: ${q.options[userAns]}</span><br>` : ''}
+                <span class="correct-badge">Correct: ${q.correctAnswer}</span>
+            </div>
+        </div>
+        `;
+    });
+
+    const percent = Math.round((score / questions.length) * 100);
+
+    html = `
+    <div class="quiz-result" style="display:block;">
+        <div class="result-highlight">${score}/${questions.length}</div>
+        <p>${percent}% Score</p>
+    </div>
+    ` + html;
+
+    html += `<button class="btn-retry" id="retryBtn">Generate New Quiz</button>`;
+
+    quizContainer.innerHTML = html;
+    quizContainer.style.display = 'block';
+    quizContainer.scrollIntoView({ behavior: 'smooth' });
+
+    document.getElementById('retryBtn').onclick = () => {
+        quizContainer.style.display = 'none';
+        notesInput.value = '';
+        errorMessage.style.display = 'none';
+    };
+}
+
+// Generate button click
+generateBtn.addEventListener('click', () => {
+    const text = notesInput.value.trim();
+    let count = parseInt(numQuestionsInput.value) || 5;
+
+    // Validation
+    if (text.length < MIN_CHARS) {
+        showError(`Please enter more detailed notes (minimum ${MIN_CHARS} characters). Current: ${text.length} characters.`);
+        return;
+    }
+
+    if (text.length > MAX_CHARS) {
+        showError(`Notes exceed ${MAX_CHARS} character limit. Please shorten your notes.`);
+        return;
+    }
+
+    if (count < 1) count = 1;
+    if (count > MAX_QUESTIONS) {
+        showError(`Maximum ${MAX_QUESTIONS} questions allowed.`);
+        count = MAX_QUESTIONS;
+    }
+
+    const words = text.split(/\s+/).length;
+    if (words < 30) {
+        showError("Please enter more detailed notes (minimum 30 words for better quiz generation).");
+        return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Generating...';
+
+    setTimeout(() => {
+        const questions = generateQuiz(text, count);
+
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generate Quiz';
+
+        if (!questions.length || questions.length === 0) {
+            showError("Not enough data to generate quiz. Please add more detailed notes.");
+            return;
+        }
+
+        let html = '<h3 style="margin-bottom: 1rem;">Generated Quiz</h3>';
+
+        questions.forEach((q, idx) => {
+            html += `
+            <div class="quiz-question">
+                <h4>Q${idx + 1}: ${q.question}</h4>
+                <div class="quiz-options">
+                    ${q.options.map((opt, i) => `
+                    <label>
+                        <input type="radio" name="q${idx}" value="${i}">
+                        ${opt}
+                    </label>
+                    `).join('')}
+                </div>
+            </div>
+            `;
+        });
+
+        html += `<div class="submit-btn-wrapper"><button id="submitQuiz" class="btn-submit"><i class="fas fa-check-circle"></i> Submit Answers</button></div>`;
+
+        quizContainer.innerHTML = html;
+        quizContainer.style.display = 'block';
+        quizContainer.scrollIntoView({ behavior: 'smooth' });
+
+        document.getElementById('submitQuiz').onclick = () => {
+            const answers = [];
+
+            questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="q${idx}"]:checked`);
+                answers.push(selected ? selected.value : undefined);
+            });
+
+            displayResults(questions, answers);
+        };
+    }, 100);
+});
+
+// Reset on page show
+window.addEventListener('pageshow', function() {
+    generateBtn.disabled = false;
+    generateBtn.innerHTML = 'Generate Quiz';
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,92 @@
+<footer style="margin-top:4rem; background: #1a1a2e; color: #fff; padding: 3rem 1rem;">
+    <div class="container" style="max-width: 1280px; margin: 0 auto; padding: 0 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            
+            <!-- Column 1: Explore -->
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #E34234;">Explore</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="{% url 'home' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Home</a></li>
+                    <li><a href="{% url 'home' %}#pdf-tools" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">PDF Tools</a></li>
+                    <li><a href="{% url 'home' %}#image-tools" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Image Tools</a></li>
+                    <li><a href="{% url 'home' %}#conversion-tools" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Conversion Tools</a></li>
+                    <li><a href="{% url 'home' %}#faq" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">FAQ</a></li>
+                </ul>
+            </div>
+            
+            <!-- Column 2: Popular PDF Tools -->
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #E34234;">Popular PDF Tools</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="{% url 'merge_pdf' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Merge PDF</a></li>
+                    <li><a href="{% url 'split_pdf' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Split PDF</a></li>
+                    <li><a href="{% url 'rotate_pdf' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Rotate PDF</a></li>
+                    <li><a href="{% url 'protect_pdf' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Protect PDF</a></li>
+                    <li><a href="{% url 'remove_pages' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Remove Pages</a></li>
+                    <li><a href="{% url 'add_page_numbers' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Add Page Numbers</a></li>
+                </ul>
+            </div>
+            
+            <!-- Column 3: Popular Image Tools -->
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #E34234;">Popular Image Tools</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="{% url 'compress_page' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Compress Images</a></li>
+                    <li><a href="{% url 'convert_image_format' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Convert Format</a></li>
+                    <li><a href="{% url 'resize_images' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Resize Images</a></li>
+                    <li><a href="{% url 'crop_images' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Crop Images</a></li>
+                    <li><a href="{% url 'rotate_images' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Rotate Images</a></li>
+                    <li><a href="{% url 'flip_images' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Flip Images</a></li>
+                </ul>
+            </div>
+            
+            <!-- Column 4: Blog (replaced Site Links) -->
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #E34234;">Blog</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="{% url 'blog_list' %}" style="color: #E34234; text-decoration: none; font-size: 0.8rem; line-height: 1.8; font-weight: 600;">📝 All Articles</a></li>
+                    <li><a href="{% url 'about' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Contact Us</a></li>
+                    <li><a href="mailto:easypdf8@gmail.com" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Email Support</a></li>
+                </ul>
+            </div>
+            
+            <!-- Column 5: Legal -->
+            <div>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #E34234;">Legal</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li><a href="{% url 'privacy_policy' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Privacy Policy</a></li>
+                    <li><a href="{% url 'terms' %}" style="color: #ccc; text-decoration: none; font-size: 0.8rem; line-height: 1.8;">Terms & Conditions</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Security Badges -->
+        <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; padding-top: 1rem; border-top: 1px solid #333;">
+            <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                <i class="fas fa-lock"></i> Secure Connection (HTTPS)
+            </span>
+            <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                <i class="fas fa-shield-alt"></i> Privacy Focused
+            </span>
+            <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                <i class="fas fa-bolt"></i> Fast & Free Tools
+            </span>
+            <span style="background: rgba(255,255,255,0.1); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                <i class="fas fa-user-graduate"></i> Built by a Student
+            </span>
+        </div>
+        
+        <!-- Copyright -->
+        <div style="text-align: center; padding-top: 1rem; border-top: 1px solid #333;">
+            <h2 style="font-size: 1rem; font-weight: 700; color: #E34234; margin-bottom: 0.5rem;">EasyPDF</h2>
+            <p style="font-size: 0.75rem; color: #888;">
+                © 2026 EasyPDF.
+            </p>
+            <p style="font-size: 0.7rem; color: #666; margin-top: 0.5rem;">
+                Your files are processed securely and are not stored permanently.
+            </p>
+
+        </div>
+    </div>
+</footer>

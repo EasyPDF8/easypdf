@@ -1,0 +1,968 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List - Task Manager for Students | EasyPDF</title>
+    <meta name="description" content="Free online to-do list and task manager. Organize your tasks with priority levels (High, Medium, Low). Save tasks to cloud and access from anywhere. No registration required.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --pdf-red: #E34234; --pdf-red-hover: #C0362C; }
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        .header-section { text-align: center; margin-bottom: 2rem; }
+        .header-section h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 0.5rem; }
+        .header-section p { color: #666; font-size: clamp(0.9rem, 1.2vw, 1rem); max-width: 600px; margin: 0 auto; }
+        
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+        
+        /* To-Do Input Section */
+        .todo-input-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group input {
+            flex: 1;
+            padding: 0.7rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+        
+        .add-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .add-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+        
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        
+        .filter-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn.active {
+            background: var(--pdf-red);
+            color: white;
+        }
+        
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        /* Todo List */
+        .todo-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 0.6rem;
+            transition: all 0.2s;
+        }
+        
+        .todo-item:hover {
+            border-color: var(--pdf-red);
+            box-shadow: 0 2px 8px rgba(227,66,52,0.1);
+        }
+        
+        .todo-checkbox {
+            margin-right: 0.8rem;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--pdf-red);
+        }
+        
+        .todo-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: #333;
+            word-break: break-word;
+        }
+        
+        .todo-text.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .todo-priority {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .priority-medium {
+            background: #ffa500;
+            color: white;
+        }
+        
+        .priority-low {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .todo-actions {
+            display: flex;
+            gap: 0.3rem;
+        }
+        
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.3rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn {
+            color: #2196f3;
+        }
+        
+        .edit-btn:hover {
+            background: #e3f2fd;
+        }
+        
+        .delete-btn {
+            color: #ff4444;
+        }
+        
+        .delete-btn:hover {
+            background: #ffebee;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .save-btn {
+            background: var(--pdf-red);
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #999;
+        }
+        
+        .status-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            font-size: 0.8rem;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .todo-item {
+                flex-wrap: wrap;
+            }
+            .todo-priority {
+                order: 2;
+                margin-left: auto;
+            }
+            .todo-actions {
+                order: 3;
+                width: 100%;
+                justify-content: flex-end;
+                margin-top: 0.5rem;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div class="header-section">
+        <h1>To-Do List</h1>
+        <p>Manage your tasks with priority levels (High, Medium, Low). Save tasks to cloud and access from anywhere.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 500 tasks max | Auto-save to cloud | Priority levels
+    </div>
+
+    <div class="todo-input-section">
+        <div class="input-group">
+            <input type="text" id="taskInput" placeholder="What needs to be done?" maxlength="200" onkeypress="handleEnter(event)">
+            <select id="prioritySelect" style="padding: 0.7rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.8rem;">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button class="add-btn" onclick="addTodo()">Add</button>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-btn" data-filter="active" onclick="setFilter('active')">Active</button>
+            <button class="filter-btn" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+        </div>
+        
+        <div class="stats">
+            <span id="totalCount">0 tasks</span>
+            <span id="activeCount">0 active</span>
+            <span id="completedCount">0 completed</span>
+        </div>
+        
+        <div id="todoList" class="todo-list">
+            <div class="empty-state">No tasks yet. Add your first task above.</div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn" onclick="deleteCompleted()">Delete Completed</button>
+            <button class="action-btn save-btn" onclick="saveTodos()">Save to Cloud</button>
+        </div>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>To-Do List & Task Manager: Stay Productive</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a To-Do List?</h3>
+            <p>A to-do list helps you organize tasks, prioritize work, and track progress. Our free online task manager lets you create tasks with priority levels (High, Medium, Low), mark them as complete, edit or delete tasks, and save everything to the cloud. Perfect for students, professionals, and anyone who wants to stay organized.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Track assignments, homework, and exam preparation tasks</li>
+                <li><strong>Professionals:</strong> Manage work projects, deadlines, and daily tasks</li>
+                <li><strong>Personal:</strong> Organize shopping lists, chores, and personal goals</li>
+                <li><strong>Study Groups:</strong> Share and track group project tasks</li>
+            </ul>
+            
+            <h3>How to Use the To-Do List</h3>
+            <ol>
+                <li>Enter your task in the input field (up to 200 characters)</li>
+                <li>Select priority level: High (red), Medium (orange), or Low (green)</li>
+                <li>Click "Add" to create your task</li>
+                <li>Check the box to mark tasks as complete</li>
+                <li>Use filters to view All, Active, or Completed tasks</li>
+                <li>Click "Save to Cloud" to store your tasks</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Priority Levels</span>
+                <span class="benefit-tag">Cloud Save</span>
+                <span class="benefit-tag">Auto-save</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">500 Tasks Max</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About To-Do List</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I save my tasks?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Tasks are automatically saved to your browser's storage. Click "Save to Cloud" to store them permanently and access from any device.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What do the priority colors mean?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Red = High priority (urgent tasks), Orange = Medium priority (important but not urgent), Green = Low priority (can be done later).</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I edit or delete tasks?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! Click the edit (pencil) icon to modify a task, or the trash icon to delete it. You can also delete all completed tasks at once.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a limit on how many tasks I can create?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can create up to 500 tasks. This ensures smooth performance and a clutter-free experience.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'study_timetable' %}" class="related-tool-link">Study Timetable</a>
+                <a href="{% url 'quiz_generator' %}" class="related-tool-link">Quiz Generator</a>
+                <a href="{% url 'flashcard_generator' %}" class="related-tool-link">Flashcard Generator</a>
+                <a href="{% url 'study_timer' %}" class="related-tool-link">Study Timer</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your tasks are saved securely. EasyPDF - Free online productivity tools for students.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="status-msg" id="statusMsg">
+    <i class="fas fa-check-circle"></i> <span id="statusText"></span>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I save my tasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tasks are automatically saved to your browser's storage. Click Save to Cloud to store them permanently and access from any device."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do the priority colors mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Red = High priority (urgent tasks), Orange = Medium priority (important but not urgent), Green = Low priority (can be done later)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I edit or delete tasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Click the edit (pencil) icon to modify a task, or the trash icon to delete it. You can also delete all completed tasks at once."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a limit on how many tasks I can create?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can create up to 500 tasks. This ensures smooth performance and a clutter-free experience."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    let todos = [];
+    let currentFilter = 'all';
+    let autoSaveTimer = null;
+    const MAX_TASKS = 500;
+    
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+    
+    // Load todos on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTodos();
+    });
+    
+    function handleEnter(event) {
+        if (event.key === 'Enter') {
+            addTodo();
+        }
+    }
+    
+    function addTodo() {
+        const input = document.getElementById('taskInput');
+        const text = input.value.trim();
+        const priority = document.getElementById('prioritySelect').value;
+        
+        if (text === '') {
+            showStatus('Please enter a task', 'error');
+            return;
+        }
+        
+        if (todos.length >= MAX_TASKS) {
+            showStatus(`Maximum ${MAX_TASKS} tasks reached. Delete some tasks first.`, 'error');
+            return;
+        }
+        
+        const newTodo = {
+            id: Date.now(),
+            text: text,
+            completed: false,
+            priority: priority,
+            createdAt: new Date().toISOString()
+        };
+        
+        todos.unshift(newTodo);
+        input.value = '';
+        renderTodoList();
+        autoSaveTodos();
+        showStatus('Task added');
+    }
+    
+    function toggleComplete(id) {
+        const todo = todos.find(t => t.id === id);
+        if (todo) {
+            todo.completed = !todo.completed;
+            renderTodoList();
+            autoSaveTodos();
+            showStatus(todo.completed ? 'Task completed' : 'Task reopened');
+        }
+    }
+    
+    function deleteTodo(id) {
+        if (confirm('Delete this task?')) {
+            todos = todos.filter(t => t.id !== id);
+            renderTodoList();
+            autoSaveTodos();
+            showStatus('Task deleted');
+        }
+    }
+    
+    function editTodo(id) {
+        const todo = todos.find(t => t.id === id);
+        if (todo) {
+            const newText = prompt('Edit task:', todo.text);
+            if (newText !== null && newText.trim() !== '') {
+                todo.text = newText.trim();
+                renderTodoList();
+                autoSaveTodos();
+                showStatus('Task updated');
+            }
+        }
+    }
+    
+    function setFilter(filter) {
+        currentFilter = filter;
+        
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-filter') === filter) {
+                btn.classList.add('active');
+            }
+        });
+        
+        renderTodoList();
+    }
+    
+    function deleteCompleted() {
+        const completedCount = todos.filter(t => t.completed).length;
+        if (completedCount === 0) {
+            showStatus('No completed tasks to delete', 'error');
+            return;
+        }
+        
+        if (confirm(`Delete ${completedCount} completed task(s)?`)) {
+            todos = todos.filter(t => !t.completed);
+            renderTodoList();
+            autoSaveTodos();
+            showStatus('Completed tasks deleted');
+        }
+    }
+    
+    function renderTodoList() {
+        const container = document.getElementById('todoList');
+        let filteredTodos = todos;
+        
+        if (currentFilter === 'active') {
+            filteredTodos = todos.filter(t => !t.completed);
+        } else if (currentFilter === 'completed') {
+            filteredTodos = todos.filter(t => t.completed);
+        }
+        
+        if (filteredTodos.length === 0) {
+            let message = 'No tasks';
+            if (currentFilter === 'active') message = 'No active tasks';
+            if (currentFilter === 'completed') message = 'No completed tasks';
+            container.innerHTML = `<div class="empty-state">${message}. Add a new task above.</div>`;
+        } else {
+            let html = '';
+            filteredTodos.forEach(todo => {
+                const priorityClass = todo.priority === 'high' ? 'priority-high' : (todo.priority === 'medium' ? 'priority-medium' : 'priority-low');
+                const priorityText = todo.priority === 'high' ? 'High' : (todo.priority === 'medium' ? 'Medium' : 'Low');
+                
+                html += `
+                    <div class="todo-item">
+                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} onchange="toggleComplete(${todo.id})">
+                        <div class="todo-text ${todo.completed ? 'completed' : ''}">${escapeHtml(todo.text)}</div>
+                        <span class="todo-priority ${priorityClass}">${priorityText}</span>
+                        <div class="todo-actions">
+                            <button class="edit-btn" onclick="editTodo(${todo.id})"><i class="fas fa-edit"></i></button>
+                            <button class="delete-btn" onclick="deleteTodo(${todo.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+        
+        // Update stats
+        const total = todos.length;
+        const active = todos.filter(t => !t.completed).length;
+        const completed = todos.filter(t => t.completed).length;
+        
+        document.getElementById('totalCount').textContent = `${total} task${total !== 1 ? 's' : ''}`;
+        document.getElementById('activeCount').textContent = `${active} active`;
+        document.getElementById('completedCount').textContent = `${completed} completed`;
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function autoSaveTodos() {
+        if (autoSaveTimer) {
+            clearTimeout(autoSaveTimer);
+        }
+        autoSaveTimer = setTimeout(() => {
+            saveTodos();
+        }, 1000);
+    }
+    
+    async function saveTodos() {
+        const saveBtn = document.querySelector('.save-btn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/api/save-todos/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ todos: todos })
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'success') {
+                showStatus(`Saved ${data.count} tasks to cloud`);
+                saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                setTimeout(() => {
+                    saveBtn.innerHTML = originalText;
+                    saveBtn.disabled = false;
+                }, 1500);
+            } else {
+                showStatus('Save failed: ' + data.message, 'error');
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+            }
+        } catch(e) {
+            console.error('Save error:', e);
+            showStatus('Save failed: Connection error', 'error');
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    }
+    
+    async function loadTodos() {
+        const loadingText = document.getElementById('totalCount');
+        loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        
+        try {
+            const response = await fetch('/api/load-todos/');
+            const data = await response.json();
+            
+            if (data.status === 'success' && data.todos) {
+                todos = data.todos;
+                renderTodoList();
+                showStatus(`Loaded ${todos.length} tasks`);
+            } else {
+                showStatus('No saved tasks found', 'info');
+            }
+        } catch(e) {
+            console.error('Load error:', e);
+            showStatus('Could not load saved tasks', 'error');
+        }
+    }
+    
+    function showStatus(msg, type = 'success') {
+        const statusDiv = document.getElementById('statusMsg');
+        const statusText = document.getElementById('statusText');
+        
+        statusText.textContent = msg;
+        
+        if (type === 'error') {
+            statusDiv.style.background = '#ff4444';
+        } else if (type === 'info') {
+            statusDiv.style.background = '#2196f3';
+        } else {
+            statusDiv.style.background = '#28a745';
+        }
+        
+        statusDiv.style.display = 'block';
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+            statusDiv.style.background = '#28a745';
+        }, 2000);
+    }
+    
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === 'csrftoken=') {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Manual save button
+    window.saveTodos = saveTodos;
+    window.addTodo = addTodo;
+    window.toggleComplete = toggleComplete;
+    window.deleteTodo = deleteTodo;
+    window.editTodo = editTodo;
+    window.setFilter = setFilter;
+    window.deleteCompleted = deleteCompleted;
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="status-msg" style="display: block; margin-top: 1rem; position: relative; bottom: auto; right: auto; margin-bottom: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+</body>
+</html>

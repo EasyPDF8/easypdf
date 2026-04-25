@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Add Page Numbers to PDF Documents | EasyPDF</title>
+    <meta name="description" content="Learn how to add page numbers to PDF documents online for free. Step-by-step guide to insert page numbers, customize position and format for professional documents.">
+    <meta name="keywords" content="add page numbers to PDF, insert page numbers PDF, PDF page numbering, PDF footer, PDF header">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="How to Add Page Numbers to PDF Documents">
+    <meta property="og:description" content="Add page numbers to your PDF documents online for free. Professional formatting made easy.">
+    <meta property="og:type" content="article">
+    <meta name="author" content="EasyPDF Student Developer">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2.2rem; color: #1a1a2e; margin-bottom: 1rem; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+        .blog-category:hover { background: #E34234; color: white; }
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #555; text-decoration: none; }
+        .table-of-contents a:hover { color: #E34234; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 2rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin: 1.5rem 0; border-radius: 8px; }
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .cta-box p { margin-bottom: 1rem; opacity: 0.9; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .related-posts { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-posts h3 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background: #f5f7fb; padding: 1rem; border-radius: 12px; text-decoration: none; transition: 0.2s; display: block; }
+        .related-card:hover { transform: translateY(-3px); background: #fff5f4; }
+        .related-card h4 { font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .related-card p { font-size: 0.7rem; color: #666; }
+        .author-box { background: #f5f7fb; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .author-avatar { width: 50px; height: 50px; background: #E34234; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .author-info h4 { margin: 0 0 0.2rem 0; color: #1a1a2e; }
+        .author-info p { margin: 0; font-size: 0.8rem; color: #666; }
+        .share-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; flex-wrap: wrap; }
+        .share-buttons span { font-weight: 600; color: #666; }
+        .share-buttons a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .share-buttons a:hover { color: #E34234; }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        @media (max-width: 768px) { .blog-container { margin: 1rem; padding: 1.5rem; } .blog-header h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Add Page Numbers to PDF Documents</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+            <span><i class="fas fa-clock"></i> 4 min read</span>
+            <a href="{% url 'blog_list' %}?category=pdf" class="blog-category">PDF Tools</a>
+        </div>
+    </div>
+    
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-add-numbers">Why Add Page Numbers to PDF?</a></li>
+            <li><a href="#step-by-step">How to Add Page Numbers Using EasyPDF</a></li>
+            <li><a href="#position">Choosing the Right Position</a></li>
+            <li><a href="#customization">Customization Options</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
+    </div>
+    
+    <div class="blog-content">
+        <h2 id="why-add-numbers">Why Add Page Numbers to PDF?</h2>
+        <p>Adding page numbers to PDF documents makes them more professional and easier to navigate. Whether you're submitting a report, creating an ebook, or organizing a scanned document, page numbers help readers reference specific sections easily.</p>
+        
+        <p><strong>Benefits of adding page numbers:</strong></p>
+        <ul>
+            <li><strong>Professional appearance:</strong> Makes documents look polished and official</li>
+            <li><strong>Easy navigation:</strong> Readers can quickly find specific pages</li>
+            <li><strong>Better organization:</strong> Especially useful for multi-page reports and presentations</li>
+            <li><strong>Table of contents:</strong> Enables accurate page references in tables of contents</li>
+            <li><strong>Citation:</strong> Makes citing specific pages easier for academic work</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> For documents longer than 10 pages, always add page numbers. Your readers will thank you.
+        </div>
+        
+        <h2 id="step-by-step">How to Add Page Numbers Using EasyPDF</h2>
+        
+        <h3>Step 1: Go to the Add Page Numbers Tool</h3>
+        <p>Visit our <a href="{% url 'add_page_numbers' %}" style="color: #E34234; font-weight: 600;">Add Page Numbers tool</a> from the homepage or PDF Tools menu.</p>
+        
+        <h3>Step 2: Upload Your PDF</h3>
+        <p>Click the upload area and select the PDF you want to add page numbers to. Files up to 300MB are supported.</p>
+        
+        <h3>Step 3: Choose Position and Format</h3>
+        <p>Select where you want page numbers to appear (bottom center, bottom right, top right, etc.) and choose your format (1, 2, 3 or Page 1, Page 2, etc.).</p>
+        
+        <h3>Step 4: Set Starting Page</h3>
+        <p>Choose which page to start numbering from. Page 1 is default, but you can start from page 2 if the first page is a cover.</p>
+        
+        <h3>Step 5: Add Numbers and Download</h3>
+        <p>Click "Add Page Numbers" and download your PDF with page numbers inserted.</p>
+        
+        <div class="warning-box">
+            <strong><i class="fas fa-shield-alt"></i> Privacy Note:</strong> Your files are automatically deleted from our servers within 5 minutes after processing.
+        </div>
+        
+        <h2 id="position">Choosing the Right Position</h2>
+        <p>Different documents work better with different page number positions:</p>
+        <ul>
+            <li><strong>Bottom center:</strong> Most traditional and common for reports and books</li>
+            <li><strong>Bottom right:</strong> Commonly used in business documents</li>
+            <li><strong>Top right:</strong> Academic papers often use this position</li>
+            <li><strong>Bottom left:</strong> Used for certain document styles</li>
+            <li><strong>Top center:</strong> Clean and professional for presentations</li>
+        </ul>
+        
+        <h2 id="customization">Customization Options</h2>
+        <p>Our tool offers several page number formats:</p>
+        <ul>
+            <li><strong>Simple numbers:</strong> 1, 2, 3, 4</li>
+            <li><strong>With prefix:</strong> Page 1, Page 2, Page 3</li>
+            <li><strong>Long format:</strong> Page 1 of 10, Page 2 of 10</li>
+            <li><strong>Custom start number:</strong> Start from any number (useful for appendices)</li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <p><strong>Can I start page numbers from a specific page?</strong><br>
+        Yes! You can choose any starting page number and any starting value.</p>
+        
+        <p><strong>Will page numbers cover existing content?</strong><br>
+        No, page numbers are added in the margin area and don't overlap with existing content.</p>
+        
+        <p><strong>Can I add page numbers to scanned PDFs?</strong><br>
+        Yes, the tool works with all PDFs, including scanned documents.</p>
+        
+        <p><strong>What's the maximum file size?</strong><br>
+        Each PDF can be up to 300MB.</p>
+        
+        <p><strong>Is this service free?</strong><br>
+        Yes! All EasyPDF tools are completely free with no registration required.</p>
+        
+        <h2>Ready to Add Page Numbers?</h2>
+        <p>Make your PDF documents more professional with page numbers. Free and easy to use.</p>
+    </div>
+    
+    <div class="cta-box">
+        <h3><i class="fas fa-sort-numeric-up"></i> Ready to add page numbers?</h3>
+        <p>Add professional page numbers to your PDF files instantly. Free and easy.</p>
+        <a href="{% url 'add_page_numbers' %}" class="cta-button">Add Page Numbers Now →</a>
+    </div>
+    
+    <div class="author-box">
+        <div class="author-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div class="author-info">
+            <h4>Written by EasyPDF Student Developer</h4>
+            <p>A student developer creating free tools to help fellow students with PDFs and document management.</p>
+        </div>
+    </div>
+    
+    <div class="related-posts">
+        <h3><i class="fas fa-link"></i> You might also like</h3>
+        <div class="related-grid">
+            <a href="{% url 'blog_merge_pdf' %}" class="related-card"><h4>How to Merge PDF Files</h4><p>Combine multiple PDFs into one.</p></a>
+            <a href="{% url 'blog_remove_pages' %}" class="related-card"><h4>How to Remove Pages from PDF</h4><p>Delete unwanted PDF pages.</p></a>
+            <a href="{% url 'blog_rotate_pdf' %}" class="related-card"><h4>How to Rotate PDF Pages</h4><p>Fix page orientation.</p></a>
+        </div>
+    </div>
+    
+    <div class="share-buttons">
+        <span><i class="fas fa-share-alt"></i> Share this guide:</span>
+        <a href="https://twitter.com/intent/tweet?text=How%20to%20Add%20Page%20Numbers%20to%20PDF&url={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title=How%20to%20Add%20Page%20Numbers%20to%20PDF" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:?subject=How%20to%20Add%20Page%20Numbers%20to%20PDF&body={{ request.build_absolute_uri|urlencode }}"><i class="fas fa-envelope"></i> Email</a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Add Page Numbers to PDF Documents",
+  "description": "Learn how to add page numbers to PDF documents online for free.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+
+</body>
+</html>

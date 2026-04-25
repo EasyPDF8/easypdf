@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Compress PDF for Email Attachments | EasyPDF</title>
+    <meta name="description" content="Learn how to compress PDF files to reduce size for email attachments. Free online guide to make PDFs smaller without losing quality.">
+    <meta name="keywords" content="compress PDF, reduce PDF size, PDF optimizer, make PDF smaller, email PDF attachment, PDF tools">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="How to Compress PDF for Email Attachments">
+    <meta property="og:description" content="Learn how to reduce PDF file size for email attachments without losing quality.">
+    <meta property="og:type" content="article">
+    <meta name="author" content="EasyPDF Student Developer">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2.2rem; color: #1a1a2e; margin-bottom: 1rem; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+        .blog-category:hover { background: #E34234; color: white; }
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #555; text-decoration: none; }
+        .table-of-contents a:hover { color: #E34234; }
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 2rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin: 1.5rem 0; border-radius: 8px; }
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .cta-box p { margin-bottom: 1rem; opacity: 0.9; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .related-posts { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-posts h3 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background: #f5f7fb; padding: 1rem; border-radius: 12px; text-decoration: none; transition: 0.2s; display: block; }
+        .related-card:hover { transform: translateY(-3px); background: #fff5f4; }
+        .related-card h4 { font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .related-card p { font-size: 0.7rem; color: #666; }
+        .author-box { background: #f5f7fb; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .author-avatar { width: 50px; height: 50px; background: #E34234; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .author-info h4 { margin: 0 0 0.2rem 0; color: #1a1a2e; }
+        .author-info p { margin: 0; font-size: 0.8rem; color: #666; }
+        .share-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; flex-wrap: wrap; }
+        .share-buttons span { font-weight: 600; color: #666; }
+        .share-buttons a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .share-buttons a:hover { color: #E34234; }
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        @media (max-width: 768px) { .blog-container { margin: 1rem; padding: 1.5rem; } .blog-header h1 { font-size: 1.6rem; } }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Compress PDF for Email Attachments</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 2026</span>
+            <span><i class="fas fa-clock"></i> 5 min read</span>
+            <a href="{% url 'blog_list' %}?category=pdf" class="blog-category">PDF Tools</a>
+        </div>
+    </div>
+    
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-compress">Why Compress PDF Files?</a></li>
+            <li><a href="#email-limits">Understanding Email Attachment Limits</a></li>
+            <li><a href="#step-by-step">How to Compress PDF Using EasyPDF</a></li>
+            <li><a href="#tips">Tips for Maximum Compression</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
+    </div>
+    
+    <div class="blog-content">
+        <h2 id="why-compress">Why Compress PDF Files?</h2>
+        <p>PDF files can become very large, especially when they contain high-resolution images or scanned pages. Most email services have attachment limits (typically 25MB for Gmail, 20MB for Outlook). Compressing your PDF ensures it can be sent via email without issues.</p>
+        
+        <p><strong>Benefits of compressing PDFs:</strong></p>
+        <ul>
+            <li>Send large documents via email without bouncing back</li>
+            <li>Save storage space on your devices and cloud services</li>
+            <li>Faster upload and download times</li>
+            <li>Reduce bandwidth usage when sharing files</li>
+            <li>Meet submission requirements for online forms and portals</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> Most universities and employers have file size limits for submissions. Always compress your PDF before uploading to ensure it meets requirements.
+        </div>
+        
+        <h2 id="email-limits">Understanding Email Attachment Limits</h2>
+        <p>Different email providers have different attachment size limits:</p>
+        <ul>
+            <li><strong>Gmail:</strong> 25MB per email</li>
+            <li><strong>Outlook/Hotmail:</strong> 20MB per email</li>
+            <li><strong>Yahoo Mail:</strong> 25MB per email</li>
+            <li><strong>ProtonMail:</strong> 25MB per email</li>
+            <li><strong>iCloud Mail:</strong> 20MB per email</li>
+        </ul>
+        <p>If your PDF exceeds these limits, it cannot be sent. Compressing reduces the file size so it fits within these limits.</p>
+        
+        <h2 id="step-by-step">How to Compress PDF Using EasyPDF</h2>
+        
+        <h3>Step 1: Go to the Compress Tool</h3>
+        <p>Visit our <a href="{% url 'compress_page' %}" style="color: #E34234; font-weight: 600;">Image compression tool</a> (for PDF compression, upload your PDF as an image or use our PDF tools).</p>
+        
+        <h3>Step 2: Upload Your File</h3>
+        <p>Upload the PDF you want to compress. We support files up to 300MB.</p>
+        
+        <h3>Step 3: Choose Compression Level</h3>
+        <p>Select your preferred compression level. Higher compression means smaller file size but potentially lower image quality.</p>
+        
+        <h3>Step 4: Download Compressed PDF</h3>
+        <p>Click "Compress" and download your optimized PDF. It's ready to attach to emails!</p>
+        
+        <div class="warning-box">
+            <strong><i class="fas fa-shield-alt"></i> Privacy Note:</strong> All uploaded files are automatically deleted after 5 minutes. Your documents are never stored permanently.
+        </div>
+        
+        <h2 id="tips">Tips for Maximum Compression</h2>
+        <ul>
+            <li><strong>Remove unnecessary pages:</strong> Use our <a href="{% url 'remove_pages' %}" style="color: #E34234;">Remove Pages tool</a> before compressing</li>
+            <li><strong>Reduce image quality:</strong> If your PDF contains many images, moderate compression is usually sufficient</li>
+            <li><strong>Convert to grayscale:</strong> For black and white documents, grayscale reduces file size significantly</li>
+            <li><strong>Split large PDFs:</strong> If even compressed PDF is too large, split it into multiple files using our <a href="{% url 'split_pdf' %}" style="color: #E34234;">Split PDF tool</a></li>
+        </ul>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <p><strong>How much can I reduce PDF file size?</strong><br>
+        Compression results vary based on content. Image-heavy PDFs can be reduced by 50-80%, while text-only PDFs compress less (20-40%).</p>
+        
+        <p><strong>Does compression affect quality?</strong><br>
+        Some quality loss may occur, especially in images. For text documents, quality remains excellent.</p>
+        
+        <p><strong>Can I compress multiple PDFs at once?</strong><br>
+        Currently, compress one file at a time. For multiple files, repeat the process.</p>
+        
+        <p><strong>Is there a file size limit?</strong><br>
+        Maximum file size is 300MB per upload.</p>
+        
+        <p><strong>Is compression free?</strong><br>
+        Yes! All EasyPDF tools are completely free with no registration required.</p>
+        
+        <h2>Ready to Compress Your PDF?</h2>
+        <p>Now you can easily reduce PDF file size for email attachments. Try our free tool!</p>
+    </div>
+    
+    <div class="cta-box">
+        <h3><i class="fas fa-compress"></i> Need to compress a PDF?</h3>
+        <p>Reduce your PDF file size instantly. Free, fast, and secure.</p>
+        <a href="{% url 'compress_page' %}" class="cta-button">Compress PDF Now →</a>
+    </div>
+    
+    <div class="author-box">
+        <div class="author-avatar"><i class="fas fa-user-graduate"></i></div>
+        <div class="author-info">
+            <h4>Written by EasyPDF Student Developer</h4>
+            <p>A student developer creating free tools to help fellow students with PDFs and document management.</p>
+        </div>
+    </div>
+    
+    <div class="related-posts">
+        <h3><i class="fas fa-link"></i> You might also like</h3>
+        <div class="related-grid">
+            <a href="{% url 'blog_merge_pdf' %}" class="related-card"><h4>How to Merge PDF Files</h4><p>Combine multiple PDFs into one document.</p></a>
+            <a href="{% url 'blog_split_pdf' %}" class="related-card"><h4>How to Split PDF Files</h4><p>Extract specific pages from PDFs.</p></a>
+            <a href="{% url 'blog_secure_pdf' %}" class="related-card"><h4>How to Password Protect a PDF</h4><p>Keep your documents secure.</p></a>
+        </div>
+    </div>
+    
+    <div class="share-buttons">
+        <span><i class="fas fa-share-alt"></i> Share this guide:</span>
+        <a href="https://twitter.com/intent/tweet?text=How%20to%20Compress%20PDF&url={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title=How%20to%20Compress%20PDF" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="mailto:?subject=How%20to%20Compress%20PDF&body={{ request.build_absolute_uri|urlencode }}"><i class="fas fa-envelope"></i> Email</a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Compress PDF for Email Attachments",
+  "description": "Learn how to compress PDF files to reduce size for email attachments without losing quality.",
+  "datePublished": "2026-04-25",
+  "author": {"@type": "Person", "name": "EasyPDF Student Developer"},
+  "publisher": {"@type": "Organization", "name": "EasyPDF"}
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+</script>
+</body>
+</html>

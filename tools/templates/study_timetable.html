@@ -1,0 +1,1101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timetable Generator - Create Personalized Study Schedule | EasyPDF</title>
+    <meta name="description" content="Free online study timetable generator. Create personalized study schedules for exams. Organize subjects, set study hours, and download as PDF. No registration required.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --pdf-red: #E34234; --pdf-red-hover: #C0362C; }
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        .header-section { text-align: center; margin-bottom: 2rem; }
+        .header-section h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 0.5rem; }
+        .header-section p { color: #666; font-size: clamp(0.9rem, 1.2vw, 1rem); max-width: 600px; margin: 0 auto; }
+        
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+        
+        /* Input Section */
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+        
+        /* Subjects List */
+        .subjects-section {
+            margin-bottom: 1.2rem;
+        }
+        
+        .subjects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+        
+        .subjects-header label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        
+        .add-subject-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .subjects-list {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 0.6rem;
+            background: white;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        
+        .subject-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            margin-bottom: 0.4rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .subject-name {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .remove-subject {
+            background: #ff4444;
+            color: white;
+            border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.65rem;
+        }
+        
+        .subject-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.6rem;
+        }
+        
+        .subject-input-group input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .subject-input-group button {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+        }
+        
+        .btn-generate {
+            background: var(--pdf-red);
+            color: white;
+            padding: 0.7rem 1.2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-generate:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+        
+        .btn-generate:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Timetable Output */
+        .timetable-output {
+            margin-top: 2rem;
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .timetable-header {
+            background: var(--pdf-red);
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        
+        .timetable-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        .timetable-header p {
+            margin: 0.2rem 0 0;
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+        
+        .day-card {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .day-title {
+            background: #f8f9fa;
+            padding: 0.7rem 1rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--pdf-red);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .day-title:hover {
+            background: #f0f0f0;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            display: none;
+        }
+        
+        .schedule-table.show {
+            display: table;
+        }
+        
+        .schedule-table th, .schedule-table td {
+            padding: 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .schedule-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: #666;
+        }
+        
+        .schedule-table td {
+            font-size: 0.8rem;
+        }
+        
+        .subject-badge {
+            background: var(--pdf-red);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        /* Download Button */
+        .download-wrapper {
+            text-align: center;
+            padding: 0.8rem;
+        }
+        
+        .download-btn {
+            background: var(--pdf-red);
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        
+        .download-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+        
+        .status-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            font-size: 0.8rem;
+        }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .schedule-table th, .schedule-table td {
+                padding: 0.4rem;
+                font-size: 0.7rem;
+            }
+            .input-section {
+                max-width: 100%;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="container">
+    <div class="header-section">
+        <h1>Study Timetable Generator</h1>
+        <p>Create a personalized study schedule for your exams. Add subjects, set study hours, and download as PDF.</p>
+    </div>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 subjects max | 12 hours/day | 30 days max
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <div class="input-section">
+        <div class="subjects-section">
+            <div class="subjects-header">
+                <label><i class="fas fa-book"></i> Subjects to Study</label>
+                <button type="button" class="add-subject-btn" id="addSubjectBtn">+ Add Subject</button>
+            </div>
+            <div id="subjectsList" class="subjects-list">
+                <div class="subject-item">
+                    <span class="subject-name">Mathematics</span>
+                    <button class="remove-subject" onclick="removeSubject(this)">✕</button>
+                </div>
+                <div class="subject-item">
+                    <span class="subject-name">Physics</span>
+                    <button class="remove-subject" onclick="removeSubject(this)">✕</button>
+                </div>
+                <div class="subject-item">
+                    <span class="subject-name">Chemistry</span>
+                    <button class="remove-subject" onclick="removeSubject(this)">✕</button>
+                </div>
+            </div>
+            <div class="subject-input-group">
+                <input type="text" id="newSubject" placeholder="Enter subject name" maxlength="50" onkeypress="handleEnter(event)">
+                <button onclick="addSubject()">Add</button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-clock"></i> Hours per day</label>
+            <input type="number" id="hoursPerDay" value="4" min="1" max="12" step="1">
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-calendar-week"></i> Number of days</label>
+            <input type="number" id="days" value="7" min="1" max="30">
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-clock"></i> Custom Start Time</label>
+            <input type="time" id="customTime" value="06:00">
+        </div>
+        
+        <button class="btn-generate" id="generateBtn">
+            <i class="fas fa-calendar-alt"></i> Generate Timetable
+        </button>
+    </div>
+    
+    <div class="timetable-output" id="timetableOutput">
+        <div class="timetable-header">
+            <h3><i class="fas fa-clock"></i> Your Study Timetable</h3>
+            <p id="timetableInfo">Plan based on your preferences</p>
+        </div>
+        <div id="timetableContent"></div>
+        <div class="download-wrapper">
+            <button class="download-btn" id="downloadTimetableBtn">
+                <i class="fas fa-download"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Study Timetable Generator: Create Your Perfect Study Schedule</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a Study Timetable Generator?</h3>
+            <p>A study timetable generator helps you create a personalized study schedule based on your subjects, available hours, and study days. Our free online tool creates a balanced schedule that rotates subjects evenly, ensuring you cover all topics effectively. Perfect for exam preparation, semester planning, and daily study routines.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Exam Preparation:</strong> Create a structured plan for final exams</li>
+                <li><strong>Students:</strong> Organize daily study routines for multiple subjects</li>
+                <li><strong>Working Professionals:</strong> Plan study time for certifications</li>
+                <li><strong>Parents:</strong> Create study schedules for children</li>
+            </ul>
+            
+            <h3>How to Use the Study Timetable Generator</h3>
+            <ol>
+                <li>Add your subjects (up to 20 subjects)</li>
+                <li>Set study hours per day (1-12 hours)</li>
+                <li>Choose number of days for your plan (1-30 days)</li>
+                <li>Select your preferred start time</li>
+                <li>Click "Generate Timetable" to create your schedule</li>
+                <li>Download as PDF for offline reference</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Customizable Subjects</span>
+                <span class="benefit-tag">Flexible Hours</span>
+                <span class="benefit-tag">PDF Download</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">20 Subjects Max</span>
+                <span class="benefit-tag">30 Days Max</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Study Timetable</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How are subjects distributed in the timetable?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Subjects are rotated evenly across study days. Each subject gets equal study time, and the rotation ensures variety and prevents boredom.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I customize the start time?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! You can choose any custom start time. The timetable will schedule study sessions based on your preferred starting hour.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many subjects can I add?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can add up to 20 subjects. Each subject will receive equal study time in the rotation.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I download my timetable?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! After generating your timetable, click the "Download PDF" button to save your schedule for offline use and printing.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'quiz_generator' %}" class="related-tool-link">Quiz Generator</a>
+                <a href="{% url 'flashcard_generator' %}" class="related-tool-link">Flashcard Generator</a>
+                <a href="{% url 'study_timer' %}" class="related-tool-link">Study Timer</a>
+                <a href="{% url 'grade_calculator' %}" class="related-tool-link">Grade Calculator</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your timetable is generated instantly and not stored. EasyPDF - Free online study tools for students.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="status-msg" id="statusMsg">
+    <i class="fas fa-check-circle"></i> <span id="statusText"></span>
+</div>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Generating timetable...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How are subjects distributed in the timetable?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Subjects are rotated evenly across study days. Each subject gets equal study time, and the rotation ensures variety and prevents boredom."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I customize the start time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! You can choose any custom start time. The timetable will schedule study sessions based on your preferred starting hour."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many subjects can I add?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can add up to 20 subjects. Each subject will receive equal study time in the rotation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I download my timetable?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! After generating your timetable, click the Download PDF button to save your schedule for offline use and printing."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+// ==========================
+// SUBJECT MANAGEMENT
+// ==========================
+const MAX_SUBJECTS = 20;
+
+function addSubject() {
+    const input = document.getElementById('newSubject');
+    const subjectName = input.value.trim();
+    const errorMessage = document.getElementById('errorMessage');
+
+    if (subjectName === '') {
+        showError('Please enter a subject name');
+        return;
+    }
+
+    const subjectsList = document.getElementById('subjectsList');
+    const currentSubjects = getSubjects();
+
+    if (currentSubjects.length >= MAX_SUBJECTS) {
+        showError(`Maximum ${MAX_SUBJECTS} subjects allowed`);
+        return;
+    }
+
+    if (currentSubjects.includes(subjectName)) {
+        showError('Subject already exists');
+        return;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'subject-item';
+    div.innerHTML = `
+        <span class="subject-name">${escapeHtml(subjectName)}</span>
+        <button class="remove-subject" onclick="removeSubject(this)">✕</button>
+    `;
+
+    subjectsList.appendChild(div);
+    input.value = '';
+    errorMessage.style.display = 'none';
+}
+
+function removeSubject(btn) {
+    btn.parentElement.remove();
+}
+
+function handleEnter(e) {
+    if (e.key === 'Enter') addSubject();
+}
+
+function getSubjects() {
+    const items = document.querySelectorAll('#subjectsList .subject-name');
+    return Array.from(items).map(el => el.textContent);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function showError(msg) {
+    const errorMessage = document.getElementById('errorMessage');
+    errorMessage.innerHTML = msg;
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+        errorMessage.style.display = 'none';
+    }, 4000);
+}
+
+function showStatus(msg) {
+    const box = document.getElementById('statusMsg');
+    document.getElementById('statusText').textContent = msg;
+    box.style.display = 'block';
+    setTimeout(() => box.style.display = 'none', 2000);
+}
+
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, 10) === 'csrftoken=') {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Clean FAQ Toggle
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        faqItems.forEach(other => {
+            if (other !== item) other.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+// ==========================
+// GENERATE TIMETABLE
+// ==========================
+document.getElementById('generateBtn').addEventListener('click', async function () {
+
+    const subjects = getSubjects();
+
+    if (subjects.length === 0) {
+        showError('Please add at least one subject');
+        return;
+    }
+
+    const hoursPerDay = parseInt(document.getElementById('hoursPerDay').value);
+    const days = parseInt(document.getElementById('days').value);
+    const customTime = document.getElementById('customTime').value;
+
+    if (isNaN(hoursPerDay) || hoursPerDay < 1 || hoursPerDay > 12) {
+        showError('Hours per day must be between 1 and 12');
+        return;
+    }
+
+    if (isNaN(days) || days < 1 || days > 30) {
+        showError('Number of days must be between 1 and 30');
+        return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const btn = document.getElementById('generateBtn');
+
+    loadingOverlay.style.display = 'flex';
+    btn.disabled = true;
+
+    try {
+        const response = await fetch('/api/generate-timetable/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                subjects: subjects,
+                hours_per_day: hoursPerDay,
+                days: days,
+                custom_time: customTime
+            })
+        });
+
+        const data = await response.json();
+
+        loadingOverlay.style.display = 'none';
+        btn.disabled = false;
+
+        if (data.status === 'success') {
+            window.generatedTimetable = data;
+            displayTimetable(data);
+            showStatus('Timetable generated!');
+        } else {
+            showError(data.message || 'Error generating timetable');
+        }
+
+    } catch (e) {
+        loadingOverlay.style.display = 'none';
+        btn.disabled = false;
+        showError('Error: ' + e.message);
+    }
+});
+
+// ==========================
+// DISPLAY TIMETABLE
+// ==========================
+function displayTimetable(data) {
+    const output = document.getElementById('timetableOutput');
+    const content = document.getElementById('timetableContent');
+    const info = document.getElementById('timetableInfo');
+
+    info.textContent = `${data.total_days} days plan for ${data.subjects_count} subjects`;
+
+    let html = '';
+
+    data.timetable.forEach((day, i) => {
+        html += `
+        <div class="day-card">
+            <div class="day-title" onclick="toggleDay(${i})">
+                ${day.day}
+                <span id="icon-${i}">▼</span>
+            </div>
+            <table class="schedule-table" id="day-${i}">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        day.schedule.forEach(item => {
+            html += `
+                    <tr>
+                        <td>${escapeHtml(item.subject)}</td>
+                        <td>${item.start}</td>
+                        <td>${item.end}</td>
+                        <td>${item.duration}</td>
+                    </tr>
+            `;
+        });
+
+        html += `</tbody>
+            </table>
+        </div>`;
+    });
+
+    content.innerHTML = html;
+    output.style.display = 'block';
+    output.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleDay(i) {
+    const table = document.getElementById(`day-${i}`);
+    table.classList.toggle('show');
+    const icon = document.getElementById(`icon-${i}`);
+    if (icon) {
+        icon.textContent = table.classList.contains('show') ? '▲' : '▼';
+    }
+}
+
+// ==========================
+// DOWNLOAD PDF - CORRECTED VERSION
+// ==========================
+document.getElementById('downloadTimetableBtn').addEventListener('click', async function () {
+
+    if (!window.generatedTimetable) {
+        showError('Generate timetable first');
+        return;
+    }
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    loadingOverlay.style.display = 'flex';
+
+    try {
+        const response = await fetch('/api/download-timetable-pdf/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({
+                timetable: window.generatedTimetable.timetable
+            })
+        });
+
+        const data = await response.json();
+        loadingOverlay.style.display = 'none';
+
+        if (data.status === 'success') {
+            // ✅ CORRECT WAY - using atob to decode base64
+            const byteCharacters = atob(data.pdf);
+            const byteNumbers = new Array(byteCharacters.length);
+            
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = data.filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            showStatus('PDF downloaded!');
+        } else {
+            showError(data.message || 'PDF generation failed');
+        }
+
+    } catch (e) {
+        loadingOverlay.style.display = 'none';
+        showError('Download error: ' + e.message);
+    }
+});
+
+// Reset on page show
+window.addEventListener('pageshow', function() {
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) generateBtn.disabled = false;
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
+});
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

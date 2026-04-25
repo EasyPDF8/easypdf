@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .legal-container { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .legal-header { text-align: center; margin-bottom: 2rem; }
+        .legal-header h1 { font-size: 2rem; color: #E34234; }
+        .legal-content { line-height: 1.8; }
+        .legal-content h2 { margin-top: 1.5rem; color: #E34234; font-size: 1.3rem; }
+        .legal-content ul { margin: 1rem 0; padding-left: 2rem; }
+        .legal-content li { margin: 0.5rem 0; }
+        .last-updated { color: #666; font-size: 0.8rem; text-align: center; margin-top: 2rem; }
+        .feature-box {
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .feature-box h3 { color: #E34234; margin-bottom: 1rem; }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .feature-item { text-align: center; padding: 0.5rem; }
+        .feature-item i { font-size: 1.5rem; color: #E34234; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="legal-container">
+    <div class="legal-header">
+        <h1>Privacy Policy</h1>
+        <p>Last Updated: April 2026</p>
+    </div>
+
+    <!-- Why Choose EasyPDF Section -->
+    <div class="feature-box">
+        <h3>Why Choose EasyPDF?</h3>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <p>100% Free for all users</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-user-check"></i>
+                <p>No registration required</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-trash-alt"></i>
+                <p>Files auto-delete after 5 minutes</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <p>Privacy-focused - we don't store your files</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-tools"></i>
+                <p>30+ powerful tools</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line"></i>
+                <p>300MB max file size</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-calendar-day"></i>
+                <p>100 files per day</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="legal-content">
+        <h2>1. Information We Collect</h2>
+        <p>EasyPDF is designed with your privacy in mind. We do not permanently store your files. All uploaded files are automatically deleted after 5 minutes. We collect minimal information:</p>
+        <ul>
+            <li><strong>Usage data</strong> - File sizes and number of files processed (for rate limiting)</li>
+            <li><strong>Session information</strong> - Temporary session data to track your uploads</li>
+            <li><strong>IP addresses</strong> - Anonymized for rate limiting and abuse prevention</li>
+        </ul>
+        <p><strong>No account? No problem!</strong> You can use all tools without creating an account. We don't collect names, email addresses, or any personal identification.</p>
+        
+        <h2>2. How We Use Your Information</h2>
+        <p>We use the minimal information we collect to:</p>
+        <ul>
+            <li>Provide and improve our free PDF and image tools</li>
+            <li>Enforce usage limits (300MB per file, 100 files per day)</li>
+            <li>Prevent abuse and ensure fair usage for all users</li>
+            <li>Monitor server performance and fix issues</li>
+        </ul>
+        
+        <h2>3. File Processing & Storage</h2>
+        <p><strong>We DO NOT store your files.</strong> Here's what happens:</p>
+        <ul>
+            <li>Files are uploaded to our temporary server for processing</li>
+            <li>Processing happens immediately</li>
+            <li>Files are automatically deleted within 5 minutes</li>
+            <li>We never access, view, or share your file contents</li>
+            <li>No permanent copy of your files is kept anywhere</li>
+        </ul>
+        
+        <h2>4. Cookies</h2>
+        <p>We use essential cookies only for:</p>
+        <ul>
+            <li>Maintaining your session (tracking your uploaded files)</li>
+            <li>Enforcing daily usage limits (100 files per day)</li>
+            <li>Preventing abuse of our free service</li>
+        </ul>
+        <p>These cookies are necessary for the website to function. You can disable cookies in your browser, but some features may not work properly.</p>
+        
+        <h2>5. Third-Party Services</h2>
+        <p>We may use Google AdSense to display advertisements. Google may collect data using cookies to show relevant ads. You can learn more about Google's privacy practices at <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>.</p>
+        
+        <h2>6. Data Security</h2>
+        <p>We take security seriously:</p>
+        <ul>
+            <li>All connections use HTTPS encryption</li>
+            <li>Files are processed in isolated temporary storage</li>
+            <li>Automatic cleanup every 5 minutes</li>
+            <li>No permanent databases of your files</li>
+        </ul>
+        
+        <h2>7. Your Rights</h2>
+        <p>Since we don't store your files or collect personal information, there's nothing to delete. However, you have the right to:</p>
+        <ul>
+            <li>Stop using our service at any time</li>
+            <li>Clear your browser cookies to reset session data</li>
+            <li>Contact us with privacy concerns</li>
+        </ul>
+        
+        <h2>8. Children's Privacy</h2>
+        <p>Our service is available to all users. We do not knowingly collect personal information from children under 13. If you believe we have, please contact us.</p>
+        
+        <h2>9. Changes to This Policy</h2>
+        <p>We may update this Privacy Policy occasionally. The latest version will always be posted on this page with the effective date.</p>
+        
+        <h2>10. Contact Us</h2>
+        <p>If you have questions about this Privacy Policy or our practices, please contact us at:</p>
+        <ul>
+            <li>Email: <a href="mailto:easypdf8@gmail.com">easypdf8@gmail.com</a></li>
+            <li>Through our <a href="{% url 'contact' %}">Contact Us</a> page</li>
+        </ul>
+    </div>
+    <div class="last-updated">This policy is effective from April 2026 | No account? No problem. All features are completely free.</div>
+</div>
+{% include 'includes/footer.html' %}
+</body>
+</html>

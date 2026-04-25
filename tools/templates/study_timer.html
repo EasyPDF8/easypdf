@@ -1,0 +1,1032 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Timer - Pomodoro Technique for Focused Learning | EasyPDF</title>
+    <meta name="description" content="Free online study timer based on the Pomodoro Technique. Boost focus with 25-min study sessions, 5-min breaks, custom timers, session tracking, and motivational quotes.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; font-family: 'Inter', sans-serif; }
+
+        
+        .navbar .nav-btn:hover {
+            color: var(--pdf-red) !important;
+            background: transparent !important;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 0.5rem !important;
+            align-items: center;
+        }
+
+        /* Page Layout */
+        .page-wrapper {
+            text-align: center;
+            padding-top: 2rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-title { 
+            font-size: clamp(1.8rem, 4vw, 2.5rem); 
+            font-weight: 800; 
+            color: #1a1a2e; 
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle { 
+            color: #666; 
+            margin-bottom: 1.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+        }
+
+        /* Timer Container */
+        .timer-container {
+            max-width: 500px;
+            margin: 1rem auto;
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
+
+        .timer-display {
+            font-size: 5rem;
+            font-weight: 800;
+            font-family: monospace;
+            color: var(--pdf-red);
+            margin: 1rem 0;
+            letter-spacing: 5px;
+        }
+
+        .timer-label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Custom Time Input */
+        .custom-time-section {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f5f7fb;
+            border-radius: 12px;
+        }
+
+        .custom-time-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .custom-time-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .time-input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .time-input-group label {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        .time-input-group input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .time-input-group input:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .apply-custom-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .apply-custom-btn:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .mode-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .mode-btn.active {
+            background: var(--pdf-red);
+            color: white;
+        }
+
+        .mode-btn:hover {
+            background: var(--pdf-red);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .ctrl-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .ctrl-btn:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .ctrl-btn.reset-btn {
+            background: #666;
+        }
+
+        .ctrl-btn.reset-btn:hover {
+            background: #555;
+        }
+
+        .sessions-count {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background: #f5f7fb;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .sessions-count strong {
+            color: var(--pdf-red);
+            font-size: 1.2rem;
+        }
+
+        .reset-sessions-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .reset-sessions-btn:hover {
+            background: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        .quote-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f5f7fb;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .info-box {
+            background: #f5f7fb;
+            border-radius: 12px;
+            padding: 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            text-align: left;
+        }
+
+        .info-box h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-box li {
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box li i {
+            color: var(--pdf-red);
+            width: 18px;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 4rem auto 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+            text-align: left;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 3.5rem;
+                letter-spacing: 3px;
+            }
+            .mode-buttons {
+                gap: 0.5rem;
+            }
+            .mode-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
+            }
+            .ctrl-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.8rem;
+            }
+            .custom-time-inputs {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sessions-count {
+                flex-direction: column;
+                text-align: center;
+            }
+            .navbar .nav-btn {
+                padding: 0.5rem 0.8rem !important;
+                font-size: 0.85rem !important;
+            }
+            .nav-right {
+                gap: 0.3rem !important;
+            }
+            .seo-card {
+                padding: 1.5rem;
+            }
+            .seo-card h2 {
+                font-size: 1.3rem;
+            }
+            .benefit-tag {
+                padding: 0.4rem 1rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Study Timer</h1>
+    <p class="page-subtitle">Stay focused with the Pomodoro technique or set custom time</p>
+
+    <!-- Limit Info Box -->
+    <div class="limit-info" style="background: #E34234; border-left: 4px solid #ff8175; padding: 0.8rem 1rem; max-width: 500px; margin: 1rem auto; border-radius: 8px; text-align: left; font-size: 0.8rem; color: #ffffff;">
+        <i class="fas fa-info-circle"></i> <strong>Features:</strong> Pomodoro Technique | Custom Timer | Session Tracking | Sound Alerts | Motivational Quotes
+    </div>
+
+    <div class="timer-container">
+        <div class="timer-label" id="modeLabel">Study Time</div>
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        
+        <!-- Custom Time Section -->
+        <div class="custom-time-section">
+            <div class="custom-time-title"><i class="fas fa-clock"></i> Set Custom Time</div>
+            <div class="custom-time-inputs">
+                <div class="time-input-group">
+                    <label>Hours</label>
+                    <input type="number" id="customHours" min="0" max="23" value="0" step="1">
+                </div>
+                <div class="time-input-group">
+                    <label>Minutes</label>
+                    <input type="number" id="customMinutes" min="0" max="59" value="0" step="1">
+                </div>
+                <div class="time-input-group">
+                    <label>Seconds</label>
+                    <input type="number" id="customSeconds" min="0" max="59" value="5" step="5">
+                </div>
+                <button class="apply-custom-btn" id="applyCustomBtn">Apply Custom Time</button>
+            </div>
+        </div>
+
+        <div class="mode-buttons">
+            <button class="mode-btn" data-mode="study" data-time="25">Study (25 min)</button>
+            <button class="mode-btn" data-mode="shortBreak" data-time="5">Short Break (5 min)</button>
+            <button class="mode-btn" data-mode="longBreak" data-time="15">Long Break (15 min)</button>
+            <button class="mode-btn" data-mode="custom">Custom</button>
+        </div>
+
+        <div class="control-buttons">
+            <button class="ctrl-btn" id="startBtn"><i class="fas fa-play"></i> Start</button>
+            <button class="ctrl-btn" id="pauseBtn"><i class="fas fa-pause"></i> Pause</button>
+            <button class="ctrl-btn reset-btn" id="resetBtn"><i class="fas fa-redo-alt"></i> Reset</button>
+        </div>
+
+        <div class="sessions-count">
+            <span>📚 Completed Study Sessions: <strong id="sessionCount">0</strong></span>
+            <button class="reset-sessions-btn" id="resetSessionsBtn"><i class="fas fa-trash-alt"></i> Reset Sessions</button>
+        </div>
+
+        <div class="quote-box" id="quoteBox">
+            <i class="fas fa-quote-left"></i> The secret of getting ahead is getting started.
+        </div>
+    </div>
+
+    <div class="info-box">
+        <h4><i class="fas fa-info-circle"></i> How to use:</h4>
+        <ul>
+            <li><i class="fas fa-check-circle"></i> Use preset modes: Study (25 min), Short Break (5 min), Long Break (15 min)</li>
+            <li><i class="fas fa-check-circle"></i> Set custom time using hours, minutes, and seconds</li>
+            <li><i class="fas fa-check-circle"></i> Click "Apply Custom Time" to set your own duration</li>
+            <li><i class="fas fa-check-circle"></i> Timer notifies you when time is up</li>
+            <li><i class="fas fa-check-circle"></i> Click "Reset Sessions" to clear completed session count</li>
+        </ul>
+    </div>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Study Timer: Master Your Focus with the Pomodoro Technique</h2>
+            <div class="seo-divider"></div>
+
+            <h3>What is the Study Timer?</h3>
+            <p>The Study Timer is a powerful focus tool based on the Pomodoro Technique. It helps you break work into manageable intervals (typically 25 minutes of focused study) followed by short breaks. This method improves concentration, reduces mental fatigue, and boosts productivity for students, professionals, and anyone looking to make the most of their study time.</p>
+
+            <h3>Proven Study Method: The Pomodoro Technique</h3>
+            <p>Developed by Francesco Cirillo, the Pomodoro Technique uses a timer to break down study sessions into intervals. After each 25-minute study sprint, you take a 5-minute break. After completing four study sessions, you reward yourself with a longer 15-minute break. This rhythm maintains high motivation and prevents burnout, making it one of the most effective time management methods for learners worldwide.</p>
+
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Exam Preparation:</strong> Structure study sessions for finals, midterms, or certification exams.</li>
+                <li><strong>Language Learning:</strong> Practice vocabulary, grammar, or listening skills in focused sprints.</li>
+                <li><strong>Writing Projects:</strong> Overcome writer's block by committing to 25 minutes of focused writing.</li>
+                <li><strong>Remote Work & Coding:</strong> Maintain deep focus and track productive hours effectively.</li>
+                <li><strong>Reading & Research:</strong> Process dense material without losing concentration.</li>
+            </ul>
+
+            <h3>How to Use the Study Timer</h3>
+            <ol>
+                <li>Choose a task you want to work on.</li>
+                <li>Select a preset mode: <strong>Study (25 min)</strong>, <strong>Short Break (5 min)</strong>, or <strong>Long Break (15 min)</strong>.</li>
+                <li>For complete flexibility, use the <strong>Custom Time</strong> section to set hours, minutes, and seconds.</li>
+                <li>Click <strong>Start</strong> to begin your focus session.</li>
+                <li>Work until the timer rings, then take a short break.</li>
+                <li>Each completed study session is automatically counted.</li>
+                <li>After 4 study sessions, reward yourself with a long break.</li>
+                <li>Use the <strong>Reset Sessions</strong> button to start a fresh study cycle.</li>
+            </ol>
+
+            <h3>Key Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">Pomodoro Technique</span>
+                <span class="benefit-tag">Custom Timer</span>
+                <span class="benefit-tag">Focus Tracking</span>
+                <span class="benefit-tag">Session Counter</span>
+                <span class="benefit-tag">Sound Alerts</span>
+                <span class="benefit-tag">Desktop Notifications</span>
+                <span class="benefit-tag">Motivational Quotes</span>
+                <span class="benefit-tag">100% Free</span>
+            </div>
+
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Study Timer</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What is the Pomodoro Technique and why is it effective?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">The Pomodoro Technique uses a timer to break work into intervals (traditionally 25 minutes), separated by short breaks. This method reduces the feeling of overwhelm, improves focus by limiting distractions, and maintains high energy levels throughout long study sessions.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do notifications and sound alerts work?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">When a timer completes, a soft beep plays, and a desktop notification appears (if you grant permission). This ensures you never miss the end of a focus session, even if you're working in another tab.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I set a completely custom timer duration?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! The custom time section lets you set any combination of hours, minutes, and seconds. Perfect for unconventional study blocks or specific timed exercises.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Are my study sessions saved between visits?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your completed study session count is saved locally in your browser. When you return, your total completed sessions will still be displayed. You can reset the count anytime using the 'Reset Sessions' button.</div>
+                </div>
+            </div>
+
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'flashcard_generator' %}" class="related-tool-link">Flashcard Generator</a>
+                <a href="{% url 'quiz_generator' %}" class="related-tool-link">Quiz Generator</a>
+                <a href="{% url 'study_timetable' %}" class="related-tool-link">Study Timetable</a>
+                <a href="{% url 'word_counter' %}" class="related-tool-link">Word Counter</a>
+            </div>
+
+            <div class="seo-footer">
+                Stay focused and track your study progress with EasyPDF. Free online tools for students and professionals.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the Pomodoro Technique and why is it effective?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Pomodoro Technique uses a timer to break work into intervals (traditionally 25 minutes), separated by short breaks. This method reduces the feeling of overwhelm, improves focus by limiting distractions, and maintains high energy levels throughout long study sessions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do notifications and sound alerts work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When a timer completes, a soft beep plays, and a desktop notification appears (if you grant permission). This ensures you never miss the end of a focus session, even if you're working in another tab."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I set a completely custom timer duration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! The custom time section lets you set any combination of hours, minutes, and seconds. Perfect for unconventional study blocks or specific timed exercises."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are my study sessions saved between visits?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your completed study session count is saved locally in your browser. When you return, your total completed sessions will still be displayed. You can reset the count anytime using the 'Reset Sessions' button."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    // Timer variables
+    let timeLeft = 25 * 60; // 25 minutes in seconds
+    let timerId = null;
+    let isRunning = false;
+    let currentMode = 'study';
+    let sessionCount = 0;
+    let customTimeInSeconds = 25 * 60;
+    let customTimeSet = false;
+    
+    // DOM elements
+    const timerDisplay = document.getElementById('timerDisplay');
+    const modeLabel = document.getElementById('modeLabel');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const sessionCountSpan = document.getElementById('sessionCount');
+    const resetSessionsBtn = document.getElementById('resetSessionsBtn');
+    const quoteBox = document.getElementById('quoteBox');
+    const customHours = document.getElementById('customHours');
+    const customMinutes = document.getElementById('customMinutes');
+    const customSeconds = document.getElementById('customSeconds');
+    const applyCustomBtn = document.getElementById('applyCustomBtn');
+    
+    // Quotes for motivation
+    const quotes = [
+        "The secret of getting ahead is getting started.",
+        "Don't watch the clock; do what it does. Keep going.",
+        "Success is the sum of small efforts, repeated day in and day out.",
+        "You don't have to be great to start, but you have to start to be great.",
+        "Study while others are sleeping; work while others are loafing.",
+        "The future depends on what you do today.",
+        "Small progress is still progress.",
+        "Believe you can and you're halfway there.",
+        "The only limit to our realization of tomorrow is our doubts of today.",
+        "Success is not final, failure is not fatal: it is the courage to continue that counts."
+    ];
+    
+    // Mode times in minutes
+    const modeTimes = {
+        study: 25,
+        shortBreak: 5,
+        longBreak: 15
+    };
+    
+    // Mode labels
+    const modeLabels = {
+        study: "Study Time",
+        shortBreak: "Short Break",
+        longBreak: "Long Break",
+        custom: "Custom Timer"
+    };
+    
+    function updateDisplay() {
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+        
+        if (hours > 0) {
+            timerDisplay.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    function updateQuote() {
+        const randomIndex = Math.floor(Math.random() * quotes.length);
+        quoteBox.innerHTML = `<i class="fas fa-quote-left"></i> ${quotes[randomIndex]}`;
+    }
+    
+    function playSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.frequency.value = 880;
+            gainNode.gain.value = 0.3;
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 1);
+            oscillator.stop(ctx.currentTime + 0.5);
+        } catch(e) {
+            console.log('Audio not supported');
+        }
+    }
+    
+    function showNotification(message) {
+        if (Notification.permission === 'granted') {
+            new Notification('EasyPDF Study Timer', { body: message });
+        } else if (Notification.permission !== 'denied') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    new Notification('EasyPDF Study Timer', { body: message });
+                }
+            });
+        }
+    }
+    
+    function incrementSessionCount() {
+        sessionCount++;
+        sessionCountSpan.textContent = sessionCount;
+        localStorage.setItem('studyTimerSessions', sessionCount);
+    }
+    
+    function resetSessionCount() {
+        sessionCount = 0;
+        sessionCountSpan.textContent = 0;
+        localStorage.setItem('studyTimerSessions', 0);
+        showNotification('Study sessions have been reset');
+    }
+    
+    function timerComplete() {
+        playSound();
+        
+        if (currentMode === 'study') {
+            incrementSessionCount();
+            showNotification(`Study session completed! Total: ${sessionCount + 1}`);
+            
+            if ((sessionCount + 1) % 4 === 0) {
+                switchMode('longBreak');
+            } else {
+                switchMode('shortBreak');
+            }
+        } else if (currentMode === 'custom' && customTimeSet) {
+            incrementSessionCount();
+            showNotification(`Custom session completed! Total: ${sessionCount + 1}`);
+            timeLeft = customTimeInSeconds;
+            updateDisplay();
+            if (isRunning) startTimer();
+        } else {
+            showNotification(`${modeLabel.textContent} completed!`);
+            switchMode('study');
+        }
+        
+        updateQuote();
+    }
+    
+    function startTimer() {
+        if (timerId) return;
+        
+        timerId = setInterval(() => {
+            if (timeLeft <= 1) {
+                clearInterval(timerId);
+                timerId = null;
+                isRunning = false;
+                timerComplete();
+            } else {
+                timeLeft--;
+                updateDisplay();
+            }
+        }, 1000);
+        isRunning = true;
+    }
+    
+    function pauseTimer() {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+            isRunning = false;
+        }
+    }
+    
+    function resetTimer() {
+        pauseTimer();
+        if (currentMode === 'custom' && customTimeSet) {
+            timeLeft = customTimeInSeconds;
+        } else {
+            timeLeft = modeTimes[currentMode] * 60;
+        }
+        updateDisplay();
+        isRunning = false;
+    }
+    
+    function switchMode(mode) {
+        currentMode = mode;
+        
+        if (mode === 'custom') {
+            modeLabel.textContent = modeLabels.custom;
+            if (customTimeSet) {
+                timeLeft = customTimeInSeconds;
+            } else {
+                timeLeft = 25 * 60;
+            }
+        } else {
+            modeLabel.textContent = modeLabels[mode];
+            timeLeft = modeTimes[mode] * 60;
+            customTimeSet = false;
+        }
+        
+        updateDisplay();
+        
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.mode === mode) {
+                btn.classList.add('active');
+            }
+        });
+        
+        if (isRunning) {
+            pauseTimer();
+            startTimer();
+        }
+    }
+    
+    function applyCustomTime() {
+        const hours = parseInt(customHours.value) || 0;
+        const minutes = parseInt(customMinutes.value) || 0;
+        const seconds = parseInt(customSeconds.value) || 0;
+        
+        const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+        
+        if (totalSeconds === 0) {
+            alert('Please set a time greater than 0');
+            return;
+        }
+        
+        customTimeInSeconds = totalSeconds;
+        customTimeSet = true;
+        currentMode = 'custom';
+        timeLeft = customTimeInSeconds;
+        modeLabel.textContent = modeLabels.custom;
+        updateDisplay();
+        
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.mode === 'custom') {
+                btn.classList.add('active');
+            }
+        });
+        
+        if (isRunning) {
+            pauseTimer();
+            startTimer();
+        }
+        
+        applyCustomBtn.style.backgroundColor = '#00c851';
+        setTimeout(() => {
+            applyCustomBtn.style.backgroundColor = 'var(--pdf-red)';
+        }, 500);
+    }
+    
+    function loadSessionCount() {
+        const saved = localStorage.getItem('studyTimerSessions');
+        if (saved !== null) {
+            sessionCount = parseInt(saved);
+            sessionCountSpan.textContent = sessionCount;
+        }
+    }
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+    
+    // Event listeners
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    applyCustomBtn.addEventListener('click', applyCustomTime);
+    resetSessionsBtn.addEventListener('click', resetSessionCount);
+    
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            switchMode(mode);
+        });
+    });
+    
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    loadSessionCount();
+    updateDisplay();
+</script>
+
+</body>
+</html>

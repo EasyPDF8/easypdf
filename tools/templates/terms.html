@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .legal-container { max-width: 800px; margin: 0 auto; padding: 4rem 1rem; }
+        .legal-header { text-align: center; margin-bottom: 2rem; }
+        .legal-header h1 { font-size: 2rem; color: #E34234; }
+        .legal-content { line-height: 1.8; }
+        .legal-content h2 { margin-top: 1.5rem; color: #E34234; font-size: 1.3rem; }
+        .legal-content ul { margin: 1rem 0; padding-left: 2rem; }
+        .legal-content li { margin: 0.5rem 0; }
+        .feature-box {
+            background: linear-gradient(135deg, #fff5f4 0%, #ffe8e6 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .feature-box h3 { color: #E34234; margin-bottom: 1rem; }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .feature-item { text-align: center; padding: 0.5rem; }
+        .feature-item i { font-size: 1.5rem; color: #E34234; margin-bottom: 0.5rem; }
+        .limit-badge {
+            display: inline-block;
+            background: #E34234;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="legal-container">
+    <div class="legal-header">
+        <h1>Terms of Service</h1>
+        <p>Last Updated: April 2026</p>
+    </div>
+
+    <!-- Why Choose EasyPDF Section -->
+    <div class="feature-box">
+        <h3>Why Choose EasyPDF?</h3>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <p>100% Free for all users</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-user-check"></i>
+                <p>No registration required</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-trash-alt"></i>
+                <p>Files auto-delete after 5 minutes</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt"></i>
+                <p>Privacy-focused - we don't store your files</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-tools"></i>
+                <p>30+ powerful tools</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line"></i>
+                <p>300MB max file size</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-calendar-day"></i>
+                <p>100 files per day</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="legal-content">
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using EasyPDF (the "Service"), you agree to be bound by these Terms of Service. If you disagree with any part of these terms, please do not use our Service.</p>
+        
+        <h2>2. Service Description</h2>
+        <p>EasyPDF provides free online PDF and image processing tools. All features are completely free with no paid tiers or premium subscriptions. Our Service includes:</p>
+        <ul>
+            <li>PDF manipulation tools (merge, split, rotate, compress, protect)</li>
+            <li>Image editing tools (compress, resize, crop, rotate, flip, add border, grayscale)</li>
+            <li>Conversion tools (Word to PDF, PDF to Word, Excel to PDF, Text to PDF, bulk image to PDF)</li>
+            <li>Productivity tools (PDF reorganizer, study timetable, to-do list, word counter)</li>
+            <li>Exam and study tools (quiz generator, flashcard generator, study timer, grade calculator)</li>
+            <li>Security tools (add watermark, remove password, password strength checker, password generator)</li>
+        </ul>
+        
+        <h2>3. Usage Limits <span class="limit-badge">Fair Use Policy</span></h2>
+        <p>To ensure fair access for all users, we have implemented the following limits:</p>
+        <ul>
+            <li><strong>Maximum file size:</strong> 300MB per file</li>
+            <li><strong>Daily file limit:</strong> 100 files per IP address per day</li>
+            <li><strong>Rate limiting:</strong> 100 requests per hour</li>
+            <li><strong>Maximum pages:</strong> 500 pages for merge operations</li>
+            <li><strong>Maximum images per batch:</strong> 200 images for JPG to PDF conversion</li>
+        </ul>
+        <p>These limits apply to all users equally. No registration or payment is required to use our Service.</p>
+        
+        <h2>4. Acceptable Use Policy</h2>
+        <p>You agree NOT to use our Service for:</p>
+        <ul>
+            <li>Uploading illegal content or material that violates any laws</li>
+            <li>Uploading viruses, malware, or any malicious code</li>
+            <li>Uploading copyrighted material without permission</li>
+            <li>Attempting to bypass our rate limits or usage restrictions</li>
+            <li>Overloading our servers with automated requests</li>
+            <li>Processing files that contain harmful or offensive content</li>
+        </ul>
+        <p>We reserve the right to block IP addresses that violate these terms.</p>
+        
+        <h2>5. File Processing & Deletion</h2>
+        <ul>
+            <li>All uploaded files are automatically deleted within 5 minutes of processing</li>
+            <li>We do not permanently store any user files</li>
+            <li>We cannot recover files after they are deleted</li>
+            <li>Download links expire when files are deleted</li>
+            <li>Do not upload sensitive or irreplaceable files without keeping backups</li>
+        </ul>
+        
+        <h2>6. Intellectual Property</h2>
+        <p>EasyPDF and its original content, features, and functionality are owned by EasyPDF and are protected by copyright and other intellectual property laws. Our tools are provided for your use, but you retain all rights to your original files.</p>
+        
+        <h2>7. No Warranty & Limitation of Liability</h2>
+        <p>The Service is provided "AS IS" and "AS AVAILABLE" without any warranties of any kind. EasyPDF does not warrant that:</p>
+        <ul>
+            <li>The Service will be uninterrupted, timely, secure, or error-free</li>
+            <li>Results obtained from the Service will be accurate or reliable</li>
+            <li>Any errors in the Service will be corrected</li>
+        </ul>
+        <p>To the maximum extent permitted by law, EasyPDF shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the Service.</p>
+        
+        <h2>8. Indemnification</h2>
+        <p>You agree to indemnify and hold EasyPDF harmless from any claims, damages, losses, liabilities, costs, and expenses arising from your use of the Service or violation of these Terms.</p>
+        
+        <h2>9. Changes to Terms</h2>
+        <p>We reserve the right to modify or replace these Terms at any time. If a revision is material, we will try to provide notice before new terms take effect. By continuing to use the Service after revisions become effective, you agree to be bound by the revised terms.</p>
+        
+        <h2>10. Termination</h2>
+        <p>We may terminate or suspend your access to the Service immediately, without prior notice, for conduct that violates these Terms. Upon termination, your right to use the Service will cease immediately.</p>
+        
+        <h2>11. Governing Law</h2>
+        <p>These Terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law provisions.</p>
+        
+        <h2>12. Contact Information</h2>
+        <p>If you have any questions about these Terms, please contact us:</p>
+        <ul>
+            <li>Email: <a href="mailto:legal@easypdf.com">legal@easypdf.com</a></li>
+            <li>Through our <a href="{% url 'contact' %}">Contact Us</a> page</li>
+        </ul>
+    </div>
+    
+    <div class="last-updated" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; text-align: center;">
+        <p>EasyPDF is 100% free for everyone. No premium tiers, no hidden costs. Just powerful PDF and image tools.</p>
+        <p style="margin-top: 0.5rem;">© 2026 EasyPDF. All rights reserved.</p>
+    </div>
+</div>
+
+{% include 'includes/footer.html' %}
+</body>
+</html>

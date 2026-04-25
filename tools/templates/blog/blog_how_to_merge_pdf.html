@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Optimized Title -->
+    <title>How to Merge PDF Files: Complete Guide for Students & Professionals | EasyPDF</title>
+    
+    <!-- Meta Description - Critical for SEO -->
+    <meta name="description" content="Learn how to merge PDF files online for free. Step-by-step guide for combining multiple PDFs into one document. Perfect for assignments, reports, and business documents.">
+    
+    <!-- Meta Keywords -->
+    <meta name="keywords" content="merge PDF, combine PDF files, PDF merger, merge PDF online free, combine PDF documents, PDF tools for students">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    
+    <!-- Open Graph Tags for Social Media -->
+    <meta property="og:title" content="How to Merge PDF Files: Complete Guide for Students & Professionals">
+    <meta property="og:description" content="Learn how to merge PDF files online for free. Step-by-step guide for combining multiple PDFs into one document.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:site_name" content="EasyPDF">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="How to Merge PDF Files: Complete Guide">
+    <meta name="twitter:description" content="Learn how to merge PDF files online for free. Step-by-step guide.">
+    
+    <!-- Author -->
+    <meta name="author" content="EasyPDF Student Developer">
+    
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { background-color: #f5f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .blog-container { max-width: 900px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .blog-header { margin-bottom: 2rem; border-bottom: 2px solid #E34234; padding-bottom: 1rem; }
+        .blog-header h1 { font-size: 2.2rem; color: #1a1a2e; margin-bottom: 1rem; }
+        .blog-meta { color: #666; font-size: 0.85rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; }
+        .blog-meta i { color: #E34234; margin-right: 0.3rem; }
+        .blog-category { background: #fff5f4; color: #E34234; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-decoration: none; }
+        .blog-category:hover { background: #E34234; color: white; }
+        
+        /* Table of Contents */
+        .table-of-contents { background: #f5f7fb; padding: 1.2rem 1.5rem; border-radius: 12px; margin: 1.5rem 0; }
+        .table-of-contents h3 { font-size: 1rem; margin-bottom: 0.8rem; color: #E34234; }
+        .table-of-contents ul { margin: 0; padding-left: 1.2rem; }
+        .table-of-contents li { margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .table-of-contents a { color: #555; text-decoration: none; }
+        .table-of-contents a:hover { color: #E34234; }
+        
+        .blog-content { line-height: 1.8; color: #333; }
+        .blog-content h2 { color: #E34234; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; scroll-margin-top: 80px; }
+        .blog-content h3 { color: #1a1a2e; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .blog-content p { margin-bottom: 1rem; }
+        .blog-content ul, .blog-content ol { margin-bottom: 1rem; padding-left: 2rem; }
+        .blog-content li { margin-bottom: 0.5rem; }
+        .blog-content strong { color: #1a1a2e; }
+        
+        .tip-box { background: #fff5f4; border-left: 4px solid #E34234; padding: 1.2rem; margin: 1.5rem 0; border-radius: 8px; }
+        .warning-box { background: #fff8e1; border-left: 4px solid #ffc107; padding: 1rem; margin: 1.5rem 0; border-radius: 8px; }
+        
+        /* CTA Box */
+        .cta-box { background: linear-gradient(135deg, #E34234 0%, #B52D1F 100%); color: white; padding: 1.8rem; margin: 2rem 0; border-radius: 16px; text-align: center; }
+        .cta-box h3 { color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .cta-box p { margin-bottom: 1rem; opacity: 0.9; }
+        .cta-button { display: inline-block; background: white; color: #E34234; padding: 0.7rem 1.8rem; border-radius: 40px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+        .cta-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        
+        /* Related Posts */
+        .related-posts { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #eee; }
+        .related-posts h3 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .related-card { background: #f5f7fb; padding: 1rem; border-radius: 12px; text-decoration: none; transition: 0.2s; display: block; }
+        .related-card:hover { transform: translateY(-3px); background: #fff5f4; }
+        .related-card h4 { font-size: 0.9rem; color: #1a1a2e; margin-bottom: 0.3rem; }
+        .related-card p { font-size: 0.7rem; color: #666; }
+        
+        /* Author Box */
+        .author-box { background: #f5f7fb; padding: 1.2rem; border-radius: 12px; margin: 1.5rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .author-avatar { width: 50px; height: 50px; background: #E34234; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; }
+        .author-info h4 { margin: 0 0 0.2rem 0; color: #1a1a2e; }
+        .author-info p { margin: 0; font-size: 0.8rem; color: #666; }
+        
+        /* Share Buttons */
+        .share-buttons { display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; flex-wrap: wrap; }
+        .share-buttons span { font-weight: 600; color: #666; }
+        .share-buttons a { color: #666; text-decoration: none; transition: color 0.2s; }
+        .share-buttons a:hover { color: #E34234; }
+        
+        .back-button { display: inline-block; margin-top: 2rem; padding: 0.6rem 1.2rem; background: #E34234; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: 0.2s; }
+        .back-button:hover { background: #c53024; transform: translateY(-2px); }
+        
+        @media (max-width: 768px) { 
+            .blog-container { margin: 1rem; padding: 1.5rem; } 
+            .blog-header h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_home.html' %}
+
+<div class="blog-container">
+    <div class="blog-header">
+        <h1>How to Merge PDF Files: A Complete Guide for Students & Professionals</h1>
+        <div class="blog-meta">
+            <span><i class="fas fa-calendar-alt"></i> April 25, 2026</span>
+            <span><i class="fas fa-clock"></i> 6 min read</span>
+            <a href="{% url 'blog_list' %}?category=pdf" class="blog-category">PDF Tools</a>
+        </div>
+    </div>
+    
+    <!-- Table of Contents -->
+    <div class="table-of-contents">
+        <h3><i class="fas fa-list"></i> In this guide</h3>
+        <ul>
+            <li><a href="#why-merge-pdf">Why Merge PDF Files?</a></li>
+            <li><a href="#step-by-step">How to Merge PDFs Using EasyPDF (Step-by-Step)</a></li>
+            <li><a href="#tips">Tips for Better PDF Merging</a></li>
+            <li><a href="#common-issues">Common Issues and Solutions</a></li>
+            <li><a href="#faq">Frequently Asked Questions</a></li>
+        </ul>
+    </div>
+    
+    <div class="blog-content">
+        
+        <h2 id="why-merge-pdf">Why Merge PDF Files?</h2>
+        <p>Merging PDF files is one of the most common tasks when working with documents. Whether you're a student submitting a group project, a professional combining quarterly reports, or someone organizing scanned documents, knowing how to merge PDFs efficiently saves time and keeps your files organized.</p>
+        
+        <p><strong>Here are the most common reasons people need to merge PDFs:</strong></p>
+        <ul>
+            <li><strong>Students:</strong> Combine multiple assignment PDFs into one file before submission</li>
+            <li><strong>Professionals:</strong> Merge weekly or monthly reports into a single document</li>
+            <li><strong>Job Seekers:</strong> Create a single PDF application package with resume, cover letter, and portfolio</li>
+            <li><strong>Legal Documents:</strong> Organize court documents, contracts, and case files into one PDF</li>
+            <li><strong>Personal Use:</strong> Combine scanned receipts, medical reports, or travel documents</li>
+        </ul>
+        
+        <div class="tip-box">
+            <strong><i class="fas fa-lightbulb"></i> Pro Tip:</strong> For better organization, name your files with numbers (01_Introduction.pdf, 02_ChapterOne.pdf) before uploading so they appear in the correct order automatically.
+        </div>
+        
+        <h2 id="step-by-step">How to Merge PDFs Using EasyPDF (Step-by-Step)</h2>
+        
+        <h3>Step 1: Access the Merge PDF Tool</h3>
+        <p>Go to our <a href="{% url 'merge_pdf' %}" style="color: #E34234; font-weight: 600;">Merge PDF tool</a> from the homepage or the PDF Tools dropdown menu. The tool is completely free and requires no registration.</p>
+        
+        <h3>Step 2: Upload Your Files</h3>
+        <p>Click the upload area or drag and drop your PDF files. You can upload up to <strong>100 files at once</strong> with a <strong>maximum file size of 300MB per file</strong>.</p>
+        
+        <h3>Step 3: Arrange the Order</h3>
+        <p>Once uploaded, you can drag and drop files to rearrange the order. The file at the top will become the first page of your merged PDF.</p>
+        
+        <h3>Step 4: Merge and Download</h3>
+        <p>Click the "Merge PDF Now" button. Within seconds, your merged PDF will be ready for download. <strong>Your files are automatically deleted from our servers after 5 minutes</strong> for your privacy and security.</p>
+        
+        <div class="warning-box">
+            <strong><i class="fas fa-shield-alt"></i> Privacy Note:</strong> EasyPDF never stores your files permanently. All uploads are automatically deleted within 5 minutes of processing.
+        </div>
+        
+        <h2 id="tips">Tips for Better PDF Merging</h2>
+        <ul>
+            <li><strong>Check file sizes:</strong> Free plan allows up to 300MB per file. If your PDF is larger, try our <a href="{% url 'compress_page' %}" style="color: #E34234;">image compression tool</a> first.</li>
+            <li><strong>Preview before merging:</strong> Make sure all pages are in the correct orientation. Use our <a href="{% url 'rotate_pdf' %}" style="color: #E34234;">Rotate PDF tool</a> if needed.</li>
+            <li><strong>Add page numbers:</strong> After merging, use our <a href="{% url 'add_page_numbers' %}" style="color: #E34234;">Add Page Numbers tool</a> for professional documents.</li>
+            <li><strong>Remove unwanted pages:</strong> Use our <a href="{% url 'remove_pages' %}" style="color: #E34234;">Remove Pages tool</a> before merging to clean up your documents.</li>
+            <li><strong>Protect sensitive documents:</strong> After merging, add password protection with our <a href="{% url 'protect_pdf' %}" style="color: #E34234;">Protect PDF tool</a>.</li>
+        </ul>
+        
+        <h2 id="common-issues">Common Issues and Solutions</h2>
+        
+        <p><strong> Issue:</strong> Files are merging in wrong order.<br>
+        <strong> Solution:</strong> Use the drag-and-drop feature to reorder files before clicking merge. You can also rename files with numbers (01, 02, 03) before uploading.</p>
+        
+        <p><strong> Issue:</strong> Merged file is too large to email.<br>
+        <strong> Solution:</strong> If your PDF contains many images, compress them first using our <a href="{% url 'compress_page' %}" style="color: #E34234;">Compress Images tool</a>. You can also split the PDF into smaller parts using our <a href="{% url 'split_pdf' %}" style="color: #E34234;">Split PDF tool</a>.</p>
+        
+        <p><strong> Issue:</strong> Some pages appear upside down or sideways.<br>
+        <strong> Solution:</strong> Before merging, use our <a href="{% url 'rotate_pdf' %}" style="color: #E34234;">Rotate PDF tool</a> to fix page orientation. You can rotate individual pages or entire documents.</p>
+        
+        <p><strong> Issue:</strong> PDF is password protected.<br>
+        <strong> Solution:</strong> You need the password to open the file. If you have it, use our <a href="{% url 'remove_password' %}" style="color: #E34234;">Remove Password tool</a> first, then merge.</p>
+        
+        <h2 id="faq">Frequently Asked Questions</h2>
+        
+        <p><strong>How many files can I merge at once?</strong><br>
+        You can merge up to <strong>100 PDF files</strong> at once with our free service. This is perfect for merging multiple chapters, receipts, or scanned documents.</p>
+        
+        <p><strong>What is the maximum file size?</strong><br>
+        Each individual PDF file can be up to <strong>300MB</strong>. There's no limit on the total merged file size (though very large files may take longer to download).</p>
+        
+        <p><strong>Will my files be kept private?</strong><br>
+        Absolutely. All files are <strong>automatically deleted from our servers within 5 minutes</strong> of processing. We never store, share, or access your documents permanently.</p>
+        
+        <p><strong>Do I need to create an account?</strong><br>
+        No! EasyPDF is <strong>completely free and requires no registration</strong>. No email, no signup, no credit card. Just upload, merge, and download.</p>
+        
+        <p><strong>Can I merge PDFs on mobile?</strong><br>
+        Yes! Our website is fully responsive and works on smartphones, tablets, and computers. The merge process works the same on all devices.</p>
+        
+        <p><strong>What file formats can I merge?</strong><br>
+        Currently, EasyPDF supports <strong>PDF files only</strong> for merging. For images, use our <a href="{% url 'jpg_to_pdf' %}" style="color: #E34234;">JPG to PDF tool</a> first to convert images to PDF, then merge them.</p>
+        
+        <p><strong>Is there a watermark on merged PDFs?</strong><br>
+        <strong>No watermark, ever!</strong> All EasyPDF tools are completely free and add no watermarks to your documents.</p>
+        
+        <h2>Ready to Merge Your PDFs?</h2>
+        <p>Now that you know how to merge PDF files, try it yourself. It's free, fast, and secure.</p>
+    </div>
+    
+    <!-- Call to Action Box -->
+    <div class="cta-box">
+        <h3><i class="fas fa-rocket"></i> Ready to merge your PDFs?</h3>
+        <p>Try our free Merge PDF tool right now. No registration, no watermark, completely free.</p>
+        <a href="{% url 'merge_pdf' %}" class="cta-button">Merge PDF Files Now →</a>
+    </div>
+    
+    <!-- Author Box -->
+    <div class="author-box">
+        <div class="author-avatar">
+            <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="author-info">
+            <h4>Written by EasyPDF Student Developer</h4>
+            <p>A student developer passionate about creating free tools to help fellow students with PDFs and document management.</p>
+        </div>
+    </div>
+    
+    <!-- Related Posts -->
+    <div class="related-posts">
+        <h3><i class="fas fa-link"></i> You might also like</h3>
+        <div class="related-grid">
+            <a href="{% url 'blog_rotate_pdf' %}" class="related-card">
+                <h4>How to Rotate PDF Pages</h4>
+                <p>Fix page orientation in your PDF documents permanently.</p>
+            </a>
+            <a href="{% url 'blog_pdf_to_word' %}" class="related-card">
+                <h4>Convert PDF to Word Without Losing Formatting</h4>
+                <p>Step-by-step guide to editable Word documents.</p>
+            </a>
+            <a href="{% url 'blog_secure_pdf' %}" class="related-card">
+                <h4>How to Password Protect a PDF</h4>
+                <p>Keep your sensitive documents secure.</p>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <span><i class="fas fa-share-alt"></i> Share this guide:</span>
+        <a href="https://twitter.com/intent/tweet?text=How%20to%20Merge%20PDF%20Files%20-%20Free%20Guide&url={{ request.build_absolute_uri|urlencode }}" target="_blank">
+            <i class="fab fa-twitter"></i> Twitter
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri|urlencode }}" target="_blank">
+            <i class="fab fa-facebook"></i> Facebook
+        </a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri|urlencode }}&title=How%20to%20Merge%20PDF%20Files" target="_blank">
+            <i class="fab fa-linkedin"></i> LinkedIn
+        </a>
+        <a href="mailto:?subject=How%20to%20Merge%20PDF%20Files&body={{ request.build_absolute_uri|urlencode }}">
+            <i class="fas fa-envelope"></i> Email
+        </a>
+    </div>
+    
+    <a href="{% url 'blog_list' %}" class="back-button"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+</div>
+
+{% include 'includes/footer.html' %}
+
+<!-- BlogPosting Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How to Merge PDF Files: Complete Guide for Students & Professionals",
+  "description": "Learn how to merge PDF files online for free. Step-by-step guide for combining multiple PDFs into one document. Perfect for assignments and reports.",
+  "datePublished": "2026-04-25",
+  "dateModified": "2026-04-25",
+  "author": {
+    "@type": "Person",
+    "name": "EasyPDF Student Developer"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "EasyPDF",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}"
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.build_absolute_uri }}"
+  }
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    // Smooth scroll for table of contents
+    document.querySelectorAll('.table-of-contents a').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>

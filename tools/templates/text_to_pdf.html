@@ -1,0 +1,792 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to PDF - Convert TXT to PDF Online Free | EasyPDF</title>
+    <meta name="description" content="Free online Text to PDF converter. Convert TXT files or paste text directly to PDF format. Preserves formatting and line breaks. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-name {
+            text-align: center;
+            margin: 0.5rem auto;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+        }
+
+        .textarea-container {
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: left;
+        }
+
+        .textarea-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .textarea-container textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 150px;
+            transition: 0.2s;
+        }
+
+        .textarea-container textarea:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .or-divider {
+            text-align: center;
+            margin: 1rem auto;
+            position: relative;
+            color: #999;
+        }
+
+        .or-divider:before,
+        .or-divider:after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .or-divider:before {
+            left: 0;
+        }
+
+        .or-divider:after {
+            right: 0;
+        }
+
+        .btn-convert {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+            display: none;
+            margin: 1rem auto;
+            width: 250px;
+        }
+
+        .btn-convert:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-convert:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .upload-area {
+                padding: 1.5rem;
+            }
+            .btn-convert {
+                width: 100%;
+                max-width: 250px;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Text to PDF</h1>
+    <p class="page-subtitle">Convert text files or paste text directly to PDF format. Preserves formatting and line breaks.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 50,000 characters max | 5MB text file size
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="uploadForm" action="{% url 'text_to_pdf' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- File Upload Option -->
+        <label for="textInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-file-alt"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3 style="margin-bottom: 0.25rem;">Select Text File</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop TXT file here</p>
+            <input type="file" name="text_file" id="textInput" accept=".txt" hidden>
+        </label>
+        
+        <div id="fileDisplay" class="file-name"></div>
+
+        <div class="or-divider">
+            <span>OR</span>
+        </div>
+
+        <!-- Text Paste Option -->
+        <div class="textarea-container">
+            <label>Paste your text here:</label>
+            <textarea name="text_content" id="textContent" placeholder="Paste or type your text here... (max 50,000 characters)"></textarea>
+        </div>
+        
+        <button type="submit" class="btn-convert" id="submitBtn">Convert to PDF</button>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Text to PDF Converter: TXT to PDF Online</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Text to PDF Conversion?</h3>
+            <p>Text to PDF conversion transforms your plain text files (TXT) or pasted text into professional PDF format. Our free online tool preserves line breaks, spacing, and basic formatting. Perfect for creating PDF documents from notes, scripts, or any text content.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Convert study notes and essays to PDF format</li>
+                <li><strong>Writers:</strong> Create PDF documents from plain text manuscripts</li>
+                <li><strong>Business:</strong> Convert text reports to professional PDF documents</li>
+                <li><strong>Developers:</strong> Convert code snippets and logs to shareable PDF</li>
+            </ul>
+            
+            <h3>How to Convert Text to PDF</h3>
+            <ol>
+                <li>Upload a TXT file OR paste your text directly into the text area</li>
+                <li>Click the "Convert to PDF" button</li>
+                <li>Wait for the conversion to complete</li>
+                <li>Download your PDF file instantly</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Two Input Methods</span>
+                <span class="benefit-tag">Preserves Formatting</span>
+                <span class="benefit-tag">Secure & Private</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">50K Characters</span>
+                <span class="benefit-tag">5MB Limit</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Text to PDF</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I convert text by pasting instead of uploading?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! You can either upload a TXT file or paste your text directly into the text area. Choose whichever method is more convenient.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Will my formatting be preserved?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! We preserve line breaks, spacing, and paragraph structure. Basic text formatting like spaces and line breaks are maintained in the PDF.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a character limit for pasted text?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, pasted text cannot exceed 50,000 characters. For larger documents, please upload a TXT file (up to 5MB).</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded text?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your text is automatically deleted from our servers within 5 minutes after conversion. We never store or access your content permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'word_to_pdf' %}" class="related-tool-link">Word to PDF</a>
+                <a href="{% url 'pdf_to_text' %}" class="related-tool-link">PDF to Text</a>
+                <a href="{% url 'pdf_to_word' %}" class="related-tool-link">PDF to Word</a>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online document tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Converting text to PDF...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I convert text by pasting instead of uploading?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! You can either upload a TXT file or paste your text directly into the text area. Choose whichever method is more convenient."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will my formatting be preserved?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! We preserve line breaks, spacing, and paragraph structure. Basic text formatting like spaces and line breaks are maintained in the PDF."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a character limit for pasted text?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, pasted text cannot exceed 50,000 characters. For larger documents, please upload a TXT file (up to 5MB)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded text?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your text is automatically deleted from our servers within 5 minutes after conversion. We never store or access your content permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    const input = document.getElementById('textInput');
+    const dropZone = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const form = document.getElementById('uploadForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    const textContent = document.getElementById('textContent');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const MAX_CHARS = 50000;
+    const MAX_FILE_SIZE_MB = 5;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function validateTextContent(text) {
+        errorMessage.style.display = 'none';
+        
+        if (text.length > MAX_CHARS) {
+            errorMessage.innerHTML = `❌ Text exceeds ${MAX_CHARS.toLocaleString()} character limit (${text.length.toLocaleString()} characters). Please shorten your text or upload a TXT file.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        return true;
+    }
+
+    function validateFile(file) {
+        errorMessage.style.display = 'none';
+        
+        // Check file type
+        if (!file.name.endsWith('.txt')) {
+            errorMessage.innerHTML = `❌ "${file.name}" is not a TXT file. Please upload a plain text file.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        // Check file size
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            errorMessage.innerHTML = `❌ "${file.name}" is too large (${sizeMB.toFixed(2)}MB). Max ${MAX_FILE_SIZE_MB}MB allowed.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        return true;
+    }
+
+    function checkForm() {
+        const hasFile = input.files.length > 0 && input.files[0];
+        const hasText = textContent.value.trim() !== '';
+        
+        if (hasFile || hasText) {
+            if (hasText && !validateTextContent(textContent.value)) {
+                submitBtn.style.display = 'none';
+                return;
+            }
+            if (hasFile && !validateFile(input.files[0])) {
+                submitBtn.style.display = 'none';
+                return;
+            }
+            submitBtn.style.display = 'block';
+        } else {
+            submitBtn.style.display = 'none';
+        }
+    }
+
+    input.addEventListener('change', function() {
+        if (this.files.length > 0 && this.files[0]) {
+            const isValid = validateFile(this.files[0]);
+            if (isValid) {
+                fileDisplay.innerHTML = '<i class="fas fa-file-alt"></i> ' + this.files[0].name;
+                textContent.value = ''; // Clear textarea when file is selected
+                errorMessage.style.display = 'none';
+            } else {
+                fileDisplay.innerHTML = '';
+                this.value = '';
+            }
+        } else {
+            fileDisplay.innerHTML = '';
+        }
+        checkForm();
+    });
+
+    textContent.addEventListener('input', function() {
+        const text = this.value;
+        
+        if (text.trim() !== '') {
+            if (validateTextContent(text)) {
+                // Clear file input when text is pasted
+                input.value = '';
+                fileDisplay.innerHTML = '';
+                errorMessage.style.display = 'none';
+            }
+        }
+        checkForm();
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0]) {
+            const isValid = validateFile(files[0]);
+            if (isValid) {
+                input.files = files;
+                fileDisplay.innerHTML = '<i class="fas fa-file-alt"></i> ' + files[0].name;
+                textContent.value = ''; // Clear textarea when file is dropped
+                errorMessage.style.display = 'none';
+                checkForm();
+            }
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        const hasFile = input.files.length > 0 && input.files[0];
+        const hasText = textContent.value.trim() !== '';
+        
+        if (!hasFile && !hasText) {
+            e.preventDefault();
+            errorMessage.innerHTML = '❌ Please upload a TXT file or paste some text.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+        
+        if (hasText && !validateTextContent(textContent.value)) {
+            e.preventDefault();
+            return;
+        }
+        
+        if (hasFile && !validateFile(input.files[0])) {
+            e.preventDefault();
+            return;
+        }
+        
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+    });
+
+    // Reset on page show
+    window.addEventListener('pageshow', function() {
+        submitBtn.disabled = false;
+        loadingOverlay.style.display = 'none';
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

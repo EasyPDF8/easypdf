@@ -1,0 +1,318 @@
+{% load static %}
+<nav class="navbar" style="border-bottom: 2px solid var(--accent); background: white;">
+    <a href="{% url 'home' %}" class="logo" style="color: var(--accent); font-weight: 900; font-size: 1.8rem; text-decoration: none;">EasyPDF</a>
+    
+    <div class="nav-links">
+        <!-- All Tools Mega Dropdown - Horizontal (SAME AS HOME PAGE) -->
+        <div class="nav-dropdown mega-dropdown">
+            <span class="dropdown-toggle" style="font-size: 0.85rem;">All Tools ▼</span>
+            <div class="mega-menu">
+                <div class="mega-menu-container">
+                    
+                    <!-- Column 1: PDF Tools -->
+                    <div class="mega-column">
+                        <h4>PDF Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'merge_pdf' %}">Merge PDF</a></li>
+                            <li><a href="{% url 'split_pdf' %}">Split PDF</a></li>
+                            <li><a href="{% url 'rotate_pdf' %}">Rotate PDF</a></li>
+                            <li><a href="{% url 'convert_to_jpg' %}">PDF to JPG</a></li>
+                            <li><a href="{% url 'jpg_to_pdf' %}">JPG to PDF</a></li>
+                            <li><a href="{% url 'protect_pdf' %}">Protect PDF</a></li>
+                            <li><a href="{% url 'remove_pages' %}">Remove Pages</a></li>
+                            <li><a href="{% url 'add_page_numbers' %}">Add Page Numbers</a></li>
+                            <li><a href="{% url 'remove_password' %}">Remove Password</a></li>
+                            <li><a href="{% url 'add_watermark' %}">Add Watermark</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Column 2: Image Tools -->
+                    <div class="mega-column">
+                        <h4>Image Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'compress_page' %}">Compress Images</a></li>
+                            <li><a href="{% url 'convert_image_format' %}">Convert Format</a></li>
+                            <li><a href="{% url 'resize_images' %}">Resize Images</a></li>
+                            <li><a href="{% url 'crop_images' %}">Crop Images</a></li>
+                            <li><a href="{% url 'rotate_images' %}">Rotate Images</a></li>
+                            <li><a href="{% url 'flip_images' %}">Flip Images</a></li>
+                            <li><a href="{% url 'add_border' %}">Add Border</a></li>
+                            <li><a href="{% url 'image_to_grayscale' %}">Image to Grayscale</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Column 3: Conversion Tools -->
+                    <div class="mega-column">
+                        <h4>Conversion Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'word_to_pdf' %}">Word to PDF</a></li>
+                            <li><a href="{% url 'pdf_to_word' %}">PDF to Word</a></li>
+                            <li><a href="{% url 'pdf_to_text' %}">PDF to Text</a></li>
+                            <li><a href="{% url 'excel_to_pdf' %}">Excel to PDF</a></li>
+                            <li><a href="{% url 'text_to_pdf' %}">Text to PDF</a></li>
+                            <li><a href="{% url 'bulk_image_to_pdf' %}">Bulk Image to PDF</a></li>
+                            <li><a href="{% url 'qr_code_generator' %}">QR Code Generator</a></li>
+                            <li><a href="{% url 'pdf_metadata' %}">PDF Metadata</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Column 4: Productivity Tools -->
+                    <div class="mega-column">
+                        <h4>Productivity Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'pdf_reorganizer' %}">PDF Page Reorganizer</a></li>
+                            <li><a href="{% url 'study_timetable' %}">Study Timetable</a></li>
+                            <li><a href="{% url 'todo_list' %}">To-Do List</a></li>
+                            <li><a href="{% url 'word_counter' %}">Word Counter</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Column 5: Study Tools -->
+                    <div class="mega-column">
+                        <h4>Study Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'quiz_generator' %}">Quiz Generator</a></li>
+                            <li><a href="{% url 'flashcard_generator' %}">Flashcard Generator</a></li>
+                            <li><a href="{% url 'study_timer' %}">Study Timer</a></li>
+                            <li><a href="{% url 'grade_calculator' %}">Grade Calculator</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Column 6: Security Tools -->
+                    <div class="mega-column">
+                        <h4>Security Tools</h4>
+                        <ul>
+                            <li><a href="{% url 'password_strength_checker' %}">Password Strength Checker</a></li>
+                            <li><a href="{% url 'password_generator' %}">Password Generator</a></li>
+                        </ul>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- About Us Link -->
+        <a href="{% url 'about' %}" class="nav-btn" style="font-size: 0.85rem; text-decoration: none; color: black; font-weight: 600;">About Us</a>
+
+        <!-- Blog Link -->
+        <a href="{% url 'blog_list' %}" class="nav-btn" style="font-size: 0.85rem; text-decoration: none; color: black; font-weight: 600;">Blog</a>
+
+        <!-- Contact Us Link -->
+        <a href="{% url 'contact' %}" class="nav-btn" style="font-size: 0.85rem; text-decoration: none; color: black; font-weight: 600;">Contact Us</a>
+    </div>
+
+    <!-- RIGHT SIDE NAVIGATION - Home and Back (NO ICONS) -->
+    <div class="nav-right" style="display: flex; gap: 2rem; align-items: center;">
+        <a href="{% url 'home' %}" class="nav-btn" style="color: black; text-decoration: none; font-weight: 600; padding: 0.5rem 0.8rem; transition: all 0.2s ease; border-radius: 6px; font-size: 0.85rem;">
+            Home
+        </a>
+        <a href="javascript:history.back()" class="nav-btn" style="color: black; text-decoration: none; font-weight: 600; padding: 0.5rem 0.8rem; transition: all 0.2s ease; border-radius: 6px; font-size: 0.85rem;">
+            Back
+        </a>
+    </div>
+</nav>
+
+<!-- STYLES FOR HOVER EFFECTS - EXACT SAME AS HOME PAGE -->
+<style>
+    .navbar {
+        border-bottom: 2px solid var(--accent);
+        background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 2rem;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 1000;
+    }
+    
+    .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .dropdown-toggle:hover {
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+    }
+    
+    .nav-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .nav-btn:hover {
+        color: var(--accent) !important;
+    }
+    
+    .nav-right .nav-btn:hover {
+        background: transparent !important;
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+    }
+    
+    .dropdown-toggle {
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    /* Mega Menu Styles - SAME AS HOME PAGE */
+    .mega-dropdown {
+        position: static;
+    }
+    
+    .mega-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 20px 35px -10px rgba(0,0,0,0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.25s ease;
+        z-index: 999;
+    }
+    
+    .mega-dropdown:hover .mega-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .mega-menu-container {
+        display: flex;
+        justify-content: space-between;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .mega-column {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .mega-column h4 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #f0f0f0;
+        letter-spacing: 0.5px;
+    }
+    
+    .mega-column ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .mega-column ul li {
+        margin-bottom: 0.5rem;
+    }
+    
+    .mega-column ul li a {
+        text-decoration: none;
+        color: #555;
+        font-size: 0.8rem;
+        transition: all 0.2s ease;
+        display: block;
+        padding: 0.2rem 0;
+    }
+    
+    .mega-column ul li a:hover {
+        color: var(--accent);
+        transform: translateX(3px);
+    }
+
+    @media (max-width: 1100px) {
+        .mega-menu-container {
+            flex-wrap: wrap;
+            padding: 1rem;
+        }
+        .mega-column {
+            min-width: 180px;
+        }
+        .nav-links {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .navbar {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .nav-right {
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .navbar {
+            padding: 0.8rem 1rem;
+        }
+        .nav-links {
+            gap: 0.8rem;
+        }
+        .dropdown-toggle, .nav-btn {
+            font-size: 0.75rem !important;
+        }
+        .mega-menu {
+            position: fixed;
+            top: auto;
+            left: 1rem;
+            right: 1rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .mega-menu-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        .mega-column {
+            min-width: auto;
+        }
+        .mega-dropdown .dropdown-toggle {
+            cursor: pointer;
+        }
+        .mega-dropdown.active .mega-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            display: block;
+        }
+    }
+</style>
+
+<!-- MOBILE DROPDOWN FIX SCRIPT -->
+<script nonce="{{ request.csp_nonce }}">
+    const dropdowns = document.querySelectorAll('.dropdown, .mega-dropdown');
+
+    dropdowns.forEach(drop => {
+        const toggle = drop.querySelector('.dropdown-toggle');
+
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdowns.forEach(d => {
+                    if (d !== drop) d.classList.remove('active');
+                });
+                drop.classList.toggle('active');
+            });
+        }
+    });
+
+    
+    document.addEventListener('click', () => {
+        dropdowns.forEach(d => d.classList.remove('active'));
+    });
+</script>

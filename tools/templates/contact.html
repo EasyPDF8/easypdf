@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EasyPDF</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .contact-container { max-width: 600px; margin: 0 auto; padding: 4rem 1rem; }
+        .contact-header { text-align: center; margin-bottom: 2rem; }
+        .contact-header h1 { font-size: 2.5rem; color: #E34234; }
+        .contact-header p { color: #666; }
+        .contact-form { background: #f8f9fa; padding: 2rem; border-radius: 20px; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333; }
+        .form-group input, .form-group textarea { 
+            width: 100%; 
+            padding: 0.8rem; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus { 
+            outline: none; 
+            border-color: #E34234; 
+        }
+        .btn-submit { 
+            background: #E34234; 
+            color: white; 
+            padding: 0.8rem 2rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            width: 100%; 
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #c53024; }
+        .contact-info { 
+            text-align: center; 
+            margin-top: 2rem; 
+            padding: 1.5rem; 
+            background: #f5f7fb; 
+            border-radius: 12px;
+        }
+        .contact-info p { margin: 0.5rem 0; }
+        .contact-info i { color: #E34234; width: 1.5rem; margin-right: 0.5rem; }
+        .messages { 
+            padding: 1rem; 
+            margin-bottom: 1rem; 
+            border-radius: 8px; 
+            text-align: center;
+        }
+        .messages.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .messages.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .quick-help {
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            border: 1px solid #eee;
+        }
+        .quick-help a { color: #E34234; text-decoration: none; }
+        .quick-help a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+{% include 'includes/nav_home.html' %}
+
+<div class="contact-container">
+    <div class="contact-header">
+        <h1>Contact Us</h1>
+        <p>Have questions? We'd love to hear from you</p>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="messages {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="contact-form">
+        <form method="POST" action="{% url 'contact_submit' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" name="name" required placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label>Your Email</label>
+                <input type="email" name="email" required placeholder="Enter your email address">
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" name="subject" required placeholder="What is this regarding?">
+            </div>
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="message" rows="5" required placeholder="Please describe your question or issue in detail..."></textarea>
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-paper-plane"></i> Send Message
+            </button>
+        </form>
+    </div>
+    
+    <div class="contact-info">
+        <p><i class="fas fa-envelope"></i> <strong>Email:</strong> easypdf8@gmail.com</p>
+        <p><i class="fas fa-clock"></i> <strong>Response Time:</strong> Within 24-48 hours</p>
+        <p><i class="fas fa-globe"></i> <strong>Free Service:</strong> No premium tiers, completely free</p>
+    </div>
+    
+    <div class="quick-help">
+        <p><i class="fas fa-question-circle"></i> <strong>Quick Help:</strong></p>
+        <p>• Check our <a href="{% url 'home' %}#faq">FAQ section</a> for common questions</p>
+        <p>• Read our <a href="{% url 'privacy_policy' %}">Privacy Policy</a> for data concerns</p>
+        <p>• Review our <a href="{% url 'terms' %}">Terms of Service</a> for usage guidelines</p>
+    </div>
+</div>
+{% include 'includes/footer.html' %}
+</body>
+</html>

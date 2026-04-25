@@ -1,0 +1,984 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to Grayscale - Convert Photos to Black & White Free | EasyPDF</title>
+    <meta name="description" content="Free online image to grayscale converter. Convert your photos to black and white instantly. Batch convert multiple images at once. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: #f9f9f9;
+            padding: 0.6rem 1rem;
+            margin: 0.4rem 0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+
+        .file-item i {
+            color: var(--pdf-red);
+            margin-right: 0.5rem;
+        }
+
+        .remove-file {
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .remove-file:hover {
+            color: #cc0000;
+        }
+
+        .preview-btn {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.2rem 0.8rem;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .preview-btn:hover {
+            background: var(--pdf-red-hover);
+        }
+
+        /* Preview Container */
+        .preview-container {
+            max-width: 500px;
+            margin: 1rem auto;
+            display: none;
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eee;
+        }
+
+        .preview-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .comparison-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .comparison-box {
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .comparison-box h4 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .image-preview {
+            background: #f5f7fb;
+            border-radius: 12px;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 150px;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+        }
+
+        .btn-convert {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            display: none;
+            margin: 0;
+        }
+
+        .btn-convert:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-convert:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .clear-btn {
+            background-color: #666;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: none;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .clear-btn:hover {
+            background-color: #555;
+        }
+
+        .file-count {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .upload-area {
+                padding: 1.5rem;
+            }
+            .comparison-container {
+                flex-direction: column;
+            }
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+                max-width: 250px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .btn-convert, .clear-btn {
+                width: 100%;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Image to Grayscale</h1>
+    <p class="page-subtitle">Convert your photos to black and white instantly. Perfect for vintage effects or artistic photography.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Max dimension 8000x8000px
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form action="{% url 'image_to_grayscale' %}" method="POST" enctype="multipart/form-data" id="grayscaleForm">
+        {% csrf_token %}
+        
+        <label for="imageInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-adjust"></i>
+            </div>
+            <h3 style="margin-bottom: 0.25rem;">Select Images</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop images here</p>
+            <input type="file" name="images" id="imageInput" multiple accept="image/jpeg,image/png,image/webp,image/bmp" hidden>
+        </label>
+
+        <div id="file-list" class="file-list"></div>
+        <div id="file-count" class="file-count"></div>
+
+        <!-- Live Preview -->
+        <div id="previewContainer" class="preview-container">
+            <div class="preview-title"><i class="fas fa-eye"></i> Live Preview</div>
+            <div class="comparison-container">
+                <div class="comparison-box">
+                    <h4>Original</h4>
+                    <div class="image-preview">
+                        <img id="originalPreview" src="" alt="Original">
+                    </div>
+                </div>
+                <div class="comparison-box">
+                    <h4>Grayscale</h4>
+                    <div class="image-preview">
+                        <img id="grayscalePreview" src="" alt="Grayscale">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button type="submit" class="btn-convert" id="submitBtn">Convert to Grayscale</button>
+            <button type="button" class="clear-btn" id="clearBtn">Clear All</button>
+        </div>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Image to Grayscale Converter: Black & White Photos</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Grayscale Conversion?</h3>
+            <p>Grayscale conversion transforms your color images into black and white by removing color information while preserving brightness and contrast. Our free online tool lets you convert multiple images to grayscale instantly with live preview. Perfect for vintage photography, artistic effects, or preparing images for printing.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Photography:</strong> Create classic black and white photographs with artistic appeal</li>
+                <li><strong>Printing:</strong> Prepare images for black and white printing or documents</li>
+                <li><strong>Vintage Effects:</strong> Give modern photos an old-fashioned look</li>
+                <li><strong>Design:</strong> Create monochrome images for logos or graphic design</li>
+            </ul>
+            
+            <h3>How to Convert Images to Grayscale</h3>
+            <ol>
+                <li>Upload your images using the button above (up to 20 images)</li>
+                <li>Click "Preview" on any image to see the grayscale effect</li>
+                <li>Compare original and grayscale versions side by side</li>
+                <li>Click "Convert to Grayscale" to apply to all images</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Instant Conversion</span>
+                <span class="benefit-tag">Live Preview</span>
+                <span class="benefit-tag">Batch Processing</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">20 Images Max</span>
+                <span class="benefit-tag">300MB Total</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Grayscale Conversion</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Does grayscale conversion affect image quality?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No, grayscale conversion preserves the original image quality. Only color information is removed while brightness, contrast, and detail remain intact.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I convert images back to color?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">No, once an image is converted to grayscale, the color information is permanently removed. We recommend keeping your original color images as backup.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How many images can I convert at once?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can convert up to 20 images in a single session. The total file size cannot exceed 300MB.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded images?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your images are automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'compress_page' %}" class="related-tool-link">Compress Images</a>
+                <a href="{% url 'resize_images' %}" class="related-tool-link">Resize Images</a>
+                <a href="{% url 'crop_images' %}" class="related-tool-link">Crop Images</a>
+                <a href="{% url 'rotate_images' %}" class="related-tool-link">Rotate Images</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online image tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Converting to grayscale...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does grayscale conversion affect image quality?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, grayscale conversion preserves the original image quality. Only color information is removed while brightness, contrast, and detail remain intact."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert images back to color?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, once an image is converted to grayscale, the color information is permanently removed. We recommend keeping your original color images as backup."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many images can I convert at once?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can convert up to 20 images in a single session. The total file size cannot exceed 300MB."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded images?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your images are automatically deleted from our servers within 5 minutes after processing. We never store or access your files permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+const fileInput = document.getElementById('imageInput');
+const dropZone = document.getElementById('drop-zone');
+const fileListDiv = document.getElementById('file-list');
+const fileCountDisplay = document.getElementById('file-count');
+const submitBtn = document.getElementById('submitBtn');
+const clearBtn = document.getElementById('clearBtn');
+const grayscaleForm = document.getElementById('grayscaleForm');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const errorMessage = document.getElementById('errorMessage');
+const previewContainer = document.getElementById('previewContainer');
+const originalPreview = document.getElementById('originalPreview');
+const grayscalePreview = document.getElementById('grayscalePreview');
+
+let selectedFiles = [];
+let currentImageUrl = null;
+
+const MAX_FILES = 20;
+const MAX_FILE_SIZE_MB = 30;
+const MAX_TOTAL_SIZE_MB = 300;
+const MAX_DIMENSION = 8000;
+
+// Clean FAQ Toggle
+const faqItems = document.querySelectorAll('.faq-item');
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    question.addEventListener('click', () => {
+        faqItems.forEach(other => {
+            if (other !== item) other.classList.remove('active');
+        });
+        item.classList.toggle('active');
+    });
+});
+
+function showError(msg) {
+    errorMessage.innerHTML = msg;
+    errorMessage.style.display = 'block';
+    setTimeout(() => {
+        errorMessage.style.display = 'none';
+    }, 4000);
+}
+
+function validateFiles(files) {
+    errorMessage.style.display = 'none';
+    
+    if (files.length === 0) {
+        showError('Please select at least one image.');
+        return false;
+    }
+    
+    if (files.length > MAX_FILES) {
+        showError(`Too many files: ${files.length} images selected. Maximum ${MAX_FILES} images allowed.`);
+        return false;
+    }
+    
+    let totalSize = 0;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
+    
+    for (let file of files) {
+        if (!allowedTypes.includes(file.type)) {
+            showError(`"${file.name}" is not a supported image format. Please upload JPG, PNG, WebP, or BMP.`);
+            return false;
+        }
+        
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            showError(`"${file.name}" exceeds ${MAX_FILE_SIZE_MB}MB per file limit.`);
+            return false;
+        }
+        totalSize += sizeMB;
+    }
+    
+    if (totalSize > MAX_TOTAL_SIZE_MB) {
+        showError(`Total size exceeds ${MAX_TOTAL_SIZE_MB}MB limit (${totalSize.toFixed(2)}MB total).`);
+        return false;
+    }
+    
+    return true;
+}
+
+// Helper to truncate long filenames
+String.prototype.trunc = function(n) {
+    return (this.length > n) ? this.substr(0, n-1) + '...' : this;
+};
+
+// Optimized Grayscale Preview using CSS filters + Canvas
+function fastPreviewGrayscale(imageElement, callback) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Scale down preview for performance if image is huge
+    const maxDim = 800;
+    let width = imageElement.width;
+    let height = imageElement.height;
+
+    if (width > maxDim || height > maxDim) {
+        if (width > height) {
+            height *= maxDim / width;
+            width = maxDim;
+        } else {
+            width *= maxDim / height;
+            height = maxDim;
+        }
+    }
+
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Use the browser's hardware acceleration for the grayscale effect
+    ctx.filter = 'grayscale(100%)';
+    ctx.drawImage(imageElement, 0, 0, width, height);
+    callback(canvas.toDataURL('image/jpeg', 0.7));
+}
+
+function updateFileList() {
+    fileListDiv.innerHTML = selectedFiles.length > 0 ? '<h4 style="margin-bottom: 0.5rem;">Selection:</h4>' : '';
+    
+    selectedFiles.forEach((file, index) => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+            <span><i class="fas fa-image"></i> ${file.name.trunc(25)}</span>
+            <div>
+                <button type="button" class="preview-btn" data-index="${index}">Preview</button>
+                <span class="remove-file" data-index="${index}"><i class="fas fa-trash"></i></span>
+            </div>
+        `;
+        fileListDiv.appendChild(fileItem);
+    });
+    
+    const totalSize = selectedFiles.length > 0 ? (selectedFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024)).toFixed(2) : 0;
+    fileCountDisplay.innerHTML = selectedFiles.length > 0 ? `${selectedFiles.length} file(s) selected (${totalSize}MB total)` : '';
+    const show = selectedFiles.length > 0 ? 'inline-block' : 'none';
+    submitBtn.style.display = show;
+    clearBtn.style.display = show;
+    
+    document.querySelectorAll('.preview-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            loadImageForPreview(parseInt(btn.dataset.index));
+        });
+    });
+    
+    document.querySelectorAll('.remove-file').forEach(el => {
+        el.addEventListener('click', () => {
+            const index = parseInt(el.dataset.index);
+            selectedFiles.splice(index, 1);
+            syncInput();
+            updateFileList();
+            if (selectedFiles.length === 0) previewContainer.style.display = 'none';
+            else if (selectedFiles.length > 0 && currentImageUrl === null) loadImageForPreview(0);
+        });
+    });
+}
+
+function syncInput() {
+    const dataTransfer = new DataTransfer();
+    selectedFiles.forEach(f => dataTransfer.items.add(f));
+    fileInput.files = dataTransfer.files;
+}
+
+function loadImageForPreview(index) {
+    if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+    
+    const file = selectedFiles[index];
+    if (!file) return;
+    
+    // Check individual file size
+    const sizeMB = file.size / (1024 * 1024);
+    if (sizeMB > MAX_FILE_SIZE_MB) {
+        showError(`"${file.name}" exceeds ${MAX_FILE_SIZE_MB}MB limit.`);
+        return;
+    }
+    
+    currentImageUrl = URL.createObjectURL(file);
+    
+    const img = new Image();
+    img.onload = function() {
+        // Check dimensions
+        if (img.width > MAX_DIMENSION || img.height > MAX_DIMENSION) {
+            showError(`"${file.name}" dimensions (${img.width}x${img.height}) exceed ${MAX_DIMENSION}x${MAX_DIMENSION}px limit.`);
+            return;
+        }
+        originalPreview.src = currentImageUrl;
+        fastPreviewGrayscale(img, (dataUrl) => {
+            grayscalePreview.src = dataUrl;
+            previewContainer.style.display = 'block';
+        });
+    };
+    img.onerror = function() {
+        showError(`Failed to load "${file.name}". File may be corrupted.`);
+    };
+    img.src = currentImageUrl;
+}
+
+fileInput.addEventListener('change', function() {
+    const files = Array.from(this.files);
+    if (files.length > 0) {
+        if (validateFiles(files)) {
+            selectedFiles = files;
+            updateFileList();
+            if (selectedFiles.length > 0) loadImageForPreview(0);
+        } else {
+            this.value = '';
+            selectedFiles = [];
+            updateFileList();
+        }
+    } else {
+        selectedFiles = [];
+        updateFileList();
+    }
+});
+
+clearBtn.addEventListener('click', () => {
+    selectedFiles = [];
+    fileInput.value = '';
+    if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
+    currentImageUrl = null;
+    previewContainer.style.display = 'none';
+    updateFileList();
+    errorMessage.style.display = 'none';
+});
+
+grayscaleForm.addEventListener('submit', (e) => {
+    if (selectedFiles.length === 0) {
+        e.preventDefault();
+        showError('Please select at least one image');
+        return;
+    }
+    submitBtn.disabled = true;
+    loadingOverlay.style.display = 'flex';
+});
+
+// Drag and drop
+['dragenter', 'dragover', 'dragleave', 'drop'].forEach(name => {
+    dropZone.addEventListener(name, e => e.preventDefault());
+});
+
+dropZone.addEventListener('dragenter', () => dropZone.classList.add('drag-over'));
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
+dropZone.addEventListener('drop', e => {
+    dropZone.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) {
+        if (validateFiles(files)) {
+            selectedFiles = files;
+            syncInput();
+            updateFileList();
+            loadImageForPreview(0);
+        }
+    }
+});
+
+// Reset on page show
+window.addEventListener('pageshow', function() {
+    submitBtn.disabled = false;
+    loadingOverlay.style.display = 'none';
+});
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

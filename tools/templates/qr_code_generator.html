@@ -1,0 +1,819 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Create Custom QR Codes Free | EasyPDF</title>
+    <meta name="description" content="Free online QR code generator. Create custom QR codes for URLs, text, email, phone numbers, WiFi, and vCard. Customizable colors. Download as PNG. No registration.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-msg {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            max-width: 500px;
+            margin: 1rem auto;
+            font-size: 0.85rem;
+            text-align: center;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .input-container {
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: left;
+        }
+
+        .input-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .input-container textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: 0.2s;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-container textarea:focus {
+            outline: none;
+            border-color: var(--pdf-red);
+        }
+
+        .color-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            max-width: 500px;
+            margin: 1rem auto;
+        }
+
+        .color-group {
+            flex: 1;
+            text-align: left;
+        }
+
+        .color-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            color: #333;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-group input[type="color"] {
+            width: 50px;
+            height: 42px;
+            padding: 0.2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .color-group input[type="text"] {
+            flex: 1;
+            padding: 0.6rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .preview-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
+
+        .preview-container h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .qr-image-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #fafafa;
+            border-radius: 16px;
+        }
+
+        .qr-image-wrapper img {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Medium Sized Buttons - Side by Side */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-direction: row;
+        }
+
+        .btn-download {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.65rem 1.3rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-download:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-new {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 0.65rem 1.3rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-new:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            width: 100%;
+            max-width: 250px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .btn-primary:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .color-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .button-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn-download, .btn-new {
+                width: 100%;
+                justify-content: center;
+                padding: 0.7rem 1rem;
+            }
+            .preview-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            .qr-image-wrapper img {
+                width: 150px;
+                height: 150px;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">QR Code Generator</h1>
+    <p class="page-subtitle">Generate custom QR codes for URLs, text, email, phone numbers, WiFi credentials, and contact information.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 500 characters max | Custom colors | PNG download
+    </div>
+
+    <div id="errorMessage" class="error-msg"></div>
+
+    {% if error %}
+    <div class="error-msg show">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'qr_code_generator' %}" id="qrForm">
+        {% csrf_token %}
+        
+        <div class="input-container">
+            <label>Enter text or URL:</label>
+            <textarea name="content" id="qrContent" placeholder="Enter text, URL, or any information you want to encode in QR code...">{{ content|default:'' }}</textarea>
+        </div>
+
+        <div class="color-row">
+            <div class="color-group">
+                <label>Foreground Color:</label>
+                <div class="color-input-wrapper">
+                    <input type="color" id="fillColor" value="{{ fill_color|default:'#000000' }}">
+                    <input type="text" name="fill_color" id="fillColorText" value="{{ fill_color|default:'#000000' }}" placeholder="#000000">
+                </div>
+            </div>
+            <div class="color-group">
+                <label>Background Color:</label>
+                <div class="color-input-wrapper">
+                    <input type="color" id="backColor" value="{{ back_color|default:'#FFFFFF' }}">
+                    <input type="text" name="back_color" id="backColorText" value="{{ back_color|default:'#FFFFFF' }}" placeholder="#FFFFFF">
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <button type="submit" class="btn-primary" id="generateBtn">
+                <i class="fas fa-qrcode"></i> Generate QR Code
+            </button>
+        </div>
+    </form>
+
+        {% if qr_image %}
+        <div class="preview-container">
+            <h3><i class="fas fa-qrcode"></i> Your QR Code</h3>
+        
+            <div class="qr-image-wrapper">
+                <img src="data:image/png;base64,{{ qr_image }}" alt="QR Code">
+            </div>
+        
+            <div class="button-group">
+                <a href="data:image/png;base64,{{ qr_image }}"
+                   download="easypdf_qrcode.png"
+                   class="btn-download">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            
+                <a href="{% url 'qr_code_generator' %}" class="btn-new">
+                    <i class="fas fa-plus"></i> New QR Code
+                </a>
+            </div>
+        </div>
+        
+    {% endif %}
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>QR Code Generator: Create Custom QR Codes Free</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is a QR Code Generator?</h3>
+            <p>A QR code generator creates Quick Response codes that can be scanned by smartphones to instantly access information. Our free online tool lets you create custom QR codes for URLs, text, email addresses, phone numbers, WiFi networks, and vCard contact information. Customize colors and download as PNG.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Business:</strong> Create QR codes for websites, menus, and product information</li>
+                <li><strong>Marketing:</strong> Generate QR codes for promotions, coupons, and landing pages</li>
+                <li><strong>Personal:</strong> Share contact information, WiFi credentials, or event details</li>
+                <li><strong>Education:</strong> Create QR codes for study materials and resource links</li>
+            </ul>
+            
+            <h3>How to Generate QR Codes</h3>
+            <ol>
+                <li>Enter your text, URL, or other information (up to 500 characters)</li>
+                <li>Customize foreground and background colors (optional)</li>
+                <li>Click "Generate QR Code" to create your QR code</li>
+                <li>Download your QR code as PNG image</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Custom Colors</span>
+                <span class="benefit-tag">PNG Download</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">500 Characters</span>
+                <span class="benefit-tag">Multiple Formats</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About QR Codes</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What can I encode in a QR code?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">You can encode URLs, plain text, email addresses, phone numbers, WiFi credentials, vCard contact information, SMS messages, and more.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Can I customize QR code colors?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! You can choose any foreground and background colors using our color picker. Dark foreground on light background works best for scanning.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a character limit?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, the content cannot exceed 500 characters. This ensures optimal QR code size and scannability.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        How do I scan a QR code?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Use your smartphone's camera. Most modern phones have built-in QR scanning. Just open your camera app and point it at the QR code.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'compress_page' %}" class="related-tool-link">Compress Images</a>
+                <a href="{% url 'convert_image_format' %}" class="related-tool-link">Convert Format</a>
+                <a href="{% url 'resize_images' %}" class="related-tool-link">Resize Images</a>
+            </div>
+            
+            <div class="seo-footer">
+                Your QR codes are generated instantly and not stored. EasyPDF - Free online QR code generator.
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What can I encode in a QR code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can encode URLs, plain text, email addresses, phone numbers, WiFi credentials, vCard contact information, SMS messages, and more."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I customize QR code colors?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! You can choose any foreground and background colors using our color picker. Dark foreground on light background works best for scanning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a character limit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the content cannot exceed 500 characters. This ensures optimal QR code size and scannability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I scan a QR code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use your smartphone's camera. Most modern phones have built-in QR scanning. Just open your camera app and point it at the QR code."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    // Sync color picker with text input - FIXED: Only text input has 'name' attribute
+    const fillColorPicker = document.getElementById('fillColor');
+    const fillColorText = document.getElementById('fillColorText');
+    const backColorPicker = document.getElementById('backColor');
+    const backColorText = document.getElementById('backColorText');
+
+    if (fillColorPicker && fillColorText) {
+        fillColorPicker.addEventListener('input', function() {
+            fillColorText.value = this.value.toUpperCase();
+        });
+        fillColorText.addEventListener('input', function() {
+            let value = this.value;
+            if (!value.startsWith('#')) value = '#' + value;
+            if (/^#[0-9A-F]{6}$/i.test(value)) {
+                fillColorPicker.value = value;
+            }
+        });
+    }
+
+    if (backColorPicker && backColorText) {
+        backColorPicker.addEventListener('input', function() {
+            backColorText.value = this.value.toUpperCase();
+        });
+        backColorText.addEventListener('input', function() {
+            let value = this.value;
+            if (!value.startsWith('#')) value = '#' + value;
+            if (/^#[0-9A-F]{6}$/i.test(value)) {
+                backColorPicker.value = value;
+            }
+        });
+    }
+
+    // Form validation
+    const qrForm = document.getElementById('qrForm');
+    const qrContent = document.getElementById('qrContent');
+    const generateBtn = document.getElementById('generateBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const MAX_CHARS = 500;
+
+    function showError(msg) {
+        errorMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + msg;
+        errorMessage.classList.add('show');
+        setTimeout(() => {
+            errorMessage.classList.remove('show');
+        }, 4000);
+    }
+
+    if (qrForm) {
+        qrForm.addEventListener('submit', function(e) {
+            const content = qrContent.value.trim();
+            
+            if (content === '') {
+                e.preventDefault();
+                showError('Please enter text or URL to generate QR code');
+                return;
+            }
+            
+            if (content.length > MAX_CHARS) {
+                e.preventDefault();
+                showError(`Content exceeds ${MAX_CHARS} character limit (${content.length} characters). Please shorten your text.`);
+                return;
+            }
+            
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Generating...';
+        });
+    }
+            // ===============================
+        // DOWNLOAD QR CODE
+        // ===============================
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', function () {
+            
+                // Find generated QR image
+                const qrImage = document.querySelector('#qrResult img');
+            
+                if (!qrImage) {
+                    showError('Generate QR code first');
+                    return;
+                }
+            
+                const link = document.createElement('a');
+                link.href = qrImage.src;
+                link.download = 'easypdf_qrcode.png';
+            
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-msg show" style="margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

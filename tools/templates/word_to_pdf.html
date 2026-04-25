@@ -1,0 +1,676 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word to PDF - Convert DOCX to PDF Online Free | EasyPDF</title>
+    <meta name="description" content="Free online Word to PDF converter. Convert DOCX files to PDF format instantly. Preserves formatting and layout. No registration, no watermark.">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --pdf-red: #E34234;
+            --pdf-red-hover: #C0362C;
+        }
+        
+        body { background-color: #ffffff; }
+
+        .page-wrapper {
+            text-align: center;
+            padding-top: clamp(3rem, 8vh, 5rem);
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .page-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: #1a1a2e;
+        }
+
+        .page-subtitle {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: clamp(0.9rem, 1.2vw, 1rem);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Limit Info Box - Brand Colors */
+        .limit-info {
+            background: #E34234;
+            border-left: 4px solid #ff8175;
+            padding: 0.8rem 1rem;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #ffffff;
+        }
+
+        .limit-info i {
+            margin-right: 0.5rem;
+            color: #ffffff;
+        }
+
+        .limit-info strong {
+            color: #ffffff;
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin: 1rem auto;
+            max-width: 500px;
+            font-size: 0.85rem;
+            display: none;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 2px solid #dddddd;
+            background: #f9f9f9;
+            border-radius: 20px;
+            padding: 2rem 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: block;
+            max-width: 500px;
+            margin: 1.5rem auto;
+            text-align: center;
+        }
+
+        .upload-area:hover {
+            border-color: var(--pdf-red);
+            background: #fffafa;
+        }
+
+        .upload-area.drag-over {
+            border-color: var(--pdf-red);
+            background: #fff1f2;
+            transform: scale(1.02);
+        }
+
+        .file-name {
+            text-align: center;
+            margin: 0.5rem auto;
+            font-weight: 600;
+            color: var(--pdf-red);
+            font-size: 0.9rem;
+        }
+
+        .btn-convert {
+            background: var(--pdf-red);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: 0.2s;
+            display: none;
+            margin: 1rem auto;
+            width: 250px;
+        }
+
+        .btn-convert:hover {
+            background: var(--pdf-red-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-convert:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading-ring {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--pdf-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* SEO Content Section */
+        .seo-section {
+            max-width: 1000px;
+            margin: 8rem auto 4rem auto;
+            padding: 0 1rem;
+        }
+
+        .seo-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #eeeeee;
+        }
+
+        .seo-card h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .seo-divider {
+            width: 60px;
+            height: 3px;
+            background: #E34234;
+            margin: 1rem auto 1.5rem auto;
+            border-radius: 2px;
+        }
+
+        .seo-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #E34234;
+            margin: 1.5rem 0 0.8rem 0;
+        }
+
+        .seo-card p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 0.8rem;
+        }
+
+        .seo-card ul {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .seo-card li {
+            margin: 0.6rem 0;
+            font-size: 0.9rem;
+            color: #555;
+            line-height: 1.5;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .seo-card li::before {
+            content: "▹";
+            color: #E34234;
+            position: absolute;
+            left: 0;
+        }
+
+        .seo-card ol {
+            margin: 0.5rem 0 1rem 0;
+            padding-left: 0;
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .seo-card ol li {
+            counter-increment: step;
+            padding-left: 1.8rem;
+            position: relative;
+        }
+
+        .seo-card ol li::before {
+            content: counter(step);
+            background: #E34234;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+            top: 2px;
+        }
+
+        .benefits-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1rem 0;
+            justify-content: center;
+        }
+
+        .benefit-tag {
+            background: #f5f5f5;
+            padding: 0.5rem 1.5rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #E34234;
+        }
+
+        /* Tool-Specific FAQ */
+        .faq-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-section h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #fafafa;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question i {
+            color: #E34234;
+            transition: transform 0.2s;
+        }
+
+        .faq-answer {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #eee;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .seo-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            text-align: center;
+            border-top: 1px solid #eee;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .related-tools {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .related-tool-link {
+            color: #E34234;
+            text-decoration: none;
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: #fef7f6;
+        }
+
+        .related-tool-link:hover {
+            background: #E34234;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .upload-area {
+                padding: 1.5rem;
+            }
+            .btn-convert {
+                width: 100%;
+                max-width: 250px;
+            }
+            .seo-card { padding: 1.5rem; }
+            .seo-card h2 { font-size: 1.3rem; }
+            .benefit-tag { padding: 0.4rem 1rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+
+{% include 'includes/nav_inner.html' %}
+
+<main class="page-wrapper">
+    <h1 class="page-title">Word to PDF</h1>
+    <p class="page-subtitle">Convert DOCX files to PDF format instantly. Preserves formatting, fonts, and layout.</p>
+
+    <!-- Limit Info Box - Brand Colors -->
+    <div class="limit-info">
+        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 100 pages per DOCX | 300MB max file size
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="uploadForm" action="{% url 'word_to_pdf' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <label for="docxInput" class="upload-area" id="drop-zone">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-file-word"></i> <i class="fas fa-arrow-right"></i> <i class="fas fa-file-pdf"></i>
+            </div>
+            <h3 style="margin-bottom: 0.25rem;">Select DOCX file</h3>
+            <p style="color: #666; font-size: 0.85rem;">or drag and drop DOCX here</p>
+            <input type="file" name="docx" id="docxInput" accept=".docx" hidden>
+        </label>
+        
+        <div id="fileDisplay" class="file-name"></div>
+        
+        <button type="submit" class="btn-convert" id="submitBtn">Convert to PDF</button>
+    </form>
+
+    <!-- SEO CONTENT SECTION -->
+    <div class="seo-section">
+        <div class="seo-card">
+            <h2>Word to PDF Converter: DOCX to PDF Online</h2>
+            <div class="seo-divider"></div>
+            
+            <h3>What is Word to PDF Conversion?</h3>
+            <p>Word to PDF conversion transforms your DOCX files into PDF format while preserving all formatting, fonts, images, and layout. Our free online tool ensures your documents look exactly as intended on any device. Perfect for sharing professional documents, resumes, reports, and contracts.</p>
+            
+            <h3>Common Use Cases</h3>
+            <ul>
+                <li><strong>Students:</strong> Convert assignments and essays to PDF for submission</li>
+                <li><strong>Job Seekers:</strong> Save resumes and cover letters as PDF for professional appearance</li>
+                <li><strong>Business:</strong> Convert contracts, proposals, and reports to secure PDF format</li>
+                <li><strong>Publishing:</strong> Prepare manuscripts for digital distribution</li>
+            </ul>
+            
+            <h3>How to Convert Word to PDF</h3>
+            <ol>
+                <li>Upload your DOCX file using the button above (up to 300MB)</li>
+                <li>Click the "Convert to PDF" button</li>
+                <li>Wait for the conversion to complete</li>
+                <li>Download your PDF file instantly</li>
+            </ol>
+            
+            <h3>Benefits</h3>
+            <div class="benefits-wrap">
+                <span class="benefit-tag">100% Free</span>
+                <span class="benefit-tag">Preserves Formatting</span>
+                <span class="benefit-tag">High Quality</span>
+                <span class="benefit-tag">Secure & Private</span>
+                <span class="benefit-tag">No Registration</span>
+                <span class="benefit-tag">100 Pages Max</span>
+                <span class="benefit-tag">300MB Limit</span>
+            </div>
+            
+            <!-- TOOL-SPECIFIC FAQ -->
+            <div class="faq-section">
+                <h3>Frequently Asked Questions About Word to PDF</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Will my formatting be preserved?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes! Our converter preserves fonts, images, tables, bullet points, and overall layout. Your PDF will look exactly like your original Word document.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What file formats are supported?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">We support DOCX files (Microsoft Word 2007 and later). For older DOC files, please convert them to DOCX first using Microsoft Word or Google Docs.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        Is there a page limit for conversion?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Yes, the DOCX file cannot exceed 100 pages. This ensures fast processing and stable performance for all users.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        What happens to my uploaded file?
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">Your file is automatically deleted from our servers within 5 minutes after conversion. We never store or access your documents permanently.</div>
+                </div>
+            </div>
+            
+            <!-- Internal Linking (No compress_pdf link) -->
+            <div class="related-tools">
+                <span style="color: #666; font-size: 0.85rem;">Related Tools:</span>
+                <a href="{% url 'pdf_to_word' %}" class="related-tool-link">PDF to Word</a>
+                <a href="{% url 'merge_pdf' %}" class="related-tool-link">Merge PDF</a>
+                <a href="{% url 'split_pdf' %}" class="related-tool-link">Split PDF</a>
+                <a href="{% url 'protect_pdf' %}" class="related-tool-link">Protect PDF</a>
+            </div>
+            
+            <div class="seo-footer">
+                Files are automatically deleted after 5 minutes. Your privacy is protected. EasyPDF - Free online document tools.
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-ring"></div>
+    <div class="loading-text">Converting Word to PDF...</div>
+</div>
+
+<!-- FAQ Schema Markup for Google Rich Results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will my formatting be preserved?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! Our converter preserves fonts, images, tables, bullet points, and overall layout. Your PDF will look exactly like your original Word document."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What file formats are supported?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We support DOCX files (Microsoft Word 2007 and later). For older DOC files, please convert them to DOCX first using Microsoft Word or Google Docs."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a page limit for conversion?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the DOCX file cannot exceed 100 pages. This ensures fast processing and stable performance for all users."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my uploaded file?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Your file is automatically deleted from our servers within 5 minutes after conversion. We never store or access your documents permanently."
+      }
+    }
+  ]
+}
+</script>
+
+<script nonce="{{ request.csp_nonce }}">
+    const input = document.getElementById('docxInput');
+    const dropZone = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('fileDisplay');
+    const form = document.getElementById('uploadForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const MAX_FILE_SIZE_MB = 300;
+
+    // Clean FAQ Toggle
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            faqItems.forEach(other => {
+                if (other !== item) other.classList.remove('active');
+            });
+            item.classList.toggle('active');
+        });
+    });
+
+    function validateFile(file) {
+        errorMessage.style.display = 'none';
+        
+        // Check file type
+        if (!file.name.endsWith('.docx')) {
+            errorMessage.innerHTML = `❌ "${file.name}" is not a DOCX file. Please upload a valid Word document.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        // Check file size
+        const sizeMB = file.size / (1024 * 1024);
+        if (sizeMB > MAX_FILE_SIZE_MB) {
+            errorMessage.innerHTML = `❌ "${file.name}" is too large (${sizeMB.toFixed(2)}MB). Max ${MAX_FILE_SIZE_MB}MB allowed.`;
+            errorMessage.style.display = 'block';
+            return false;
+        }
+        
+        return true;
+    }
+
+    function checkForm() {
+        if (input.files.length > 0 && input.files[0]) {
+            const isValid = validateFile(input.files[0]);
+            if (isValid) {
+                submitBtn.style.display = 'block';
+            } else {
+                submitBtn.style.display = 'none';
+            }
+        } else {
+            submitBtn.style.display = 'none';
+        }
+    }
+
+    input.addEventListener('change', function() {
+        if (this.files.length > 0 && this.files[0]) {
+            const isValid = validateFile(this.files[0]);
+            if (isValid) {
+                fileDisplay.innerHTML = '<i class="fas fa-file-word"></i> ' + this.files[0].name;
+                submitBtn.style.display = 'block';
+            } else {
+                fileDisplay.innerHTML = '';
+                submitBtn.style.display = 'none';
+            }
+        } else {
+            fileDisplay.innerHTML = '';
+            submitBtn.style.display = 'none';
+            errorMessage.style.display = 'none';
+        }
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0]) {
+            const isValid = validateFile(files[0]);
+            if (isValid) {
+                input.files = files;
+                fileDisplay.innerHTML = '<i class="fas fa-file-word"></i> ' + files[0].name;
+                submitBtn.style.display = 'block';
+            }
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        if (input.files.length === 0 || !input.files[0]) {
+            e.preventDefault();
+            errorMessage.innerHTML = '❌ Please select a DOCX file first.';
+            errorMessage.style.display = 'block';
+            return;
+        }
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+    });
+
+    // Reset on page show
+    window.addEventListener('pageshow', function() {
+        submitBtn.disabled = false;
+        loadingOverlay.style.display = 'none';
+    });
+</script>
+
+<!-- Django Messages Framework Support -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="display: block; margin-top: 1rem;">
+            <i class="fas fa-exclamation-triangle"></i> {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+</body>
+</html>

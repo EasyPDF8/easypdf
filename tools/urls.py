@@ -192,6 +192,8 @@ urlpatterns = [
     # DOWNLOAD
     # ===============================
     path('download/<str:filename>/', views.download_file, name='download_file'),
+
+    path("robots.txt", views.robots_txt, name="robots_txt"),
 ]
 
 if settings.DEBUG:

@@ -4228,3 +4228,14 @@ def blog_best_pdf_tools(request):
         'tool_name': 'Free PDF Tools',
     }
     return render(request, 'blog/blog_best_pdf_tools_for_students.html', context)
+
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "Sitemap: https://easypdf-dy1o.onrender.com/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")

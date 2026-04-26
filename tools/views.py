@@ -4150,20 +4150,20 @@ def blog_jpg_to_pdf(request):
     return render(request, 'blog/blog_how_to_jpg_to_pdf.html', context)
 
 
-def blog_protect_pdf(request):
-    context = {
-        'blog_title': 'How to Add Password Protection to PDF Files',
-        'meta_description': 'Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents and share encrypted PDFs safely.',
-        'blog_date': 'April 2026',
-        'blog_date_iso': '2026-04-25',
-        'read_time': 5,
-        'category': 'Security',
-        'category_slug': 'security',
-        'show_toc': True,
-        'tool_url': '/protect-pdf/',
-        'tool_name': 'Protect PDF Tool',
-    }
-    return render(request, 'blog/blog_how_to_protect_pdf.html', context)
+# def blog_protect_pdf(request):
+#     context = {
+#         'blog_title': 'How to Add Password Protection to PDF Files',
+#         'meta_description': 'Learn how to password protect PDF files for security. Step-by-step guide to add password protection to sensitive documents and share encrypted PDFs safely.',
+#         'blog_date': 'April 2026',
+#         'blog_date_iso': '2026-04-25',
+#         'read_time': 5,
+#         'category': 'Security',
+#         'category_slug': 'security',
+#         'show_toc': True,
+#         'tool_url': '/protect-pdf/',
+#         'tool_name': 'Protect PDF Tool',
+#     }
+#     return render(request, 'blog/blog_how_to_protect_pdf.html', context)
 
 
 def blog_remove_pages(request):

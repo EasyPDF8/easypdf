@@ -77,8 +77,10 @@ class StaticViewSitemap(Sitemap):
         ]
 
     def location(self, item):
-        return reverse(item)
-
+        try:
+            return reverse(item)
+        except:
+            return "/"
 
 class BlogSitemap(Sitemap):
     changefreq = "weekly"

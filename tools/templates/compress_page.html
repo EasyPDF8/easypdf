@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    {% include 'analytics.html' %}
     <title>Compress Images Online Free | Reduce Image Size by 90% | EasyPDF</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Compress images online for free with EasyPDF. Reduce JPG, PNG, WebP, and BMP file sizes by up to 90% instantly. No signup, no watermark, privacy-friendly tool.">
@@ -386,14 +387,48 @@
         <p class="subtitle">Reduce image file size while preserving quality. Supports JPG, PNG, WebP, and BMP formats.</p>
     </div>
 
-    <!-- Limit Info Box - Brand Colors -->
-    <div class="limit-info">
-        <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Up to 90% size reduction
+        <!-- Limit Info Box - Brand Colors -->
+        <div class="limit-info">
+            <i class="fas fa-info-circle"></i> <strong>Limits:</strong> 20 images max | 300MB total | Up to 90% size reduction
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div class="image-wrapper" id="imageWrapper">
+
+        {% if files and files|length > 0 %}
+
+            <div style="text-align:center; width:100%; padding:2rem 0;">
+
+                <div style="font-size: 4rem; color:#E34234; margin-bottom: 1rem;">
+                    <i class="fas fa-images"></i>
+                </div>
+            
+                <h3 style="font-weight:700;">
+                    {{ files|length }} Images Ready
+                </h3>
+            
+                <p style="color:#666; font-size:0.9rem;">
+                    Your images are ready for compression
+                </p>
+            
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>No images found to compress</p>
+                <a href="{% url 'compress_page' %}">Go back to upload images →</a>
+            </div>
+
+        {% endif %}
+
     </div>
-
-    <div id="errorMessage" class="error-message"></div>
-
-    <form id="uploadForm" action="{% url 'compress_preview' %}" method="POST" enctype="multipart/form-data">
+        <div class="total-size-info">
+            <i class="fas fa-chart-pie" style="margin-right:6px;color:#E34234;"></i>
+            Ready to compress <span>{{ files|length }} images</span>
+        </div>
+    <form id="uploadForm" action="{% url 'compress_images' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         
         <label for="imageInput" class="upload-area" id="drop-zone">
@@ -403,7 +438,7 @@
             <input type="file" name="images" id="imageInput" multiple required hidden accept="image/jpeg,image/png,image/webp,image/bmp">
         </label>
 
-        <div id="file-count" class="file-count"></div>
+        <div id="file-count" class="file-count" style="margin-top:1rem;"></div>
 
         <button type="submit" class="btn-compress" id="submitBtn">
             <i class="fas fa-compress"></i> Compress Images Now
@@ -558,116 +593,120 @@
     const MAX_FILES = 20;
     const MAX_TOTAL_SIZE_MB = 300;
 
-    // Clean FAQ Toggle
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        question.addEventListener('click', () => {
-            faqItems.forEach(other => {
-                if (other !== item) other.classList.remove('active');
+    /* ---------------- FAQ ---------------- */
+    document.querySelectorAll('.faq-item').forEach(item => {
+        item.querySelector('.faq-question').addEventListener('click', () => {
+            document.querySelectorAll('.faq-item').forEach(i => {
+                if (i !== item) i.classList.remove('active');
             });
             item.classList.toggle('active');
         });
     });
 
+    /* ---------------- VALIDATION ---------------- */
     function validateFiles(files) {
         errorMessage.style.display = 'none';
-        
-        if (files.length === 0) {
-            errorMessage.innerHTML = 'Please select at least one image.';
-            errorMessage.style.display = 'block';
+
+        if (!files.length) {
+            showError("Please select at least one image.");
             return false;
         }
-        
+
         if (files.length > MAX_FILES) {
-            errorMessage.innerHTML = `❌ Too many files: ${files.length} images selected. Maximum ${MAX_FILES} images allowed.`;
-            errorMessage.style.display = 'block';
+            showError(`Too many files. Max ${MAX_FILES} allowed.`);
             return false;
         }
-        
+
         let totalSize = 0;
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/bmp'];
-        
+
         for (let file of files) {
             if (!allowedTypes.includes(file.type)) {
-                errorMessage.innerHTML = `❌ "${file.name}" is not a supported image format. Please upload JPG, PNG, WebP, or BMP.`;
-                errorMessage.style.display = 'block';
+                showError(`"${file.name}" is not supported format.`);
                 return false;
             }
-            
-            const sizeMB = file.size / (1024 * 1024);
-            totalSize += sizeMB;
+            totalSize += file.size;
         }
-        
+
+        totalSize = totalSize / (1024 * 1024);
+
         if (totalSize > MAX_TOTAL_SIZE_MB) {
-            errorMessage.innerHTML = `❌ Total size exceeds ${MAX_TOTAL_SIZE_MB}MB limit (${totalSize.toFixed(2)}MB total). Please upload fewer or smaller images.`;
-            errorMessage.style.display = 'block';
+            showError(`Total size exceeds ${MAX_TOTAL_SIZE_MB}MB`);
             return false;
         }
-        
+
         return true;
     }
 
-    fileInput.addEventListener('change', function() {
-        const files = Array.from(this.files);
-        
-        if (files.length > 0) {
-            const isValid = validateFiles(files);
-            if (isValid) {
-                const totalSize = files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                fileCountDisplay.innerHTML = `<i class="fas fa-check-circle"></i> ${files.length} image(s) selected (${totalSize.toFixed(2)}MB total)`;
-                submitBtn.style.display = 'inline-block';
-            } else {
-                fileCountDisplay.innerHTML = '';
-                submitBtn.style.display = 'none';
-                this.value = '';
-            }
-        } else {
-            fileCountDisplay.innerHTML = '';
-            submitBtn.style.display = 'none';
-            errorMessage.style.display = 'none';
-        }
+    /* ---------------- ERROR UI ---------------- */
+    function showError(msg) {
+        errorMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${msg}`;
+        errorMessage.style.display = 'block';
+    }
+
+    /* ---------------- FILE CHANGE ---------------- */
+    fileInput.addEventListener('change', function () {
+        handleFiles(this.files);
     });
 
-    submitBtn.addEventListener('click', function(e) {
+    /* ---------------- HANDLE FILES ---------------- */
+    function handleFiles(files) {
+        const fileArray = Array.from(files);
+
+        if (!validateFiles(fileArray)) {
+            fileInput.value = "";
+            submitBtn.style.display = "none";
+            fileCountDisplay.innerHTML = "";
+            return;
+        }
+
+        const totalSize = fileArray.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+
+        fileCountDisplay.innerHTML = `
+            <i class="fas fa-check-circle"></i>
+            ${fileArray.length} image(s) selected • ${totalSize.toFixed(2)}MB
+        `;
+
+        submitBtn.style.display = "inline-block";
+    }
+
+    /* ---------------- SUBMIT ---------------- */
+    submitBtn.addEventListener('click', function (e) {
         e.preventDefault();
+
         submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.6';
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Compressing...`;
+
         loadingOverlay.style.display = 'flex';
+
         uploadForm.submit();
     });
 
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
+    /* ---------------- DRAG & DROP ---------------- */
+    ['dragenter', 'dragover'].forEach(event => {
+        dropZone.addEventListener(event, e => {
             e.preventDefault();
             dropZone.classList.add('drag-over');
         });
     });
 
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
+    ['dragleave', 'drop'].forEach(event => {
+        dropZone.addEventListener(event, e => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
         });
     });
 
-    dropZone.addEventListener('drop', (e) => {
-        const files = Array.from(e.dataTransfer.files);
-        if (files.length > 0) {
-            const isValid = validateFiles(files);
-            if (isValid) {
-                fileInput.files = e.dataTransfer.files;
-                const totalSize = files.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
-                fileCountDisplay.innerHTML = `<i class="fas fa-check-circle"></i> ${files.length} image(s) selected (${totalSize.toFixed(2)}MB total)`;
-                submitBtn.style.display = 'inline-block';
-            }
-        }
+    dropZone.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        fileInput.files = files;
+        handleFiles(files);
     });
 
-    // Reset on page show
-    window.addEventListener('pageshow', function() {
+    /* ---------------- RESET AFTER BACK ---------------- */
+    window.addEventListener('pageshow', () => {
         submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
+        submitBtn.innerHTML = `<i class="fas fa-compress"></i> Compress Images Now`;
         loadingOverlay.style.display = 'none';
     });
 </script>

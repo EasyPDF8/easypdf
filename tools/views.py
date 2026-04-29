@@ -1319,33 +1319,32 @@ def add_page_numbers_result(request):
 # ===============================
 # COMPRESS PAGE
 # ===============================
+@rate_limit('100/h')
 def compress_page(request):
+
     try:
         cleanup_old_files()
     except Exception as e:
         print("Cleanup failed:", e)
-    return render(request, 'compress_page.html')
 
-
-@rate_limit('100/h')
-def compress_preview(request):
+    # -----------------------------
+    # IF FILES ARE UPLOADED → SHOW SAME PAGE WITH PREVIEW
+    # -----------------------------
     if request.method == 'POST' and request.FILES.getlist('images'):
+
         images = request.FILES.getlist('images')
 
-        # File count validation
         is_valid, msg = validate_file_count(images)
         if not is_valid:
             messages.error(request, msg)
             return redirect('compress_page')
 
-        # Total size validation
         if not is_total_size_safe(images):
             messages.error(request, "Total upload size too large")
             return redirect('compress_page')
 
         total_size = sum(img.size for img in images)
 
-        # Usage check
         allowed, msg = check_limit(request, total_size)
         if not allowed:
             messages.error(request, msg)
@@ -1365,7 +1364,7 @@ def compress_preview(request):
             try:
                 image = Image.open(img)
                 image.verify()
-                img.seek(0)   # IMPORTANT FIX
+                img.seek(0)
             except:
                 continue
 
@@ -1384,12 +1383,15 @@ def compress_preview(request):
 
         update_usage(request, total_size, len(uploaded_files))
 
-        return render(request, 'compress_preview.html', {
+        # 🔥 RETURN SAME PAGE WITH PREVIEW DATA
+        return render(request, 'compress_page.html', {
             'files': uploaded_files,
             'MEDIA_URL': settings.MEDIA_URL
         })
 
-    return redirect('compress_page')
+    return render(request, 'compress_page.html')
+
+
 
 @rate_limit('100/h')
 def compress_images(request):

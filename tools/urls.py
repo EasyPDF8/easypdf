@@ -68,7 +68,6 @@ urlpatterns = [
     # ===============================
     # Compress Images
     path('compress-images/', views.compress_page, name='compress_page'),
-    path('compress-preview/', views.compress_preview, name='compress_preview'),
     path('compress-images-process/', views.compress_images, name='compress_images'),
     
     # Convert Image Format

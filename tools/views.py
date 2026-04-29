@@ -4232,7 +4232,6 @@ def blog_best_pdf_tools(request):
     return render(request, 'blog/blog_best_pdf_tools_for_students.html', context)
 
 
-
 def robots_txt(request):
     lines = [
         "User-agent: *",

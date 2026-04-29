@@ -70,7 +70,6 @@ class StaticViewSitemap(Sitemap):
             'blog_split_pdf',
             'blog_compress_pdf',
             'blog_jpg_to_pdf',
-            'blog_protect_pdf',
             'blog_remove_pages',
             'blog_add_page_numbers',
             'blog_resize_images',

@@ -4218,3 +4218,6 @@ def robots_txt(request):
         "Sitemap: https://easypdf-dy1o.onrender.com/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+def health_check(request):
+    return HttpResponse("OK")
